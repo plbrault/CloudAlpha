@@ -1,14 +1,19 @@
 from pyftpdlib.filesystems import AbstractedFS
 from pyftpdlib._compat import unicode, property
 from datetime import datetime
+import os
 
 class File():
     size = None
-    last_edit = None
+    created_time = None
+    modified_time = None
+    access_time = None    
     
-    def __init__(self, size, last_edit):
+    def __init__(self, size, created_time, modified_time, access_time):
         self.size = size
-        self.last_edit = last_edit
+        self.created_time = created_time
+        self.modified_time = modified_time
+        self.access_time = access_time
     
 class Directory():
     content = None
@@ -29,12 +34,12 @@ class FileSystem(AbstractedFS):
         dir1 = Directory()
         
         self.root_dir.content["dir1"] = dir1
-        self.root_dir.content["file4"] = File(1024, datetime(2014,1,1,10,33))
-        self.root_dir.content["file5"] = File(1024, datetime(2014,1,1,10,33))
+        self.root_dir.content["file4"] = File(1024, datetime(2014,1,1,10,33), datetime(2014,1,1,10,33), datetime(2014,1,1,10,33))
+        self.root_dir.content["file5"] = File(1024, datetime(2014,1,1,10,33), datetime(2014,1,1,10,33), datetime(2014,1,1,10,33))
         
-        dir1.content["file1"] = File(1024, datetime(2014,1,1,10,33))
-        dir1.content["file2"] = File(1024, datetime(2014,1,1,10,33))
-        dir1.content["file3"] = File(1024, datetime(2014,1,1,10,33))
+        dir1.content["file1"] = File(1024, datetime(2014,1,1,10,33), datetime(2014,1,1,10,33), datetime(2014,1,1,10,33))
+        dir1.content["file2"] = File(1024, datetime(2014,1,1,10,33), datetime(2014,1,1,10,33), datetime(2014,1,1,10,33))
+        dir1.content["file3"] = File(1024, datetime(2014,1,1,10,33), datetime(2014,1,1,10,33), datetime(2014,1,1,10,33))
         
         super(FileSystem, self).__init__("/", cmd_channel)
         self._cwd = self._root
@@ -130,7 +135,7 @@ class FileSystem(AbstractedFS):
     
     def stat(self, path):
         print("stat", path)
-        return super(FileSystem, self).stat(path)
+        return os.stat("C:\\")
     
     def lstat(self, path):
         print("lstat", path)
