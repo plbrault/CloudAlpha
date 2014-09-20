@@ -108,7 +108,7 @@ class FileSystem(AbstractedFS):
     
     def chdir(self, path):
         print("chdir", path)
-        return super(FileSystem, self).chdir(path)
+        self.cwd = path
     
     def mkdir(self, path):
         print("mkdir", path)
