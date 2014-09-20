@@ -133,9 +133,40 @@ class FileSystem(AbstractedFS):
         print("chmod", mode)
         return super(FileSystem, self).chmod(path, mode)
     
+    class StatResult():
+        st_mode = None
+        st_ino = 0
+        st_dev = 0
+        st_nlink = 1
+        st_uid = 0
+        st_gid = 0
+        st_size = None
+        st_atime = None
+        st_mtime = None
+        st_ctime = None
+        def __init__(self, mode, size, accessed_time, modified_time, created_time):
+            self.st_mode = mode
+            self.st_size = size
+            self.st_atime = accessed_time
+            self.st_mtime = modified_time
+            self.st_ctime = created_time
+        class Modes:
+            FILE = 33206
+            DIRECTORY = 16895    
+    
     def stat(self, path):
         print("stat", path)
-        return os.stat("C:\\")
+        path = self.ftpnorm(path)
+        levels = path.split("/")
+        cur = self.root_dir
+        for level in levels:
+            if level != '':
+                if level in cur.content:
+                    cur = cur.content[level]
+        mode = self.StatResult.Modes.FILE
+        if type(cur) == Directory:
+            mode = self.StatResult.Modes.DIRECTORY
+        return self.StatResult(mode, 0, 0, 0, 0)
     
     def lstat(self, path):
         print("lstat", path)
