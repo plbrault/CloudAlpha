@@ -79,6 +79,17 @@ class FileSystem(AbstractedFS):
     
     def ftp2fs(self, ftppath):
         print("ftp2fs", ftppath)
+        if ftppath == ".":
+            return self.cwd
+        if ftppath == "..":
+            res = ""
+            levels = self.cwd.split("/")
+            for level in levels[:-1]:
+                if level != "":
+                    res += "/" + level
+            if res == "":
+                res = "/"
+            return res
         return ftppath
     
     def fs2ftp(self, fspath):
