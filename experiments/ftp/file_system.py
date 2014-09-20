@@ -17,6 +17,7 @@ class File():
     
 class Directory():
     content = None
+    size = 0
     
     def __init__(self):
         self.content = {}
@@ -166,7 +167,7 @@ class FileSystem(AbstractedFS):
         mode = self.StatResult.Modes.FILE
         if type(cur) == Directory:
             mode = self.StatResult.Modes.DIRECTORY
-        return self.StatResult(mode, 0, 0, 0, 0)
+        return self.StatResult(mode, cur.size, 0, 0, 0)
     
     def lstat(self, path):
         print("lstat", path)
