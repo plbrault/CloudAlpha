@@ -3,25 +3,22 @@ from pyftpdlib._compat import unicode, property
 from datetime import datetime
 
 class File():
-    name = ""
-    size = 0
-    last_edit = datetime(2014,1,1)
+    size = None
+    last_edit = None
     
-    def __init__(self, name, size, last_edit):
-        self.name = name
+    def __init__(self, size, last_edit):
         self.size = size
         self.last_edit = last_edit
     
 class Directory():
-    name = ""
-    content = {}
+    content = None
     
-    def __init__(self, name):
-        self.name = name
+    def __init__(self):
+        self.content = {}
 
 class FileSystem(AbstractedFS):
 
-    root_dir = Directory("/")
+    root_dir = Directory()
     _root = "/"
     _cwd = "/"
     
@@ -29,13 +26,15 @@ class FileSystem(AbstractedFS):
     def __init__(self, root, cmd_channel):
         print("init", root, cmd_channel)
         
-        dir1 = Directory("dir1")
-        dir1.content["file1"] = File("file1", 1024, datetime(2014,1,1,10,33))
-        dir1.content["file2"] = File("file2", 1024, datetime(2014,1,1,10,33))
-        dir1.content["file3"] = File("file3", 1024, datetime(2014,1,1,10,33))
+        dir1 = Directory()
+        
         self.root_dir.content["dir1"] = dir1
-        self.root_dir.content["file4"] = File("file4", 1024, datetime(2014,1,1,10,33))
-        self.root_dir.content["file5"] = File("file5", 1024, datetime(2014,1,1,10,33))
+        self.root_dir.content["file4"] = File(1024, datetime(2014,1,1,10,33))
+        self.root_dir.content["file5"] = File(1024, datetime(2014,1,1,10,33))
+        
+        dir1.content["file1"] = File(1024, datetime(2014,1,1,10,33))
+        dir1.content["file2"] = File(1024, datetime(2014,1,1,10,33))
+        dir1.content["file3"] = File(1024, datetime(2014,1,1,10,33))
         
         super(FileSystem, self).__init__("/", cmd_channel)
         self._cwd = self._root
@@ -108,9 +107,10 @@ class FileSystem(AbstractedFS):
         levels = path.split("/")
         cur = self.root_dir
         for level in levels:
-            if level in cur.content:
-                cur = cur.content[level]
-        return list(cur.content)
+            if level != '':
+                if level in cur.content:
+                    cur = cur.content[level]
+        return list(cur.content.keys())
     
     def rmdir(self, path):
         print("rmdir", path)
