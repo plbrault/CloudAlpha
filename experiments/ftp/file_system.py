@@ -7,24 +7,30 @@ class File():
     size = None
     created_time = None
     modified_time = None
-    access_time = None    
+    accessed_time = None    
     
-    def __init__(self, size, created_time, modified_time, access_time):
+    def __init__(self, size, created_time, modified_time, accessed_time):
         self.size = size
         self.created_time = created_time
         self.modified_time = modified_time
-        self.access_time = access_time
+        self.accessed_time = accessed_time
     
 class Directory():
     content = None
     size = 0
+    created_time = None
+    modified_time = None
+    accessed_time = None  
     
-    def __init__(self):
+    def __init__(self, created_time, modified_time, accessed_time):
         self.content = {}
+        self.created_time = created_time
+        self.modified_time = modified_time
+        self.accessed_time = accessed_time
 
 class FileSystem(AbstractedFS):
 
-    root_dir = Directory()
+    root_dir = Directory(datetime(2014,1,1,10,33), datetime(2014,1,1,10,33), datetime(2014,1,1,10,33))
     _root = "/"
     _cwd = "/"
     
@@ -32,7 +38,7 @@ class FileSystem(AbstractedFS):
     def __init__(self, root, cmd_channel):
         print("init", root, cmd_channel)
         
-        dir1 = Directory()
+        dir1 = Directory(datetime(2014,1,1,10,33), datetime(2014,1,1,10,33), datetime(2014,1,1,10,33))
         
         self.root_dir.content["dir1"] = dir1
         self.root_dir.content["file4"] = File(1024, datetime(2014,1,1,10,33), datetime(2014,1,1,10,33), datetime(2014,1,1,10,33))
@@ -167,7 +173,7 @@ class FileSystem(AbstractedFS):
         mode = self.StatResult.Modes.FILE
         if type(cur) == Directory:
             mode = self.StatResult.Modes.DIRECTORY
-        return self.StatResult(mode, cur.size, 0, 0, 0)
+        return self.StatResult(mode, cur.size, cur.accessed_time.timestamp(), cur.modified_time.timestamp(), cur.created_time.timestamp())
     
     def lstat(self, path):
         print("lstat", path)
