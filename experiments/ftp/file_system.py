@@ -1,7 +1,7 @@
 from pyftpdlib.filesystems import AbstractedFS
 from pyftpdlib._compat import unicode, property
 from datetime import datetime
-import os
+import time
 
 class File():
     size = None
