@@ -64,7 +64,7 @@ class FileSystem(AbstractedFS):
     
     def ftpnorm(self, ftppath):
         print("ftpnorm", ftppath)
-        return super(FileSystem, self).ftpnorm(ftppath)
+        return ftppath.replace("\\", "/")
     
     def ftp2fs(self, ftppath):
         print("ftp2fs", ftppath)
@@ -80,12 +80,11 @@ class FileSystem(AbstractedFS):
         levels = path.split("/")
         cur = self.root_dir
         for level in levels:
-            if level == '':
-                pass
-            if level in cur.content:
-                cur = cur.content[level]
-            else:
-                return False
+            if level != '':
+                if level in cur.content:
+                    cur = cur.content[level]
+                else:
+                    return False
         return True
     
     def open(self, filename, mode):
