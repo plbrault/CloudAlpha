@@ -79,3 +79,4 @@ coverage.xml
 docs/_build/
 *.project
 experiments/dropbox/settings.dev.json
+experiments/drop_box/settings.dev.json
