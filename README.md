@@ -4,3 +4,4 @@ CloudAlpha will be an interface for accessing popular online file hosting servic
 
 ## Dependencies ##
 * [pyftpdlib](https://github.com/giampaolo/pyftpdlib)
+* Dropbox Core API
