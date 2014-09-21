@@ -1,5 +1,5 @@
 from drop_box.settings import Settings
-from dropbox.client import DropboxOAuth2FlowNoRedirect
+from dropbox.client import DropboxOAuth2FlowNoRedirect, DropboxClient
 
 flow = DropboxOAuth2FlowNoRedirect(Settings.app_key, Settings.app_secret)
 
@@ -13,7 +13,7 @@ while not authenticated:
     print('3. Copy the authorization code.')
     print('4. Enter the authorization code :')
     
-    code = input()
+    code = input().strip()
     print()
     
     try:        
@@ -22,3 +22,9 @@ while not authenticated:
         authenticated = True
     except:
         print("Authentication failed. Try again :")
+
+client = DropboxClient(access_token)
+
+file = open("file_to_upload.txt", "rb")
+response = client.put_file("file_to_upload.txt", file)
+print("File uploaded : ", response)
