@@ -1,4 +1,3 @@
-from pyftpdlib.filesystems import AbstractedFS
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
