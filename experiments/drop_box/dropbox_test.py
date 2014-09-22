@@ -25,6 +25,32 @@ while not authenticated:
 
 client = DropboxClient(access_token)
 
-file = open("file_to_upload.txt", "rb")
-response = client.put_file("file_to_upload.txt", file)
-print("File uploaded : ", response)
+fileToAdd = "file_to_upload.txt"
+
+file = open(fileToAdd, "rb")
+
+uploaded = False
+while not uploaded:
+    folder_search = client.search( "/", fileToAdd, file_limit=1000, include_deleted=False)
+    print("Folder search : ", folder_search)
+    
+    if not folder_search:
+        response = client.put_file(fileToAdd, file)
+        print("File uploaded : ", response)
+        uploaded = True
+    else:          
+        print(fileToAdd, "already exists, would you like to update it or rename it? (U/R)")
+        update = input().strip().upper()
+        
+        if update == "U":
+            response = client.put_file(fileToAdd, file, overwrite=True)
+            print("File uploaded : ", response)
+            uploaded = True
+        elif update == "R":
+            print("Please enter a new file name : ")
+            newName = input().strip()
+            fileToAdd = newName + "." + fileToAdd.split(".")[1]
+        else:
+            print("Invalid input, please try again.")
+
+
