@@ -18,6 +18,8 @@ class FileSystem(object):
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
+        
+        If the given path is invalid, raise FileSystemInvalidPathError.
         """
         pass    
     
@@ -27,9 +29,11 @@ class FileSystem(object):
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
-        
+                
         The return value is a list of file and folder names. It does not contain references to the current
         or parent directory (e.g. « . » or « .. »).
+        
+        If the given path is invalid, raise InvalidPathError.
         """
         pass
     
@@ -39,6 +43,8 @@ class FileSystem(object):
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
+        
+        If the given path is invalid, raise InvalidPathError.
         """
         pass
     
@@ -48,6 +54,8 @@ class FileSystem(object):
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
+        
+        If the given path is invalid, raise FileSystemInvalidPathError.
         """
         pass
     
@@ -56,7 +64,10 @@ class FileSystem(object):
         """Return the size, in bytes, of the file corresponding to the given path.
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.        
+        It may be absolute, or relative to the current working directory.
+        
+        If the given path is invalid, raise FileSystemInvalidPathError.
+        If the given path represents a directory, raise FileSystemTargetError.  
         """
         pass
     
@@ -68,6 +79,8 @@ class FileSystem(object):
         It may be absolute, or relative to the current working directory.
         
         The return value is a datetime object.
+        
+        If the given path is invalid, raise FileSystemInvalidPathError.
         """
         pass
     
@@ -79,6 +92,8 @@ class FileSystem(object):
         It may be absolute, or relative to the current working directory.
         
         The return value is a datetime object.
+        
+        If the given path is invalid, raise FileSystemInvalidPathError.
         """
         pass
     
@@ -91,6 +106,8 @@ class FileSystem(object):
         It may be absolute, or relative to the current working directory.
         
         The return value is a datetime object.
+        
+        If the given path is invalid, raise FileSystemInvalidPathError.
         """
         pass        
     
@@ -100,6 +117,8 @@ class FileSystem(object):
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
+        
+        If the parent path is invalid, raise FileSystemInvalidPathError.
         """
         pass
     
@@ -110,7 +129,9 @@ class FileSystem(object):
         new_path includes the new name of the file or directory.
         
         The paths must be POSIX pathnames, with "/" representing the root of the file system.
-        They may be absolute, or relative to the current working directory.      
+        They may be absolute, or relative to the current working directory.
+        
+        If at least one of the given paths is invalid, raise FileSystemInvalidPathError. 
         """
         pass
     
@@ -121,6 +142,8 @@ class FileSystem(object):
         new_path includes the name of the copied file or directory.
         The paths must be POSIX pathnames, with "/" representing the root of the file system.
         They may be absolute, or relative to the current working directory.
+        
+        If at least one of the given paths is invalid, raise FileSystemInvalidPathError.
         """
         pass
     
@@ -130,6 +153,8 @@ class FileSystem(object):
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
+        
+        If the given path is invalid, raise FileSystemInvalidPathError.
         """
         pass
     
@@ -141,6 +166,8 @@ class FileSystem(object):
         It may be absolute, or relative to the current working directory.
         
         The return value is an iterable of bytes.
+        
+        If the given path is invalid, raise FileSystemInvalidPathError.
         """
         pass
     
@@ -154,10 +181,16 @@ class FileSystem(object):
         The data must be an iterable of bytes.
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
+        
+        If the given path is invalid, raise FileSystemInvalidPathError.
         """
         pass
     
     @abstractmethod
     def finalize(self, path):
-        """Commit a file that was previously created/overwritten and populated with data."""
+        """Commit a file that was previously created/overwritten and populated with data.
+        
+        If the given path is invalid, raise FileSystemInvalidPathError.
+        If the given path does not represent an unfinalized file, raise FileSystemTargetError.
+        """
         pass
