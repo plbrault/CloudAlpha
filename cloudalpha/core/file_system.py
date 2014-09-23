@@ -190,6 +190,9 @@ class FileSystem(object):
     def finalize(self, path):
         """Commit a file that was previously created/overwritten and populated with data.
         
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.        
+        
         If the given path is invalid, raise FileSystemInvalidPathError.
         If the given path does not represent an unfinalized file, raise FileSystemTargetError.
         """
