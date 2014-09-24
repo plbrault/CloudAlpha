@@ -39,7 +39,6 @@ class Account(object):
         """Disconnect the object from its linked real file hosting account."""
         pass
     
-    @abstractmethod
-    def __init__(self, account_id, **kwargs):
-        """How the initializer of an Account subclass must look like."""
-        pass
+    def __init__(self, account_id):
+        """The super initializer for Account subclasses."""
+        self.account_id = account_id

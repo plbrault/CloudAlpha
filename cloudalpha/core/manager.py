@@ -61,7 +61,6 @@ class Manager(object):
         """
         pass
     
-    @abstractmethod
-    def __init__(self, manager_id, **kwargs):
-        """How the initializer of a Manager subclass must look like."""
-        pass    
+    def __init__(self, manager_id):
+        """The super initializer for Manager subclasses."""
+        self.manager_id = manager_id   
