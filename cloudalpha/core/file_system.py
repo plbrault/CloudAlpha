@@ -172,28 +172,40 @@ class FileSystem(object):
         pass
     
     @abstractmethod
-    def put(self, path, data):
-        """Append the given data to the unfinalized file corresponding to the given path.
+    def create_new_file(self, path):
+        """Create an empty file corresponding to the given path.
         
-        If the file does not exist, it is created.
-        If the file exists and is finalized, it is overwritten.
+        If a file corresponding to this path already exists, it is overwritten.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+        
+        If the parent path is invalid, raise FileSystemInvalidPathError.
+        If the given path corresponds to an existing directory, raise FileSystemInvalidTargetError.
+        """        
+        pass
+    
+    @abstractmethod
+    def write_to_new_file(self, path, data):
+        """Append the given data to the uncommitted file corresponding to the given path.
         
         The data must be an iterable of bytes.
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
         
         If the given path is invalid, raise FileSystemInvalidPathError.
+        If the given path does not correspond to an uncommitted file, raise FileSystemInvalidTargetError.
         """
         pass
     
     @abstractmethod
-    def finalize(self, path):
-        """Commit a file that was previously created/overwritten and populated with data.
+    def commit_new_file(self, path):
+        """Commit a file that was previously created/overwritten, then populated with data.
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.        
         
         If the given path is invalid, raise FileSystemInvalidPathError.
-        If the given path does not represent an unfinalized file, raise FileSystemTargetError.
+        If the given path does not represent an uncommitted file, raise FileSystemInvalidTargetError.
         """
         pass
