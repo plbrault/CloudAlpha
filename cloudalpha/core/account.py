@@ -26,10 +26,16 @@ class Account(object):
     
     @abstractmethod
     def connect(self):
-        """Connect the object to a real file hosting service.
+        """Connect the object to a real file hosting account.
         
         The connection process might require an interaction with the user.
         """
+        pass
+    
+    @abstractmethod
+    def disconnect(self):
+        """Disconnect the object from its linked real file hosting account."""
+        pass
     
     @abstractmethod
     def __init__(self, account_id, **kwargs):
