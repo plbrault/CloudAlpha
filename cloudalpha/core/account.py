@@ -29,6 +29,8 @@ class Account(object):
         """Connect the object to a real file hosting account.
         
         The connection process might require an interaction with the user.
+        
+        If connection fails, raise ConnectionFailedAccountError.
         """
         pass
     

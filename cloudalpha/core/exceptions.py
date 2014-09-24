@@ -9,3 +9,10 @@ class InvalidTargetFileSystemError(FileSystemError):
 
 class AlreadyExistsFileSystemError(FileSystemError):
     pass
+
+
+class AccountError(Exception):
+    pass
+
+class ConnectionFailedAccountError(AccountError):
+    pass
