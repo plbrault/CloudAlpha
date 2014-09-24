@@ -39,7 +39,7 @@ class FileSystem(object):
     
     @abstractmethod
     def is_dir(self, path):
-        """Return a boolean value indicating if the given path represents a directory.
+        """Return a boolean value indicating if the given path corresponds to a directory.
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
@@ -50,7 +50,7 @@ class FileSystem(object):
     
     @abstractmethod
     def is_file(self, path):
-        """Return a boolean value indicating if the given path represents a file.
+        """Return a boolean value indicating if the given path corresponds to a file.
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
@@ -67,7 +67,7 @@ class FileSystem(object):
         It may be absolute, or relative to the current working directory.
         
         If the given path is invalid, raise FileSystemInvalidPathError.
-        If the given path represents a directory, raise FileSystemTargetError.  
+        If the given path corresponds to a directory, raise FileSystemTargetError.  
         """
         pass
     
@@ -119,6 +119,7 @@ class FileSystem(object):
         It may be absolute, or relative to the current working directory.
         
         If the parent path is invalid, raise FileSystemInvalidPathError.
+        If the given path corresponds to an existing file or directory, raise FileSystemAlreadyExistsError.
         """
         pass
     
@@ -131,7 +132,8 @@ class FileSystem(object):
         The paths must be POSIX pathnames, with "/" representing the root of the file system.
         They may be absolute, or relative to the current working directory.
         
-        If at least one of the given paths is invalid, raise FileSystemInvalidPathError. 
+        If at least one of the given paths is invalid, raise FileSystemInvalidPathError.
+        If new_path corresponds to an existing file or directory, raise FileSystemAlreadyExistsError. 
         """
         pass
     
@@ -144,6 +146,7 @@ class FileSystem(object):
         They may be absolute, or relative to the current working directory.
         
         If at least one of the given paths is invalid, raise FileSystemInvalidPathError.
+        If copy_path corresponds to an existing file or directory, raise FileSystemAlreadyExistsError. 
         """
         pass
     
@@ -168,6 +171,7 @@ class FileSystem(object):
         The return value is an iterable of bytes.
         
         If the given path is invalid, raise FileSystemInvalidPathError.
+        If the given path corresponds to a directory, raise FileSystemInvalidTargetError.
         """
         pass
     
@@ -206,6 +210,6 @@ class FileSystem(object):
         It may be absolute, or relative to the current working directory.        
         
         If the given path is invalid, raise FileSystemInvalidPathError.
-        If the given path does not represent an uncommitted file, raise FileSystemInvalidTargetError.
+        If the given path is valid, but does not correspond to an uncommitted file, raise FileSystemInvalidTargetError.
         """
         pass
