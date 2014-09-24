@@ -25,18 +25,6 @@ class Manager(object):
     
     @property
     @abstractmethod
-    def port(self):
-        """Return the port number used by the manager."""
-        pass
-    
-    @port.setter
-    @abstractmethod
-    def port(self, port):
-        """Set the port number used by the manager."""
-        pass
-    
-    @property
-    @abstractmethod
     def file_system(self):
         """Return the file system which the manager interacts with.
         
