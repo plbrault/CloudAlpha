@@ -1,11 +1,11 @@
 class FileSystemError(Exception):
     pass
         
-class FileSystemInvalidPathError(FileSystemError):
+class InvalidPathFileSystemError(FileSystemError):
     pass
 
-class FileSystemInvalidTargetError(FileSystemError):
+class InvalidTargetFileSystemError(FileSystemError):
     pass
 
-class FileSystemAlreadyExistsError(FileSystemError):
+class AlreadyExistsFileSystemError(FileSystemError):
     pass
