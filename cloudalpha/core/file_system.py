@@ -21,6 +21,7 @@ class FileSystem(object):
         It may be absolute, or relative to the current working directory.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass    
     
@@ -35,6 +36,7 @@ class FileSystem(object):
         or parent directory (e.g. « . » or « .. »).
         
         If the given path is invalid, raise InvalidPathError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
     
@@ -46,6 +48,7 @@ class FileSystem(object):
         It may be absolute, or relative to the current working directory.
         
         If the given path is invalid, raise InvalidPathError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
     
@@ -57,6 +60,7 @@ class FileSystem(object):
         It may be absolute, or relative to the current working directory.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
     
@@ -68,7 +72,8 @@ class FileSystem(object):
         It may be absolute, or relative to the current working directory.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
-        If the given path corresponds to a directory, raise FileSystemTargetError.  
+        If the given path corresponds to a directory, raise FileSystemTargetError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         pass
     
@@ -82,6 +87,7 @@ class FileSystem(object):
         The return value is a datetime object.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
     
@@ -95,6 +101,7 @@ class FileSystem(object):
         The return value is a datetime object.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
     
@@ -109,6 +116,7 @@ class FileSystem(object):
         The return value is a datetime object.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass        
     
@@ -121,6 +129,7 @@ class FileSystem(object):
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
     
@@ -134,7 +143,8 @@ class FileSystem(object):
         They may be absolute, or relative to the current working directory.
         
         If at least one of the given paths is invalid, raise InvalidPathFileSystemError.
-        If new_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError. 
+        If new_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
     
@@ -147,7 +157,8 @@ class FileSystem(object):
         They may be absolute, or relative to the current working directory.
         
         If at least one of the given paths is invalid, raise InvalidPathFileSystemError.
-        If copy_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError. 
+        If copy_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         pass
     
@@ -159,6 +170,7 @@ class FileSystem(object):
         It may be absolute, or relative to the current working directory.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
     
@@ -173,6 +185,7 @@ class FileSystem(object):
         
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to a directory, raise InvalidTargetFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
     
@@ -187,6 +200,7 @@ class FileSystem(object):
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """        
         pass
     
@@ -200,6 +214,7 @@ class FileSystem(object):
         
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
     
@@ -212,5 +227,6 @@ class FileSystem(object):
         
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the given path is valid, but does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
