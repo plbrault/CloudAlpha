@@ -14,7 +14,7 @@ class AlreadyExistsFileSystemError(FileSystemError):
 class AccountError(Exception):
     pass
 
-class ConnectionFailedAccountError(AccountError):
+class AuthenticationFailedAccountError(AccountError):
     pass
 
 

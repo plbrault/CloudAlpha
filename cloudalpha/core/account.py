@@ -25,18 +25,13 @@ class Account(object):
         pass
     
     @abstractmethod
-    def connect(self):
-        """Connect the object to a real file hosting account.
+    def authenticate(self):
+        """Link the object to a real file hosting account.
         
-        The connection process might require an interaction with the user.
+        The association process might require an interaction with the user.
         
-        If connection fails, raise ConnectionFailedAccountError.
+        If the operation fails, raise AuthenticationFailedAccountError.
         """
-        pass
-    
-    @abstractmethod
-    def disconnect(self):
-        """Disconnect the object from its linked real file hosting account."""
         pass
     
     def __init__(self, account_id):
