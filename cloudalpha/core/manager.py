@@ -13,13 +13,13 @@ class Manager(object):
     
     @property
     @abstractmethod
-    def manager_id(self):
+    def unique_id(self):
         """Return the unique identifier for the manager."""
         pass
     
-    @manager_id.setter
+    @unique_id.setter
     @abstractmethod
-    def manager_id(self, manager_id):
+    def unique_id(self, unique_id):
         """Set the unique identifier for the manager."""
         pass
     
@@ -69,6 +69,6 @@ class Manager(object):
         """
         pass
     
-    def __init__(self, manager_id):
+    def __init__(self, unique_id):
         """The super initializer for Manager subclasses."""
-        self.manager_id = manager_id   
+        self.unique_id = unique_id   

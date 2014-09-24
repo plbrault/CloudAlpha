@@ -15,13 +15,13 @@ class Account(object):
     
     @property
     @abstractmethod
-    def account_id(self):
+    def unique_id(self):
         """Return the unique identifier for the account."""
         pass
     
-    @account_id.setter
+    @unique_id.setter
     @abstractmethod
-    def account_id(self, new_id):
+    def unique_id(self, new_id):
         """Set the unique identifier for the account."""
         pass
     
@@ -44,6 +44,6 @@ class Account(object):
         """
         pass
     
-    def __init__(self, account_id):
+    def __init__(self, unique_id):
         """The super initializer for Account subclasses."""
-        self.account_id = account_id
+        self.unique_id = unique_id
