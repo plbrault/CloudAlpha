@@ -8,7 +8,8 @@ class FileSystem(object):
     def cwd(self):
         """Return the path of the current working directory.
         
-        The return value is a POSIX pathname, with "/" representing the root of the file system."""
+        The return value is a POSIX pathname, with "/" representing the root of the file system.
+        """
         pass
     
     @cwd.setter
