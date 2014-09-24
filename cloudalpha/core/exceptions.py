@@ -16,3 +16,13 @@ class AccountError(Exception):
 
 class ConnectionFailedAccountError(AccountError):
     pass
+
+
+class ManagerError(Exception):
+    pass
+
+class FileSystemNotSetManagerError(ManagerError):
+    pass
+
+class StartupFailedManagerError(ManagerError):
+    pass

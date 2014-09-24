@@ -46,12 +46,19 @@ class Manager(object):
     
     @abstractmethod
     def run(self):
-        """Put the manager into action."""
+        """Put the manager into action.
+        
+        If file_system is not set, raise FileSystemNotSetManagerError.
+        If the operation fails for any other reason, raise StartupFailedManagerError.
+        """
         pass
     
     @abstractmethod
     def stop(self):
-        """Stop the manager."""
+        """Stop the manager.
+        
+        If the manager is already stopped, do nothing.
+        """
         pass
     
     @abstractmethod
