@@ -25,6 +25,24 @@ class FileSystem(object):
         """
         pass    
     
+    @property
+    @abstractmethod
+    def space_used(self):
+        """Return the number of bytes used on the file system.
+        
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+        """
+        pass
+    
+    @property
+    @abstractmethod
+    def free_space(self):
+        """Return the free space remaining on the file system, in bytes.
+        
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+        """
+        pass    
+    
     @abstractmethod
     def list_dir(self, path=None):
         """Return the content of the specified directory. If no directory is specified, return the content of cwd.
