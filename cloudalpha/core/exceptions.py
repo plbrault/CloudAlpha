@@ -10,6 +10,9 @@ class InvalidTargetFileSystemError(FileSystemError):
 class AlreadyExistsFileSystemError(FileSystemError):
     pass
 
+class InsufficientSpaceFileSystemError(FileSystemError):
+    pass
+
 class AccessFailedFileSystemError(FileSystemError):
     pass
 

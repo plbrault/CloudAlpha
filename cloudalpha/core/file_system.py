@@ -201,6 +201,7 @@ class FileSystem(object):
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.
+        If there is not enough free space to store the new file, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """        
         pass
