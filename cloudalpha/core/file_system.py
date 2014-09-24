@@ -190,13 +190,14 @@ class FileSystem(object):
         pass
     
     @abstractmethod
-    def create_new_file(self, path):
+    def create_new_file(self, path, size):
         """Create an empty file corresponding to the given path.
         
         If a file corresponding to this path already exists, it is overwritten.
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
+        The size parameter indicates the number of bytes that must be allocated for the new file.
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.
