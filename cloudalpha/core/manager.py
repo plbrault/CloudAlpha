@@ -1,6 +1,14 @@
 from abc import ABCMeta, abstractmethod
 
 class Manager(object):
+    
+    """A base class for implementing a file manager accessible through a specific
+    interface, as a network protocol.
+    
+    Upon its initialization, an instance of a Manager subclass is provided with
+    an instance of a FileSystem subclass, which it is intended to interact with.
+    """
+    
     __metaclass__ = ABCMeta
     
     @property

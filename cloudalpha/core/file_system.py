@@ -1,6 +1,17 @@
 from abc import ABCMeta, abstractmethod
 
 class FileSystem(object):
+    
+    """A base class for implementing an abstraction of a file system, that may in fact
+    be an adapter for managing the content of a file hosting service account.
+    
+    A subclass of FileSystem is defined for each supported file hosting service.
+    An instance of a FileSystem subclass is linked to a single
+    instance of an Account subclass.
+    
+    Account and FileSystem subclasses must be implemented in a thread-safe way.
+    """
+    
     __metaclass__ = ABCMeta
     
     @property

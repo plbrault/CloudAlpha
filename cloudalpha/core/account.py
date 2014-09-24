@@ -1,6 +1,16 @@
 from abc import ABCMeta, abstractmethod
 
 class Account(object):
+    
+    """A base class for implementing an abstraction of a file hosting service account.
+    
+    A subclass is defined for each supported file hosting service.
+    An instance of an Account subclass provides an instance of the FileSystem
+    subclass corresponding to that service.
+    
+    Account and FileSystem subclasses must be implemented in a thread-safe way.
+    """
+    
     __metaclass__ = ABCMeta
     
     @property
