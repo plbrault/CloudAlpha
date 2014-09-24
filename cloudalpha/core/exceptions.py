@@ -6,3 +6,6 @@ class FileSystemInvalidPathError(FileSystemError):
 
 class FileSystemInvalidTargetError(FileSystemError):
     pass
+
+class FileSystemAlreadyExistsError(FileSystemError):
+    pass
