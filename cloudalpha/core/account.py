@@ -13,26 +13,8 @@ class Account(object):
     
     __metaclass__ = ABCMeta
     
-    @property
-    @abstractmethod
-    def unique_id(self):
-        """Return the unique identifier for the account."""
-        pass
-    
-    @unique_id.setter
-    @abstractmethod
-    def unique_id(self, new_id):
-        """Set the unique identifier for the account."""
-        pass
-    
-    @property
-    @abstractmethod
-    def file_system(self):
-        """Return the file system object linked to the account.
-        
-        The return value is an instance of a FileSystem subclass.
-        """
-        pass
+    unique_id = None
+    file_system = None
     
     @abstractmethod
     def authenticate(self):
