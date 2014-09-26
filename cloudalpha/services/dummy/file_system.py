@@ -8,11 +8,11 @@ Reminder: Account and FileSystem subclasses must be implemented in a thread-safe
 from core.file_system import FileSystem
 
 class DummyFileSystem(FileSystem):
-        
+
     @property
     def working_dir(self, path):
         return self._working_dir
-    
+
     @working_dir.setter
     def working_dir(self, path):
         """Change the working directory.
@@ -23,8 +23,8 @@ class DummyFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass    
-    
+        pass
+
     @property
     def space_used(self):
         """Return the number of bytes used on the file system.
@@ -32,15 +32,15 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     @property
     def free_space(self):
         """Return the free space remaining on the file system, in bytes.
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass    
-    
+        pass
+
     def list_dir(self, path=None):
         """Return the content of the specified directory. If no directory is specified, return the content of the current working directory.
         
@@ -54,7 +54,7 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     def is_dir(self, path):
         """Return a boolean value indicating if the given path corresponds to a directory.
         
@@ -65,7 +65,7 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     def is_file(self, path):
         """Return a boolean value indicating if the given path corresponds to a file.
         
@@ -76,7 +76,7 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     def get_size(self, path):
         """Return the size, in bytes, of the file corresponding to the given path.
         
@@ -88,7 +88,7 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         pass
-    
+
     def get_created_datetime(self, path):
         """Return the date and time of creation of the file or directory corresponding to the given path.
         
@@ -101,7 +101,7 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     def get_modified_datetime(self, path):
         """Return the date and time of the last modification to the file or directory corresponding to the given path.
         
@@ -114,7 +114,7 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     def get_accessed_datetime(self, path):
         """Return the date and time of the last time the given file or directory was accessed.
         If not available, return the date and time of the last modification.
@@ -127,8 +127,8 @@ class DummyFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass        
-    
+        pass
+
     def make_dir(self, path):
         """Creates a new directory corresponding to the given path.
         
@@ -140,7 +140,7 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     def move(self, old_path, new_path):
         """Move and/or rename a file or directory from old_path to new_path.
         
@@ -154,7 +154,7 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     def copy(self, path, copy_path):
         """Copy a file or directory from path to copy_path.
         
@@ -167,7 +167,7 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         pass
-    
+
     def delete(self, path):
         """Delete the file or directory corresponding to the given path.
         
@@ -181,7 +181,7 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     def read(self, path, start_byte, end_byte):
         """Read the data from the given byte range of the file corresponding to the given path.
         
@@ -195,7 +195,7 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     def create_new_file(self, path, size):
         """Create an empty file corresponding to the given path.
         
@@ -209,9 +209,9 @@ class DummyFileSystem(FileSystem):
         If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.
         If there is not enough free space to store the new file, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
-        """        
+        """
         pass
-    
+
     def write_to_new_file(self, path, data):
         """Append the given data to the uncommitted file corresponding to the given path.
         
@@ -224,7 +224,7 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     def commit_new_file(self, path):
         """Commit a file that was previously created/overwritten, then populated with data.
         
@@ -236,6 +236,6 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     def __init__(self):
-        super(DummyFileSystem, self).__init__()    
+        super(DummyFileSystem, self).__init__()

@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 class FileSystem(object):
-    
+
     """A base class for implementing an abstraction of a file system, that may in fact
     be an adapter for managing the content of a file hosting service account.
     
@@ -11,11 +11,11 @@ class FileSystem(object):
     
     Account and FileSystem subclasses must be implemented in a thread-safe way.
     """
-    
+
     __metaclass__ = ABCMeta
-    
+
     _working_dir = "/"
-    
+
     @property
     @abstractmethod
     def working_dir(self):
@@ -24,7 +24,7 @@ class FileSystem(object):
         The return value is a POSIX pathname, with "/" representing the root of the file system.
         """
         pass
-    
+
     @working_dir.setter
     @abstractmethod
     def working_dir(self, path):
@@ -36,8 +36,8 @@ class FileSystem(object):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass    
-    
+        pass
+
     @property
     @abstractmethod
     def space_used(self):
@@ -46,7 +46,7 @@ class FileSystem(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     @property
     @abstractmethod
     def free_space(self):
@@ -54,8 +54,8 @@ class FileSystem(object):
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass    
-    
+        pass
+
     @abstractmethod
     def list_dir(self, path=None):
         """Return the content of the specified directory. If no directory is specified, return the content of the current working directory.
@@ -70,7 +70,7 @@ class FileSystem(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     @abstractmethod
     def is_dir(self, path):
         """Return a boolean value indicating if the given path corresponds to a directory.
@@ -82,7 +82,7 @@ class FileSystem(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     @abstractmethod
     def is_file(self, path):
         """Return a boolean value indicating if the given path corresponds to a file.
@@ -94,7 +94,7 @@ class FileSystem(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     @abstractmethod
     def get_size(self, path):
         """Return the size, in bytes, of the file corresponding to the given path.
@@ -107,7 +107,7 @@ class FileSystem(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         pass
-    
+
     @abstractmethod
     def get_created_datetime(self, path):
         """Return the date and time of creation of the file or directory corresponding to the given path.
@@ -121,7 +121,7 @@ class FileSystem(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     @abstractmethod
     def get_modified_datetime(self, path):
         """Return the date and time of the last modification to the file or directory corresponding to the given path.
@@ -135,7 +135,7 @@ class FileSystem(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     @abstractmethod
     def get_accessed_datetime(self, path):
         """Return the date and time of the last time the given file or directory was accessed.
@@ -149,8 +149,8 @@ class FileSystem(object):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass        
-    
+        pass
+
     @abstractmethod
     def make_dir(self, path):
         """Creates a new directory corresponding to the given path.
@@ -163,7 +163,7 @@ class FileSystem(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     @abstractmethod
     def move(self, old_path, new_path):
         """Move and/or rename a file or directory from old_path to new_path.
@@ -178,7 +178,7 @@ class FileSystem(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     @abstractmethod
     def copy(self, path, copy_path):
         """Copy a file or directory from path to copy_path.
@@ -192,7 +192,7 @@ class FileSystem(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         pass
-    
+
     @abstractmethod
     def delete(self, path):
         """Delete the file or directory corresponding to the given path.
@@ -207,7 +207,7 @@ class FileSystem(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     @abstractmethod
     def read(self, path, start_byte, end_byte):
         """Read the data from the given byte range of the file corresponding to the given path.
@@ -222,7 +222,7 @@ class FileSystem(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     @abstractmethod
     def create_new_file(self, path, size):
         """Create an empty file corresponding to the given path.
@@ -237,9 +237,9 @@ class FileSystem(object):
         If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.
         If there is not enough free space to store the new file, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
-        """        
+        """
         pass
-    
+
     @abstractmethod
     def write_to_new_file(self, path, data):
         """Append the given data to the uncommitted file corresponding to the given path.
@@ -253,7 +253,7 @@ class FileSystem(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
-    
+
     @abstractmethod
     def commit_new_file(self, path):
         """Commit a file that was previously created/overwritten, then populated with data.

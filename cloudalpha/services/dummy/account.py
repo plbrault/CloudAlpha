@@ -9,7 +9,7 @@ from core.account import Account
 from services.dummy.file_system import DummyFileSystem
 
 class DummyAccount(Account):
-    
+
     def authenticate(self):
         """Link the object to a real file hosting account.
         
@@ -18,7 +18,7 @@ class DummyAccount(Account):
         If the operation fails, raise AuthenticationFailedAccountError.
         """
         pass
-    
+
     def __init__(self, unique_id):
         super(DummyAccount, self).__init__(unique_id)
         self.file_system = DummyFileSystem()

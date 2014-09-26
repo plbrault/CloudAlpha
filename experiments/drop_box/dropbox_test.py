@@ -12,11 +12,11 @@ while not authenticated:
     print('2. Click "Allow" (you might have to log in first)')
     print('3. Copy the authorization code.')
     print('4. Enter the authorization code :')
-    
+
     code = input().strip()
     print()
-    
-    try:        
+
+    try:
         access_token, user_id = flow.finish(code)
         print("Authentication succeeded")
         authenticated = True
@@ -31,17 +31,17 @@ file = open(fileToAdd, "rb")
 
 uploaded = False
 while not uploaded:
-    folder_search = client.search( "/", fileToAdd, file_limit=1000, include_deleted=False)
+    folder_search = client.search("/", fileToAdd, file_limit=1000, include_deleted=False)
     print("Folder search : ", folder_search)
-    
+
     if not folder_search:
         response = client.put_file(fileToAdd, file)
         print("File uploaded : ", response)
         uploaded = True
-    else:          
+    else:
         print(fileToAdd, "already exists, would you like to update it or rename it? (U/R)")
         update = input().strip().upper()
-        
+
         if update == "U":
             response = client.put_file(fileToAdd, file, overwrite=True)
             print("File uploaded : ", response)

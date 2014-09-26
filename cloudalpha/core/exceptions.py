@@ -1,6 +1,6 @@
 class FileSystemError(Exception):
     pass
-        
+
 class InvalidPathFileSystemError(FileSystemError):
     pass
 
