@@ -1,6 +1,8 @@
 """TODO: 
 
 Implement a dummy file system, for testing purposes.
+
+Reminder: Account and FileSystem subclasses must be implemented in a thread-safe way.
 """
 
 from core.file_system import FileSystem
