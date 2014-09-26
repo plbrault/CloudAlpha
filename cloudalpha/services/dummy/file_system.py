@@ -9,6 +9,10 @@ from core.file_system import FileSystem
 
 class DummyFileSystem(FileSystem):
         
+    @property
+    def working_dir(self, path):
+        return self._working_dir
+    
     @working_dir.setter
     def working_dir(self, path):
         """Change the working directory.

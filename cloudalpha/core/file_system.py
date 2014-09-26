@@ -17,12 +17,13 @@ class FileSystem(object):
     _working_dir = "/"
     
     @property
+    @abstractmethod
     def working_dir(self):
         """Return the path of the current working directory.
         
         The return value is a POSIX pathname, with "/" representing the root of the file system.
         """
-        return self._working_dir
+        pass
     
     @working_dir.setter
     @abstractmethod
