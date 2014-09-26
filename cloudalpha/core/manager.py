@@ -11,34 +11,8 @@ class Manager(object):
     
     __metaclass__ = ABCMeta
     
-    @property
-    @abstractmethod
-    def unique_id(self):
-        """Return the unique identifier for the manager."""
-        pass
-    
-    @unique_id.setter
-    @abstractmethod
-    def unique_id(self, unique_id):
-        """Set the unique identifier for the manager."""
-        pass
-    
-    @property
-    @abstractmethod
-    def file_system(self):
-        """Return the file system which the manager interacts with.
-        
-        The return value is an instance of a FileSystem subclass.
-        """
-        pass
-    
-    @file_system.setter
-    @abstractmethod
-    def file_system(self, file_system):
-        """Set the file system which the manager interacts with.
-        
-        The given value must be an instance of a FileSystem subclass."""
-        pass
+    unique_id = None
+    file_system = None
     
     @abstractmethod
     def run(self):
