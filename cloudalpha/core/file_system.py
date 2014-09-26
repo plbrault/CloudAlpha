@@ -196,6 +196,9 @@ class FileSystem(object):
     def delete(self, path):
         """Delete the file or directory corresponding to the given path.
         
+        If the given path corresponds to a directory that is not empty, all its files and subdirectories
+        must be deleted first.
+        
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
         
