@@ -16,16 +16,16 @@ class FileSystem(object):
     
     @property
     @abstractmethod
-    def cwd(self):
+    def working_dir(self):
         """Return the path of the current working directory.
         
         The return value is a POSIX pathname, with "/" representing the root of the file system.
         """
         pass
     
-    @cwd.setter
+    @working_dir.setter
     @abstractmethod
-    def cwd(self, path):
+    def working_dir(self, path):
         """Change the working directory.
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
@@ -56,7 +56,7 @@ class FileSystem(object):
     
     @abstractmethod
     def list_dir(self, path=None):
-        """Return the content of the specified directory. If no directory is specified, return the content of cwd.
+        """Return the content of the specified directory. If no directory is specified, return the content of the current working directory.
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
