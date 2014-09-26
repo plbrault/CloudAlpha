@@ -33,4 +33,4 @@ class Manager(object):
     
     def __init__(self, unique_id):
         """The super initializer for Manager subclasses."""
-        self.unique_id = unique_id   
+        self.unique_id = unique_id
