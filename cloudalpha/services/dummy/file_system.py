@@ -237,5 +237,5 @@ class DummyFileSystem(FileSystem):
         """
         pass
     
-    def __init__(self, unique_id):
-        super(DummyFileSystem, self).__init__(unique_id)    
+    def __init__(self):
+        super(DummyFileSystem, self).__init__()    
