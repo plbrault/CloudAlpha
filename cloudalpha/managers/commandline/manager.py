@@ -7,31 +7,6 @@ from core.manager import Manager
 
 class CommandLineManager(Manager):
     
-    @property
-    def unique_id(self):
-        """Return the unique identifier for the manager."""
-        pass
-    
-    @unique_id.setter
-    def unique_id(self, unique_id):
-        """Set the unique identifier for the manager."""
-        pass
-    
-    @property
-    def file_system(self):
-        """Return the file system which the manager interacts with.
-        
-        The return value is an instance of a FileSystem subclass.
-        """
-        pass
-    
-    @file_system.setter
-    def file_system(self, file_system):
-        """Set the file system which the manager interacts with.
-        
-        The given value must be an instance of a FileSystem subclass."""
-        pass
-    
     def run(self):
         """Put the manager into action.
         

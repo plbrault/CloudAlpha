@@ -6,17 +6,9 @@ Implement a dummy file system, for testing purposes.
 from core.file_system import FileSystem
 
 class DummyFileSystem(FileSystem):
-    
-    @property
-    def cwd(self):
-        """Return the path of the current working directory.
         
-        The return value is a POSIX pathname, with "/" representing the root of the file system.
-        """
-        pass
-    
-    @cwd.setter
-    def cwd(self, path):
+    @working_dir.setter
+    def working_dir(self, path):
         """Change the working directory.
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
@@ -44,7 +36,7 @@ class DummyFileSystem(FileSystem):
         pass    
     
     def list_dir(self, path=None):
-        """Return the content of the specified directory. If no directory is specified, return the content of cwd.
+        """Return the content of the specified directory. If no directory is specified, return the content of the current working directory.
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
