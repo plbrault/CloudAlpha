@@ -40,7 +40,7 @@ class DataStore(object):
         with cls._lock:
             if not cls._instance:
                 cls._instance = super(DataStore, cls).__new__(cls, *args, **kwargs)
-                cls._instance._db_conn = sqlite3.connect(cls._DB_FILE)
+                cls._instance._db_conn = sqlite3.connect(cls._DB_FILE, check_same_thread=False)
                 cls._instance._db_cur = cls._instance._db_conn.cursor()
                 cls._instance._db_cur.execute("CREATE TABLE IF NOT EXISTS " + cls._DB_TABLE_NAME
                                      + "(id INTEGER PRIMARY KEY AUTOINCREMENT, owner_unique_id INTEGER NOT NULL, key TEXT NOT NULL, value TEXT NOT NULL)")
