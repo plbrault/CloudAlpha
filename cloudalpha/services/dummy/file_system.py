@@ -6,6 +6,9 @@ Reminder: Account and FileSystem subclasses must be implemented in a thread-safe
 """
 
 from core.file_system import FileSystem
+from core.exceptions import InvalidPathFileSystemError
+from core.exceptions import AccessFailedFileSystemError
+import os
 
 class DummyFileSystem(FileSystem):
 
@@ -23,7 +26,15 @@ class DummyFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
+        try:
+            if not os.path.exists(os.path.abspath(path)):
+                raise InvalidPathFileSystemError()
+
+            self._working_dir = path
+        except:
+            raise AccessFailedFileSystemError()
         pass
+
 
     @property
     def space_used(self):
@@ -31,6 +42,11 @@ class DummyFileSystem(FileSystem):
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
+        try:
+            used = 153432
+            return used
+        except:
+            raise AccessFailedFileSystemError()
         pass
 
     @property
@@ -64,6 +80,7 @@ class DummyFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
+        return os.path.isdir(path)
         pass
 
     def is_file(self, path):
@@ -139,6 +156,7 @@ class DummyFileSystem(FileSystem):
         If the given path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
+        os.mkdir(path)
         pass
 
     def move(self, old_path, new_path):
@@ -210,6 +228,7 @@ class DummyFileSystem(FileSystem):
         If there is not enough free space to store the new file, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
+        open(path, 'a')
         pass
 
     def write_to_new_file(self, path, data):
