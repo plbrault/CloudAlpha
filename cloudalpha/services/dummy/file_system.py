@@ -12,6 +12,8 @@ import os
 
 class DummyFileSystem(FileSystem):
 
+    _real_root_dir = "temp"
+
     @property
     def working_dir(self, path):
         return self._working_dir
@@ -156,7 +158,6 @@ class DummyFileSystem(FileSystem):
         If the given path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        os.mkdir(path)
         pass
 
     def move(self, old_path, new_path):
@@ -258,3 +259,15 @@ class DummyFileSystem(FileSystem):
 
     def __init__(self):
         super(DummyFileSystem, self).__init__()
+
+        if not os.path.isdir(os.path.abspath(self._real_root_dir)):
+            os.mkdir(self._real_root_dir)
+            file1 = open(os.path.join(self._real_root_dir, "file1.txt"), 'a')
+            file1.write("# The Zen of Python\nBeautiful is better than ugly.\nExplicit is better than implicit.\nSimple is better than complex."
+                        + "\nComplex is better than complicated.\nFlat is better than nested.\nSparse is better than dense.\nReadability counts."
+                        + "\nSpecial cases aren't special enough to break the rules.\nAlthough practicality beats purity.\nErrors should never pass"
+                        + "silently.\nUnless explicitly silenced.\nIn the face of ambiguity, refuse the temptation to guess."
+                        + "\nThere should be one-- and preferably only one --obvious way to do it.\nAlthough that way may not be obvious at first unless you're Dutch."
+                        + "\nNow is better than never.\nAlthough never is often better than *right* now.\nIf the implementation is hard to explain, it's a bad idea."
+                        + "\nIf the implementation is easy to explain, it may be a good idea.\nNamespaces are one honking great idea -- let's do more of those!")
+            file1.close()

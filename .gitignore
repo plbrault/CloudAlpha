@@ -82,3 +82,4 @@ experiments/dropbox/settings.dev.json
 experiments/drop_box/settings.dev.json
 experiments/googledrive/client_secrets.json
 *.db
+cloudalpha/temp/file1.txt
