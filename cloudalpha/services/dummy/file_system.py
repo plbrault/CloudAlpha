@@ -6,16 +6,19 @@ Reminder: Account and FileSystem subclasses must be implemented in a thread-safe
 """
 
 from core.file_system import FileSystem
-from core.exceptions import InvalidPathFileSystemError
+from core.exceptions import InvalidPathFileSystemError, \
+    AlreadyExistsFileSystemError
 from core.exceptions import AccessFailedFileSystemError
-import os
+import os, shutil
 
 class DummyFileSystem(FileSystem):
 
     _real_root_dir = "temp"
+    _total_space = 1000000000
+    _space_used = 0
 
     @property
-    def working_dir(self, path):
+    def working_dir(self):
         return self._working_dir
 
     @working_dir.setter
@@ -28,15 +31,13 @@ class DummyFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        try:
-            if not os.path.exists(os.path.abspath(path)):
-                raise InvalidPathFileSystemError()
 
-            self._working_dir = path
-        except:
-            raise AccessFailedFileSystemError()
-        pass
+        path = self.real_path(path)
 
+        if not os.path.isdir(path):
+            raise InvalidPathFileSystemError()
+
+        self._working_dir = path
 
     @property
     def space_used(self):
@@ -44,12 +45,7 @@ class DummyFileSystem(FileSystem):
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        try:
-            used = 153432
-            return used
-        except:
-            raise AccessFailedFileSystemError()
-        pass
+        return self._used_space
 
     @property
     def free_space(self):
@@ -57,7 +53,18 @@ class DummyFileSystem(FileSystem):
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
+        return self._total_space - self._used_space
+
+    def real_path(self, path):
+        """Returns the real path for the file or directory path input
+        """
+
+        if path[:1] is "/":
+            path = os.path.join(os.path.abspath(self._real_root_dir), path[1:])
+        else:
+            path = os.path.join(os.path.abspath(self._working_dir), path)
+
+        return path
 
     def list_dir(self, path=None):
         """Return the content of the specified directory. If no directory is specified, return the content of the current working directory.
@@ -71,7 +78,16 @@ class DummyFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
+        if path is None:
+            return os.listdir(os.path.abspath(self._working_dir))
+        else:
+            path = self.real_path(path)
+            if os.path.isdir(path):
+                try:
+                    return os.listdir(path)
+                except:
+                    raise AccessFailedFileSystemError()
+
 
     def is_dir(self, path):
         """Return a boolean value indicating if the given path corresponds to a directory.
@@ -82,8 +98,8 @@ class DummyFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
+        path = self.real_path(path)
         return os.path.isdir(path)
-        pass
 
     def is_file(self, path):
         """Return a boolean value indicating if the given path corresponds to a file.
@@ -94,7 +110,8 @@ class DummyFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
+        path = self.real_path(path)
+        return os.path.isfile(path)
 
     def get_size(self, path):
         """Return the size, in bytes, of the file corresponding to the given path.
@@ -158,7 +175,14 @@ class DummyFileSystem(FileSystem):
         If the given path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
+        path = self.real_path(path)
+        if not os.path.isdir(path):
+            try:
+                os.mkdir(path)
+            except:
+                raise AccessFailedFileSystemError()
+
+
 
     def move(self, old_path, new_path):
         """Move and/or rename a file or directory from old_path to new_path.
@@ -199,7 +223,14 @@ class DummyFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
+        path = self.real_path(path)
+        if os.path.exists(path):
+            if os.path.isdir(path):
+                shutil.rmtree(path)
+            else:
+                os.remove(path)
+        else:
+            raise InvalidPathFileSystemError()
 
     def read(self, path, start_byte, end_byte):
         """Read the data from the given byte range of the file corresponding to the given path.
@@ -229,8 +260,13 @@ class DummyFileSystem(FileSystem):
         If there is not enough free space to store the new file, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        open(path, 'a')
-        pass
+        path = self.real_path(path)
+        if not os.path.isfile(path):
+            open(path, "a").close()
+
+            self._total_space = self._total_space - size
+            self._space_used = self._space_used + size
+
 
     def write_to_new_file(self, path, data):
         """Append the given data to the uncommitted file corresponding to the given path.
@@ -243,7 +279,10 @@ class DummyFileSystem(FileSystem):
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
+        path = self.real_path(path)
+        file = open(path, 'a')
+        file.write(data)
+        file.close()
 
     def commit_new_file(self, path):
         """Commit a file that was previously created/overwritten, then populated with data.
@@ -262,12 +301,5 @@ class DummyFileSystem(FileSystem):
 
         if not os.path.isdir(os.path.abspath(self._real_root_dir)):
             os.mkdir(self._real_root_dir)
-            file1 = open(os.path.join(self._real_root_dir, "file1.txt"), 'a')
-            file1.write("# The Zen of Python\nBeautiful is better than ugly.\nExplicit is better than implicit.\nSimple is better than complex."
-                        + "\nComplex is better than complicated.\nFlat is better than nested.\nSparse is better than dense.\nReadability counts."
-                        + "\nSpecial cases aren't special enough to break the rules.\nAlthough practicality beats purity.\nErrors should never pass"
-                        + "silently.\nUnless explicitly silenced.\nIn the face of ambiguity, refuse the temptation to guess."
-                        + "\nThere should be one-- and preferably only one --obvious way to do it.\nAlthough that way may not be obvious at first unless you're Dutch."
-                        + "\nNow is better than never.\nAlthough never is often better than *right* now.\nIf the implementation is hard to explain, it's a bad idea."
-                        + "\nIf the implementation is easy to explain, it may be a good idea.\nNamespaces are one honking great idea -- let's do more of those!")
-            file1.close()
+
+        self.working_dir = os.path.abspath(self._real_root_dir)
