@@ -286,7 +286,7 @@ class DummyFileSystem(FileSystem):
         if os.path.exists(copy_path):
             raise AlreadyExistsFileSystemError()
         try:
-            shutil.move(path, copy_path)
+            shutil.copy(path, copy_path)
         except:
             raise AccessFailedFileSystemError()
 
