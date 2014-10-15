@@ -68,6 +68,7 @@ class FileSystem(object):
         or parent directory (e.g. « . » or « .. »).
         
         If the given path is invalid, raise InvalidPathError.
+        If the given path does not correspond to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass

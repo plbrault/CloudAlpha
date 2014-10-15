@@ -86,19 +86,23 @@ class DummyFileSystem(FileSystem):
         The return value is a list of file and folder names. It does not contain references to the current
         or parent directory (e.g. « . » or « .. »).
         
-        If the given path is invalid, raise InvalidPathError.
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the given path does not correspond to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         if path is None:
             path = self._get_real_path(self._working_dir)
-            return os.listdir(os.path.abspath(path))
+            return os.listdir(path)
         else:
             path = self._get_real_path(path)
-            if os.path.isdir(path):
-                try:
-                    return os.listdir(path)
-                except:
-                    raise AccessFailedFileSystemError()
+            if not os.path.exists(path):
+                raise InvalidPathFileSystemError()
+            if not os.path.isdir(path):
+                raise InvalidTargetFileSystemError()
+            try:
+                return os.listdir(path)
+            except:
+                raise AccessFailedFileSystemError()
 
 
     def is_dir(self, path):
