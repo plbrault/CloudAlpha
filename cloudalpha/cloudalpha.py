@@ -23,24 +23,12 @@ if __name__ == '__main__':
     account.file_system.write_to_new_file("file1.txt", data)
 
     account.file_system.make_dir("fun")
-    account.file_system.working_dir = "fun"
-    print(account.file_system.list_dir())
-    print(account.file_system.working_dir)
 
     account.file_system.make_dir("brine")
-    account.file_system.working_dir = "brine"
-    print(account.file_system.list_dir())
-    print(account.file_system.working_dir)
 
     account.file_system.create_new_file("file2.txt", 1000)
     account.file_system.write_to_new_file("file2.txt", data)
 
     account.file_system.working_dir = "/"
-    print(account.file_system.list_dir())
-    print(account.file_system.working_dir)
-
-    account.file_system.working_dir = "/fun"
-    print(account.file_system.list_dir())
-    print(account.file_system.working_dir)
 
     manager.run()

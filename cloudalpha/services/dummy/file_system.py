@@ -90,7 +90,7 @@ class DummyFileSystem(FileSystem):
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        return self._used_space
+        return self._space_used
 
     @property
     def free_space(self):
@@ -98,7 +98,7 @@ class DummyFileSystem(FileSystem):
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        return self._total_space - self._used_space
+        return self._total_space - self._space_used
 
     def list_dir(self, path=None):
         """Return the content of the specified directory. If no directory is specified, return the content of the current working directory.
@@ -149,6 +149,9 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         path = self._real_path(path)
+        if not os.path.exists(path):
+            raise InvalidPathFileSystemError
+
         return os.path.isfile(path)
 
     def get_size(self, path):
