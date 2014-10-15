@@ -34,6 +34,7 @@ class FileSystem(object):
         It may be absolute, or relative to the current working directory.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
+        If the given path does not correspond to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass

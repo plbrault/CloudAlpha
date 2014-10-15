@@ -6,7 +6,7 @@ Reminder: Account and FileSystem subclasses must be implemented in a thread-safe
 """
 
 from core.file_system import FileSystem
-from core.exceptions import InvalidPathFileSystemError, AlreadyExistsFileSystemError
+from core.exceptions import InvalidPathFileSystemError, AlreadyExistsFileSystemError, InvalidTargetFileSystemError
 from core.exceptions import AccessFailedFileSystemError
 import os, time, shutil
 
@@ -51,11 +51,14 @@ class DummyFileSystem(FileSystem):
         It may be absolute, or relative to the current working directory.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
+        If the given path does not correspond to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        path = self._get_absolute_virtual_path(path)
-        if not os.path.isdir(self._get_real_path(path)):
+        real_path = self._get_real_path(path)
+        if not os.path.exists(real_path):
             raise InvalidPathFileSystemError()
+        if not os.path.isdir(self._get_real_path(path)):
+            raise InvalidTargetFileSystemError()
         self._working_dir = path
 
     @property
