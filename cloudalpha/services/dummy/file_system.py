@@ -16,15 +16,6 @@ class DummyFileSystem(FileSystem):
     _total_space = 1000000000
     _space_used = 0
 
-    def _get_real_path(self, path):
-        """Return the real path corresponding to the specified virtual path.
-        """
-        if path[:1] == "/":
-            real_path = os.path.abspath(os.path.join(self._real_root_dir, path[1:]))
-        else:
-            real_path = os.path.abspath(os.path.join(self._real_root_dir, self.working_dir[1:], path))
-        return real_path
-
     def _get_absolute_virtual_path(self, path):
         """Return the absolute virtual path corresponding to the given relative one.
         """
@@ -42,6 +33,12 @@ class DummyFileSystem(FileSystem):
                 abs_path += "/" + level
             return abs_path
 
+    def _get_real_path(self, path):
+        """Return the real path corresponding to the specified virtual path.
+        """
+        path = self._get_absolute_virtual_path(path)
+        return os.path.abspath(os.path.join(self._real_root_dir, path[1:]))
+
     @property
     def working_dir(self):
         return self._working_dir
@@ -56,12 +53,9 @@ class DummyFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-
         path = self._get_absolute_virtual_path(path)
-
         if not os.path.isdir(self._get_real_path(path)):
             raise InvalidPathFileSystemError()
-
         self._working_dir = path
 
     @property
