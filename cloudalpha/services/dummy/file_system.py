@@ -186,8 +186,10 @@ class DummyFileSystem(FileSystem):
         path = self._get_real_path(path)
         if not os.path.exists(path):
             raise InvalidPathFileSystemError
-
-        return time.ctime(os.path.getmtime(path))
+        try:
+            return time.ctime(os.path.getmtime(path))
+        except:
+            raise AccessFailedFileSystemError()
 
     def get_accessed_datetime(self, path):
         """Return the date and time of the last time the given file or directory was accessed.
