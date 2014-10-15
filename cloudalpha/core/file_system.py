@@ -67,7 +67,7 @@ class FileSystem(object):
         The return value is a list of file and folder names. It does not contain references to the current
         or parent directory (e.g. « . » or « .. »).
         
-        If the given path is invalid, raise InvalidPathError.
+        If the given path is invalid, raise InvalidPathFileSystemError.
         If the given path does not correspond to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
@@ -80,7 +80,7 @@ class FileSystem(object):
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
         
-        If the given path is invalid, raise InvalidPathError.
+        If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass

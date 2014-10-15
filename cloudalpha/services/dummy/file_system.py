@@ -111,13 +111,12 @@ class DummyFileSystem(FileSystem):
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
         
-        If the given path is invalid, raise InvalidPathError.
+        If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         path = self._get_real_path(path)
         if not os.path.exists(path):
             raise InvalidPathFileSystemError
-
         return os.path.isdir(path)
 
     def is_file(self, path):
