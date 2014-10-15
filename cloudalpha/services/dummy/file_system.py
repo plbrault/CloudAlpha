@@ -222,13 +222,14 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         path = self._get_real_path(path)
-        if not os.path.isdir(path):
-            try:
-                os.mkdir(path)
-            except:
-                raise AccessFailedFileSystemError()
-
-
+        if not os.path.exists(path.rsplit("/", 1)[0]):
+            raise InvalidPathFileSystemError()
+        if os.path.exists(path):
+            raise AlreadyExistsFileSystemError()
+        try:
+            os.mkdir(path)
+        except:
+            raise AccessFailedFileSystemError()
 
     def move(self, old_path, new_path):
         """Move and/or rename a file or directory from old_path to new_path.
