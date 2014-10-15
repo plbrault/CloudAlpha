@@ -1,6 +1,6 @@
 from core.file_system import FileSystem
 from core.exceptions import InvalidPathFileSystemError, AlreadyExistsFileSystemError, InvalidTargetFileSystemError, \
-    AccessFailedFileSystemError, UncommittedExistsFileSystemError
+    AccessFailedFileSystemError, UncommittedExistsFileSystemError, WriteOverflowFileSystemError
 import os, time, shutil
 
 
@@ -382,7 +382,8 @@ class DummyFileSystem(FileSystem):
                 if not os.path.exists(temp_dir_path):
                     os.mkdir(temp_dir_path)
             temp_file_path = os.path.join(temp_dir_path, virtual_path_split[-1:][0])
-            self._new_files[virtual_path] = open(temp_file_path, 'a')
+            self._new_files[virtual_path] = (open(temp_file_path, 'a'), size)
+            self._space_used -= size
         except:
             raise AccessFailedFileSystemError()
 
@@ -394,13 +395,16 @@ class DummyFileSystem(FileSystem):
         It may be absolute, or relative to the current working directory.
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
+        If the the declared size of the file is exceeded, raise WriteOverflowFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         virtual_path = self._get_absolute_virtual_path(path)
         if virtual_path not in self._new_files:
             raise InvalidTargetFileSystemError()
+        temp_file, file_size = self._new_files(virtual_path)
+        if temp_file.tell() + len(data) >= file_size:
+            raise WriteOverflowFileSystemError()
         try:
-            temp_file = self._new_files(virtual_path)
             temp_file.write(data)
         except:
             raise AccessFailedFileSystemError
@@ -417,7 +421,7 @@ class DummyFileSystem(FileSystem):
         virtual_path = self._get_absolute_virtual_path(path)
         if virtual_path not in self._new_files:
             raise InvalidTargetFileSystemError()
-        temp_file = self._new_files.pop(virtual_path)
+        temp_file = self._new_files.pop(virtual_path)[0]
         try:
             temp_file.close()
         except:
@@ -441,9 +445,10 @@ class DummyFileSystem(FileSystem):
         virtual_path = self._get_absolute_virtual_path(path)
         if virtual_path not in self._new_files:
             raise InvalidTargetFileSystemError()
-        temp_file = self._new_files.pop(virtual_path)
+        temp_file, file_size = self._new_files.pop(virtual_path)
         try:
             temp_file.close()
+            self._space_used += file_size
         except:
             pass
         try:

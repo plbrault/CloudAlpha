@@ -267,6 +267,7 @@ class FileSystem(object):
         It may be absolute, or relative to the current working directory.
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
+        If the the declared size of the file is exceeded, raise WriteOverflowFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass

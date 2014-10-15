@@ -16,6 +16,9 @@ class UncommittedExistsFileSystemError(FileSystemError):
 class InsufficientSpaceFileSystemError(FileSystemError):
     pass
 
+class WriteOverflowFileSystemError(FileSystemError):
+    pass
+
 class AccessFailedFileSystemError(FileSystemError):
     pass
 
