@@ -17,7 +17,7 @@ class DummyFileSystem(FileSystem):
     _space_used = 0
 
     def _get_real_path(self, path):
-        """Returns the real path for the file or directory path input
+        """Return the real path corresponding to the specified virtual path.
         """
         if path[:1] == "/":
             real_path = os.path.abspath(os.path.join(self._real_root_dir, path[1:]))
@@ -25,34 +25,22 @@ class DummyFileSystem(FileSystem):
             real_path = os.path.abspath(os.path.join(self._real_root_dir, self.working_dir[1:], path))
         return real_path
 
-    def _virtual_path(self, path):
-        """Returns the virtual path for the file or directory path input
+    def _get_absolute_virtual_path(self, path):
+        """Return the absolute virtual path corresponding to the given relative one.
         """
-
-        if path[:2] == "..":
-            if self.working_dir is "/":
-                return "/"
-            else:
-                path = self.working_dir.rsplit("/", path.count("../") + 1)[0]
-                if path == "":
-                    path = "/"
-        elif path[:1] == "/":
-            pass
-        elif path == ".":
-            path = self.working_dir
-        elif path[:2] == "./":
-            path = path[2:]
-            if path == "":
-                path = self.working_dir
-            else:
-                path = self.working_dir + "/" + path
+        if path[:1] == "/":
+            return path
         else:
-            if self.working_dir is "/":
-                path = "/" + path
-            else:
-                path = self.working_dir + "/" + path
-
-        return path
+            abs_levels = [self._working_dir]
+            for level in path.split("/"):
+                if level == ".." and len(abs_levels) > 0:
+                    abs_levels.pop()
+                elif level != ".":
+                    abs_levels.append(level)
+            abs_path = ""
+            for level in abs_levels:
+                abs_path += "/" + level
+            return abs_path
 
     @property
     def working_dir(self):
@@ -69,7 +57,7 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
 
-        path = self._virtual_path(path)
+        path = self._get_absolute_virtual_path(path)
 
         if not os.path.isdir(self._get_real_path(path)):
             raise InvalidPathFileSystemError()
