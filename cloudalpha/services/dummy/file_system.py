@@ -17,8 +17,10 @@ class DummyFileSystem(FileSystem):
         """Return the absolute virtual path corresponding to the given relative one.
         """
         abs_levels = []
-        if path[:1] != "/":
-            abs_levels.append(self._working_dir)
+        if path[:1] == "/":
+            path = path[1:]
+        elif self._working_dir != "/":
+            abs_levels.append(self._working_dir[1:])
         for level in path.split("/"):
             if level == ".." and len(abs_levels) > 0:
                 abs_levels.pop()
@@ -55,7 +57,7 @@ class DummyFileSystem(FileSystem):
             raise InvalidPathFileSystemError()
         if not os.path.isdir(self._get_real_path(path)):
             raise InvalidTargetFileSystemError()
-        self._working_dir = path
+        self._working_dir = self._get_absolute_virtual_path(path)
 
     @property
     def space_used(self):
@@ -401,7 +403,7 @@ class DummyFileSystem(FileSystem):
         virtual_path = self._get_absolute_virtual_path(path)
         if virtual_path not in self._new_files:
             raise InvalidTargetFileSystemError()
-        temp_file, file_size = self._new_files(virtual_path)
+        temp_file, file_size = self._new_files[virtual_path]
         if temp_file.tell() + len(data) >= file_size:
             raise WriteOverflowFileSystemError()
         try:
@@ -458,6 +460,7 @@ class DummyFileSystem(FileSystem):
             raise AccessFailedFileSystemError()
 
     def __init__(self):
+        """DummyFileSystem initializer"""
         super(DummyFileSystem, self).__init__()
         root = os.path.abspath(self._REAL_ROOT_DIR)
         temp = os.path.abspath(self._TEMP_DIR)
@@ -467,10 +470,10 @@ class DummyFileSystem(FileSystem):
             else:
                 os.remove(root)
         if os.path.exists(temp):
-            if os.path.isdir(root):
-                shutil.rmtree(root, True)
+            if os.path.isdir(temp):
+                shutil.rmtree(temp, True)
             else:
-                os.remove(root)
+                os.remove(temp)
         os.mkdir(root)
         os.mkdir(temp)
         self.working_dir = "/"
