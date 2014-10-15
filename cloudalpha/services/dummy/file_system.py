@@ -9,7 +9,7 @@ from core.file_system import FileSystem
 from core.exceptions import InvalidPathFileSystemError, \
     AlreadyExistsFileSystemError
 from core.exceptions import AccessFailedFileSystemError
-import os, shutil
+import os, time, shutil
 
 class DummyFileSystem(FileSystem):
 
@@ -177,7 +177,11 @@ class DummyFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
+        path = self._real_path(path)
+        if not os.path.exists(path):
+            raise InvalidPathFileSystemError
+
+        return time.ctime(os.path.getctime(path))
 
     def get_modified_datetime(self, path):
         """Return the date and time of the last modification to the file or directory corresponding to the given path.
@@ -190,7 +194,11 @@ class DummyFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
+        path = self._real_path(path)
+        if not os.path.exists(path):
+            raise InvalidPathFileSystemError
+
+        return time.ctime(os.path.getmtime(path))
 
     def get_accessed_datetime(self, path):
         """Return the date and time of the last time the given file or directory was accessed.
@@ -237,7 +245,10 @@ class DummyFileSystem(FileSystem):
         If new_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
+        old_path = self._real_path(old_path)
+        new_path = self._real_path(new_path)
+        if os.path.exists(old_path) and os.path.exists(new_path):
+            shutil.move(old_path, new_path)
 
     def copy(self, path, copy_path):
         """Copy a file or directory from path to copy_path.
@@ -250,7 +261,10 @@ class DummyFileSystem(FileSystem):
         If copy_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
-        pass
+        path = self._real_path(path)
+        copy_path = self._real_path(copy_path)
+        if os.path.exists(path) and os.path.exists(copy_path):
+            shutil.copy(path, copy_path)
 
     def delete(self, path):
         """Delete the file or directory corresponding to the given path.

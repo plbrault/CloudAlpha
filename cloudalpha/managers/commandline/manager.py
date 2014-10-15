@@ -72,7 +72,7 @@ class CommandLineManager(Manager):
 
             elif var[0] == "ls":
                 if len(var) == 1:
-                    print(self.file_system.list_dir(None))
+                    print(self.file_system.list_dir())
                 else:
                     print(self.file_system.list_dir(var[1]))
 
@@ -87,10 +87,16 @@ class CommandLineManager(Manager):
                 pass
 
             elif var[0] == "created_dt":
-                pass
+                if len(var) > 1:
+                    print(self.file_system.get_created_datetime(str(var[1])))
+                else:
+                    print(self.file_system.get_created_datetime(self.file_system.working_dir))
 
             elif var[0] == "modified_dt":
-                pass
+                if len(var) > 1:
+                    print(self.file_system.get_modified_datetime(str(var[1])))
+                else:
+                    print(self.file_system.get_created_datetime(self.file_system.working_dir))
 
             elif var[0] == "accessed_dt":
                 pass
@@ -100,10 +106,12 @@ class CommandLineManager(Manager):
                     self.file_system.make_dir(str(var[1]))
 
             elif var[0] == "mv":
-                pass
+                if len(var) > 2:
+                    self.file_system.move(str(var[1]), str(var[2]))
 
             elif var[0] == "cp":
-                pass
+                if len(var) > 2:
+                    self.file_system.copy(str(var[1]), str(var[2]))
 
             elif var[0] == "rm":
                 if len(var) > 1:
