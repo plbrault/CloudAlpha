@@ -131,7 +131,6 @@ class DummyFileSystem(FileSystem):
         path = self._get_real_path(path)
         if not os.path.exists(path):
             raise InvalidPathFileSystemError
-
         return os.path.isfile(path)
 
     def get_size(self, path):
@@ -144,7 +143,15 @@ class DummyFileSystem(FileSystem):
         If the given path corresponds to a directory, raise FileSystemTargetError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
-        pass
+        path = self._get_real_path(path)
+        if not os.path.exists(path):
+            raise InvalidPathFileSystemError()
+        if os.path.isdir():
+            raise InvalidTargetFileSystemError()
+        try:
+            return os.path.getsize(path)
+        except:
+            raise AccessFailedFileSystemError()
 
     def get_created_datetime(self, path):
         """Return the date and time of creation of the file or directory corresponding to the given path.
