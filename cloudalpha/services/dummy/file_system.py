@@ -203,7 +203,13 @@ class DummyFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
+        path = self._get_real_path(path)
+        if not os.path.exists(path):
+            raise InvalidPathFileSystemError
+        try:
+            return time.ctime(os.path.getatime(path))
+        except:
+            raise AccessFailedFileSystemError()
 
     def make_dir(self, path):
         """Creates a new directory corresponding to the given path.
