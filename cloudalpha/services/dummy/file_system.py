@@ -1,43 +1,39 @@
-"""TODO: 
-
-Implement a dummy file system, for testing purposes.
-
-Reminder: Account and FileSystem subclasses must be implemented in a thread-safe way.
-"""
-
 from core.file_system import FileSystem
-from core.exceptions import InvalidPathFileSystemError, AlreadyExistsFileSystemError, InvalidTargetFileSystemError
-from core.exceptions import AccessFailedFileSystemError
+from core.exceptions import InvalidPathFileSystemError, AlreadyExistsFileSystemError, InvalidTargetFileSystemError, \
+    AccessFailedFileSystemError, UncommittedExistsFileSystemError
 import os, time, shutil
+
 
 class DummyFileSystem(FileSystem):
 
-    _real_root_dir = "temp"
+    _REAL_ROOT_DIR = ".dummyroot"
+    _TEMP_DIR = ".dummytemp"
+
     _total_space = 1000000000
     _space_used = 0
+    _new_files = {}
 
     def _get_absolute_virtual_path(self, path):
         """Return the absolute virtual path corresponding to the given relative one.
         """
-        if path[:1] == "/":
-            return path
-        else:
-            abs_levels = [self._working_dir]
-            for level in path.split("/"):
-                if level == ".." and len(abs_levels) > 0:
-                    abs_levels.pop()
-                elif level != ".":
-                    abs_levels.append(level)
-            abs_path = ""
-            for level in abs_levels:
-                abs_path += "/" + level
-            return abs_path
+        abs_levels = []
+        if path[:1] != "/":
+            abs_levels.append(self._working_dir)
+        for level in path.split("/"):
+            if level == ".." and len(abs_levels) > 0:
+                abs_levels.pop()
+            elif level != ".":
+                abs_levels.append(level)
+        abs_path = ""
+        for level in abs_levels:
+            abs_path += "/" + level
+        return abs_path
 
     def _get_real_path(self, path):
         """Return the real path corresponding to the specified virtual path.
         """
         path = self._get_absolute_virtual_path(path)
-        return os.path.abspath(os.path.join(self._real_root_dir, path[1:]))
+        return os.path.abspath(os.path.join(self._REAL_ROOT_DIR, path[1:]))
 
     @property
     def working_dir(self):
@@ -229,15 +225,20 @@ class DummyFileSystem(FileSystem):
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        path = self._get_real_path(path)
-        if not os.path.exists(path.rsplit("/", 1)[0]):
+        virtual_path = self._get_absolute_virtual_path(path)
+        real_path = self._get_real_path(virtual_path)
+        real_parent_path = real_path.rsplit("/", 1)[0].rsplit("\\", 1)[0]
+        if not os.path.exists(real_parent_path):
             raise InvalidPathFileSystemError()
-        if os.path.exists(path):
+        if os.path.exists(real_path):
             raise AlreadyExistsFileSystemError()
+        if virtual_path in self._new_files:
+            raise UncommittedExistsFileSystemError()
         try:
-            os.mkdir(path)
+            os.mkdir(real_path)
         except:
             raise AccessFailedFileSystemError()
 
@@ -251,16 +252,20 @@ class DummyFileSystem(FileSystem):
         
         If at least one of the given paths is invalid, raise InvalidPathFileSystemError.
         If new_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If new_path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        old_path = self._get_real_path(old_path)
-        new_path = self._get_real_path(new_path)
-        if not os.path.exists(old_path):
+        real_old_path = self._get_real_path(old_path)
+        virtual_new_path = self._get_absolute_virtual_path(new_path)
+        real_new_path = self._get_real_path(new_path)
+        if not os.path.exists(real_old_path):
             raise InvalidPathFileSystemError()
-        if old_path in new_path:
+        if real_old_path in real_new_path:
             raise InvalidPathFileSystemError()
-        if os.path.exists(new_path):
+        if os.path.exists(real_new_path):
             raise AlreadyExistsFileSystemError()
+        if virtual_new_path in self._new_files:
+            raise UncommittedExistsFileSystemError()
         try:
             shutil.move(old_path, new_path)
         except:
@@ -277,16 +282,19 @@ class DummyFileSystem(FileSystem):
         If copy_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
-        path = self._get_real_path(path)
-        copy_path = self._get_real_path(copy_path)
-        if not os.path.exists(path):
+        real_path = self._get_real_path(path)
+        virtual_copy_path = self._get_absolute_virtual_path(copy_path)
+        real_copy_path = self._get_real_path(copy_path)
+        if not os.path.exists(real_path):
             raise InvalidPathFileSystemError()
-        if path in copy_path:
+        if real_path in real_copy_path:
             raise InvalidPathFileSystemError()
-        if os.path.exists(copy_path):
+        if os.path.exists(real_copy_path):
             raise AlreadyExistsFileSystemError()
+        if virtual_copy_path in self._new_files:
+            raise UncommittedExistsFileSystemError()
         try:
-            shutil.copy(path, copy_path)
+            shutil.copy(real_path, real_copy_path)
         except:
             raise AccessFailedFileSystemError()
 
@@ -352,16 +360,31 @@ class DummyFileSystem(FileSystem):
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.
+        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If there is not enough free space to store the new file, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        path = self._get_real_path(path)
-        if not os.path.isfile(path):
-            open(path, "a").close()
-
-            self._total_space = self._total_space - size
-            self._space_used = self._space_used + size
-
+        virtual_path = self._get_absolute_virtual_path(path)
+        real_path = self._get_real_path(path)
+        real_parent_path = real_path.rsplit("/", 1)[0].rsplit("\\", 1)[0]
+        if not os.path.exists(real_parent_path):
+            raise InvalidPathFileSystemError()
+        if os.path.isdir(real_path):
+            raise InvalidTargetFileSystemError()
+        if virtual_path in self._new_files:
+            raise UncommittedExistsFileSystemError()
+        try:
+            virtual_path = self._get_absolute_virtual_path(path)
+            temp_dir_path = os.path.abspath(self._TEMP_DIR)
+            virtual_path_split = virtual_path.split("/")
+            for level in virtual_path_split[:-1]:
+                temp_dir_path = os.path.join(temp_dir_path, level)
+                if not os.path.exists(temp_dir_path):
+                    os.mkdir(temp_dir_path)
+            temp_file_path = os.path.join(temp_dir_path, virtual_path_split[-1:][0])
+            self._new_files[virtual_path] = open(temp_file_path, 'a')
+        except:
+            raise AccessFailedFileSystemError()
 
     def write_to_new_file(self, path, data):
         """Append the given data to the uncommitted file corresponding to the given path.
@@ -370,14 +393,17 @@ class DummyFileSystem(FileSystem):
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
         
-        If the given path is invalid, raise InvalidPathFileSystemError.
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        path = self._get_real_path(path)
-        file = open(path, 'a')
-        file.write(data)
-        file.close()
+        virtual_path = self._get_absolute_virtual_path(path)
+        if virtual_path not in self._new_files:
+            raise InvalidTargetFileSystemError()
+        try:
+            temp_file = self._new_files(virtual_path)
+            temp_file.write(data)
+        except:
+            raise AccessFailedFileSystemError
 
     def commit_new_file(self, path):
         """Commit a file that was previously created/overwritten, then populated with data.
@@ -385,19 +411,61 @@ class DummyFileSystem(FileSystem):
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.        
         
-        If the given path is invalid, raise InvalidPathFileSystemError.
-        If the given path is valid, but does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
+        If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
+        virtual_path = self._get_absolute_virtual_path(path)
+        if virtual_path not in self._new_files:
+            raise InvalidTargetFileSystemError()
+        temp_file = self._new_files.pop(virtual_path)
+        try:
+            temp_file.close()
+        except:
+            pass
+        try:
+            abs_temp_path = os.path.abspath(os.path.join(self._TEMP_DIR, virtual_path[1:]))
+            abs_real_path = self._get_real_path(virtual_path)
+            shutil.move(abs_temp_path, abs_real_path)
+        except:
+            raise AccessFailedFileSystemError()
+
+    def flush_new_file(self, path):
+        """Delete an uncommitted file.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+        
+        If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.                
+        """
+        virtual_path = self._get_absolute_virtual_path(path)
+        if virtual_path not in self._new_files:
+            raise InvalidTargetFileSystemError()
+        temp_file = self._new_files.pop(virtual_path)
+        try:
+            temp_file.close()
+        except:
+            pass
+        try:
+            real_temp_path = os.path.abspath(os.path.join(self._TEMP_DIR, virtual_path[1:]))
+            os.remove(real_temp_path)
+        except:
+            raise AccessFailedFileSystemError()
 
     def __init__(self):
         super(DummyFileSystem, self).__init__()
-        root = os.path.abspath(self._real_root_dir)
+        root = os.path.abspath(self._REAL_ROOT_DIR)
+        temp = os.path.abspath(self._TEMP_DIR)
         if os.path.exists(root):
             if os.path.isdir(root):
                 shutil.rmtree(root, True)
             else:
                 os.remove(root)
+        if os.path.exists(temp):
+            if os.path.isdir(root):
+                shutil.rmtree(root, True)
+            else:
+                os.remove(root)
         os.mkdir(root)
+        os.mkdir(temp)
         self.working_dir = "/"

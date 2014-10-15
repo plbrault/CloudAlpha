@@ -173,6 +173,7 @@ class FileSystem(object):
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
@@ -188,6 +189,7 @@ class FileSystem(object):
         
         If at least one of the given paths is invalid, raise InvalidPathFileSystemError.
         If new_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
@@ -202,6 +204,7 @@ class FileSystem(object):
         
         If at least one of the given paths is invalid, raise InvalidPathFileSystemError.
         If copy_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If copy_path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         pass
@@ -249,6 +252,7 @@ class FileSystem(object):
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.
+        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If there is not enough free space to store the new file, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
@@ -262,7 +266,6 @@ class FileSystem(object):
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
         
-        If the given path is invalid, raise InvalidPathFileSystemError.
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
@@ -275,8 +278,19 @@ class FileSystem(object):
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.        
         
-        If the given path is invalid, raise InvalidPathFileSystemError.
-        If the given path is valid, but does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
+        If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
+        """
+        pass
+
+    @abstractmethod
+    def flush_new_file(self, path):
+        """Delete an uncommitted file.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+        
+        If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.                
         """
         pass
