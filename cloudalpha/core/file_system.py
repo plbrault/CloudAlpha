@@ -58,6 +58,17 @@ class FileSystem(object):
         pass
 
     @abstractmethod
+    def exists(self, path):
+        """Return True if the given path is valid.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+        
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.        
+        """
+        pass
+
+    @abstractmethod
     def list_dir(self, path=None):
         """Return the content of the specified directory. If no directory is specified, return the content of the current working directory.
         
