@@ -245,8 +245,16 @@ class DummyFileSystem(FileSystem):
         """
         old_path = self._get_real_path(old_path)
         new_path = self._get_real_path(new_path)
-        if os.path.exists(old_path) and os.path.exists(new_path):
+        if not os.path.exists(old_path):
+            raise InvalidPathFileSystemError()
+        if old_path in new_path:
+            raise InvalidPathFileSystemError()
+        if os.path.exists(new_path):
+            raise AlreadyExistsFileSystemError()
+        try:
             shutil.move(old_path, new_path)
+        except:
+            raise AccessFailedFileSystemError()
 
     def copy(self, path, copy_path):
         """Copy a file or directory from path to copy_path.
