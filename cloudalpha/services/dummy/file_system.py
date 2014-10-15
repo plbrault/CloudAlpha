@@ -380,8 +380,11 @@ class DummyFileSystem(FileSystem):
 
     def __init__(self):
         super(DummyFileSystem, self).__init__()
-
-        if not os.path.isdir(os.path.abspath(self._real_root_dir)):
-            os.mkdir(self._real_root_dir)
-
+        root = os.path.abspath(self._real_root_dir)
+        if os.path.exists(root):
+            if os.path.isdir(root):
+                shutil.rmtree(root, True)
+            else:
+                os.remove(root)
+        os.mkdir(root)
         self.working_dir = "/"
