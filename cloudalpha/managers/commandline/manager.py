@@ -6,7 +6,7 @@ Commands to implement:
     - pwd
         print the current working directory
     - cd [PATH]
-        change the current working directory. Do nothing is PATH is not supplied.
+        change the current working directory. Do nothing if PATH is not supplied.
     - space_used
         print the number of bytes used on the file system
     - free_space
@@ -42,6 +42,7 @@ The commands are implemented using self.file_system, which corresponds to a File
 """
 
 from core.manager import Manager
+import os
 
 class CommandLineManager(Manager):
 
@@ -51,7 +52,21 @@ class CommandLineManager(Manager):
         If file_system is not set, raise FileSystemNotSetManagerError.
         If the operation fails for any other reason, raise StartupFailedManagerError.
         """
-        pass
+        commands = ["pwd", "cd", "space_used", "free_space", "ls", "type", "size", "created_dt", "modified_dt", "accessed_dt", "mkdir", "mv", "cp", "rm", "download", "upload", "help"]
+
+        while 1 is 1:
+
+            var = input(">" + self.file_system.working_dir + ":").split(" ")
+            if var[0] == commands[0]:
+                print(self.file_system.working_dir)
+            elif var[0] == commands[1]:
+                if len(var) == 1:
+                    print("Error: missing PATH")
+                elif not len(var) == 2:
+                    print("Error: Too many parameters")
+                else:
+
+                    self.file_system.working_dir = str(var[1])
 
     def stop(self):
         """Stop the manager.

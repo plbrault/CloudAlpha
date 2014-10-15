@@ -17,6 +17,51 @@ class DummyFileSystem(FileSystem):
     _total_space = 1000000000
     _space_used = 0
 
+    def _real_path(self, path):
+        """Returns the real path for the file or directory path input
+        """
+        if path[:1] is "/":
+            root = os.path.abspath(self._real_root_dir)
+            split = path.split("/")
+            real_path = os.path.join(root, os.path.abspath(self._real_root_dir))
+
+            if path is not "/":
+                for splits in split:
+                    real_path = os.path.join(real_path, splits)
+        else:
+            root = os.path.join(os.path.abspath(self._real_root_dir), self.working_dir[1:])
+            real_path = os.path.join(root, path)
+        return real_path
+
+    def _virtual_path(self, path):
+        """Returns the virtual path for the file or directory path input
+        """
+
+        if path[:2] == "..":
+            if self.working_dir is "/":
+                return "/"
+            else:
+                path = self.working_dir.rsplit("/", path.count("../") + 1)[0]
+                if path == "":
+                    path = "/"
+        elif path[:1] == "/":
+            pass
+        elif path == ".":
+            path = self.working_dir
+        elif path[:2] == "./":
+            path = path[2:]
+            if path == "":
+                path = self.working_dir
+            else:
+                path = self.working_dir + "/" + path
+        else:
+            if self.working_dir is "/":
+                path = "/" + path
+            else:
+                path = self.working_dir + "/" + path
+
+        return path
+
     @property
     def working_dir(self):
         return self._working_dir
@@ -32,9 +77,9 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
 
-        path = self.real_path(path)
+        path = self._virtual_path(path)
 
-        if not os.path.isdir(path):
+        if not os.path.isdir(self._real_path(path)):
             raise InvalidPathFileSystemError()
 
         self._working_dir = path
@@ -55,17 +100,6 @@ class DummyFileSystem(FileSystem):
         """
         return self._total_space - self._used_space
 
-    def real_path(self, path):
-        """Returns the real path for the file or directory path input
-        """
-
-        if path[:1] is "/":
-            path = os.path.join(os.path.abspath(self._real_root_dir), path[1:])
-        else:
-            path = os.path.join(os.path.abspath(self._working_dir), path)
-
-        return path
-
     def list_dir(self, path=None):
         """Return the content of the specified directory. If no directory is specified, return the content of the current working directory.
         
@@ -79,9 +113,10 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         if path is None:
-            return os.listdir(os.path.abspath(self._working_dir))
+            path = self._real_path(self._working_dir)
+            return os.listdir(os.path.abspath(path))
         else:
-            path = self.real_path(path)
+            path = self._real_path(path)
             if os.path.isdir(path):
                 try:
                     return os.listdir(path)
@@ -98,7 +133,10 @@ class DummyFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        path = self.real_path(path)
+        path = self._real_path(path)
+        if not os.path.exists(path):
+            raise InvalidPathFileSystemError
+
         return os.path.isdir(path)
 
     def is_file(self, path):
@@ -110,7 +148,7 @@ class DummyFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        path = self.real_path(path)
+        path = self._real_path(path)
         return os.path.isfile(path)
 
     def get_size(self, path):
@@ -175,7 +213,7 @@ class DummyFileSystem(FileSystem):
         If the given path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        path = self.real_path(path)
+        path = self._real_path(path)
         if not os.path.isdir(path):
             try:
                 os.mkdir(path)
@@ -223,7 +261,7 @@ class DummyFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        path = self.real_path(path)
+        path = self._real_path(path)
         if os.path.exists(path):
             if os.path.isdir(path):
                 shutil.rmtree(path)
@@ -260,7 +298,7 @@ class DummyFileSystem(FileSystem):
         If there is not enough free space to store the new file, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        path = self.real_path(path)
+        path = self._real_path(path)
         if not os.path.isfile(path):
             open(path, "a").close()
 
@@ -279,7 +317,7 @@ class DummyFileSystem(FileSystem):
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        path = self.real_path(path)
+        path = self._real_path(path)
         file = open(path, 'a')
         file.write(data)
         file.close()
@@ -302,4 +340,4 @@ class DummyFileSystem(FileSystem):
         if not os.path.isdir(os.path.abspath(self._real_root_dir)):
             os.mkdir(self._real_root_dir)
 
-        self.working_dir = os.path.abspath(self._real_root_dir)
+        self.working_dir = "/"

@@ -9,7 +9,7 @@ if __name__ == '__main__':
     manager.file_system = account.file_system
 
     account.authenticate()
-    manager.run()
+
 
     data = ("# The Zen of Python\nBeautiful is better than ugly.\nExplicit is better than implicit.\nSimple is better than complex."
             + "\nComplex is better than complicated.\nFlat is better than nested.\nSparse is better than dense.\nReadability counts."
@@ -24,6 +24,13 @@ if __name__ == '__main__':
 
     account.file_system.make_dir("fun")
     account.file_system.working_dir = "fun"
+    print(account.file_system.list_dir())
+    print(account.file_system.working_dir)
+
+    account.file_system.make_dir("brine")
+    account.file_system.working_dir = "brine"
+    print(account.file_system.list_dir())
+    print(account.file_system.working_dir)
 
     account.file_system.create_new_file("file2.txt", 1000)
     account.file_system.write_to_new_file("file2.txt", data)
@@ -35,3 +42,5 @@ if __name__ == '__main__':
     account.file_system.working_dir = "/fun"
     print(account.file_system.list_dir())
     print(account.file_system.working_dir)
+
+    manager.run()
