@@ -222,8 +222,9 @@ class FileSystem(object):
         pass
 
     @abstractmethod
-    def read(self, path, start_byte, end_byte):
-        """Read the data from the given byte range of the file corresponding to the given path.
+    def read(self, path, start_byte, num_bytes):
+        """Read the number of bytes corresponding to num_bytes from the file corresponding to the given path,
+        beginning at start_byte.
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
