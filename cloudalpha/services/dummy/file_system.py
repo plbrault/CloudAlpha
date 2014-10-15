@@ -167,8 +167,10 @@ class DummyFileSystem(FileSystem):
         path = self._get_real_path(path)
         if not os.path.exists(path):
             raise InvalidPathFileSystemError
-
-        return time.ctime(os.path.getctime(path))
+        try:
+            return time.ctime(os.path.getctime(path))
+        except:
+            raise AccessFailedFileSystemError()
 
     def get_modified_datetime(self, path):
         """Return the date and time of the last modification to the file or directory corresponding to the given path.
