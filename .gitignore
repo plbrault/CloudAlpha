@@ -84,3 +84,4 @@ experiments/googledrive/client_secrets.json
 *.db
 cloudalpha/temp/file1.txt
 cloudalpha/.dummytemp/
+cloudalpha/.dummyroot/

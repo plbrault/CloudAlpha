@@ -19,17 +19,20 @@ class DummyAccount(Account):
                 + "\nNow is better than never.\nAlthough never is often better than *right* now.\nIf the implementation is hard to explain, it's a bad idea."
                 + "\nIf the implementation is easy to explain, it may be a good idea.\nNamespaces are one honking great idea -- let's do more of those!")
 
-        self.file_system.create_new_file("file1.txt", 1000)
+        self.file_system.create_new_file("file1.txt", 860)
         self.file_system.write_to_new_file("file1.txt", data)
+        self.file_system.commit_new_file("file1.txt")
 
-        self.file_system.make_dir("fun")
+        self.file_system.make_dir("dir1")
+        self.file_system.make_dir("dir2")
 
-        self.file_system.make_dir("brine")
+        self.file_system.working_dir = "dir2"
 
-        self.file_system.create_new_file("file2.txt", 1000)
+        self.file_system.create_new_file("file2.txt", 860)
         self.file_system.write_to_new_file("file2.txt", data)
+        self.file_system.commit_new_file("file2.txt")
 
-        self.file_system.working_dir = "/"
+        self.file_system.make_dir("subdir1")
 
     def __init__(self, unique_id):
         super(DummyAccount, self).__init__(unique_id)
