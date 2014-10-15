@@ -269,8 +269,16 @@ class DummyFileSystem(FileSystem):
         """
         path = self._get_real_path(path)
         copy_path = self._get_real_path(copy_path)
-        if os.path.exists(path) and os.path.exists(copy_path):
-            shutil.copy(path, copy_path)
+        if not os.path.exists(path):
+            raise InvalidPathFileSystemError()
+        if path in copy_path:
+            raise InvalidPathFileSystemError()
+        if os.path.exists(copy_path):
+            raise AlreadyExistsFileSystemError()
+        try:
+            shutil.move(path, copy_path)
+        except:
+            raise AccessFailedFileSystemError()
 
     def delete(self, path):
         """Delete the file or directory corresponding to the given path.
@@ -286,10 +294,13 @@ class DummyFileSystem(FileSystem):
         """
         path = self._get_real_path(path)
         if os.path.exists(path):
-            if os.path.isdir(path):
-                shutil.rmtree(path)
-            else:
-                os.remove(path)
+            try:
+                if os.path.isdir(path):
+                    shutil.rmtree(path)
+                else:
+                    os.remove(path)
+            except:
+                raise AccessFailedFileSystemError()
         else:
             raise InvalidPathFileSystemError()
 
