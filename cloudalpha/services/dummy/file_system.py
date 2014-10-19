@@ -20,15 +20,19 @@ class DummyFileSystem(FileSystem):
         if path[:1] == "/":
             path = path[1:]
         elif self._working_dir != "/":
-            abs_levels.append(self._working_dir[1:])
+            for level in self._working_dir[1:].split("/"):
+                abs_levels.append(level)
         for level in path.split("/"):
-            if level == ".." and len(abs_levels) > 0:
-                abs_levels.pop()
+            if level == "..":
+                if len(abs_levels) > 0:
+                    abs_levels.pop()
             elif level != ".":
                 abs_levels.append(level)
         abs_path = ""
         for level in abs_levels:
             abs_path += "/" + level
+        if abs_path == "":
+            abs_path = "/"
         return abs_path
 
     def _get_real_path(self, path):
