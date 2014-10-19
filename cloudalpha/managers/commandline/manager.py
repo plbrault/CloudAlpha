@@ -84,7 +84,7 @@ class CommandLineManager(Manager):
                         print("file")
 
             elif var[0] == "size":
-                pass
+                print(self.file_system.get_size(str(var[1])))
 
             elif var[0] == "created_dt":
                 if len(var) > 1:
@@ -96,10 +96,13 @@ class CommandLineManager(Manager):
                 if len(var) > 1:
                     print(self.file_system.get_modified_datetime(str(var[1])))
                 else:
-                    print(self.file_system.get_created_datetime(self.file_system.working_dir))
+                    print(self.file_system.get_modified_datetime(self.file_system.working_dir))
 
             elif var[0] == "accessed_dt":
-                pass
+                if len(var) > 1:
+                    print(self.file_system.get_accessed_datetime(str(var[1])))
+                else:
+                    print(self.file_system.get_accessed_datetime(self.file_system.working_dir))
 
             elif var[0] == "mkdir":
                 if len(var) > 1:

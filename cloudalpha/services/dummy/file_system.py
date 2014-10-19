@@ -158,7 +158,7 @@ class DummyFileSystem(FileSystem):
         path = self._get_real_path(path)
         if not os.path.exists(path):
             raise InvalidPathFileSystemError()
-        if os.path.isdir():
+        if os.path.isdir(path):
             raise InvalidTargetFileSystemError()
         try:
             return os.path.getsize(path)
