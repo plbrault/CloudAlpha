@@ -273,7 +273,7 @@ class DummyFileSystem(FileSystem):
         if virtual_new_path in self._new_files:
             raise UncommittedExistsFileSystemError()
         try:
-            shutil.move(old_path, new_path)
+            shutil.move(real_old_path, real_new_path)
         except:
             raise AccessFailedFileSystemError()
 
