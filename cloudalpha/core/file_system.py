@@ -14,31 +14,6 @@ class FileSystem(object):
 
     __metaclass__ = ABCMeta
 
-    _working_dir = "/"
-
-    @property
-    @abstractmethod
-    def working_dir(self):
-        """Return the path of the current working directory.
-        
-        The return value is a POSIX pathname, with "/" representing the root of the file system.
-        """
-        pass
-
-    @working_dir.setter
-    @abstractmethod
-    def working_dir(self, path):
-        """Change the working directory.
-        
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
-        
-        If the given path is invalid, raise InvalidPathFileSystemError.
-        If the given path does not correspond to a directory, raise InvalidTargetFileSystemError.
-        If the real file system is inaccessible, raise AccessFailedFileSystemError.
-        """
-        pass
-
     @property
     @abstractmethod
     def space_used(self):
@@ -61,8 +36,7 @@ class FileSystem(object):
     def exists(self, path):
         """Return True if the given path is valid.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.        
         """
@@ -72,8 +46,7 @@ class FileSystem(object):
     def list_dir(self, path=None):
         """Return the content of the specified directory. If no directory is specified, return the content of the current working directory.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
                 
         The return value is a list of file and folder names. It does not contain references to the current
         or parent directory (e.g. « . » or « .. »).
@@ -88,8 +61,7 @@ class FileSystem(object):
     def is_dir(self, path):
         """Return a boolean value indicating if the given path corresponds to a directory.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
@@ -100,8 +72,7 @@ class FileSystem(object):
     def is_file(self, path):
         """Return a boolean value indicating if the given path corresponds to a file.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
@@ -112,8 +83,7 @@ class FileSystem(object):
     def get_size(self, path):
         """Return the size, in bytes, of the file corresponding to the given path.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to a directory, raise FileSystemTargetError.
@@ -125,8 +95,7 @@ class FileSystem(object):
     def get_created_datetime(self, path):
         """Return the date and time of creation of the file or directory corresponding to the given path.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         The return value is a datetime object.
         
@@ -139,8 +108,7 @@ class FileSystem(object):
     def get_modified_datetime(self, path):
         """Return the date and time of the last modification to the file or directory corresponding to the given path.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         The return value is a datetime object.
         
@@ -154,8 +122,7 @@ class FileSystem(object):
         """Return the date and time of the last time the given file or directory was accessed.
         If not available, return the date and time of the last modification.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         The return value is a datetime object.
         
@@ -168,8 +135,7 @@ class FileSystem(object):
     def make_dir(self, path):
         """Creates a new directory corresponding to the given path.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
@@ -184,8 +150,7 @@ class FileSystem(object):
         
         new_path includes the new name of the file or directory.
         
-        The paths must be POSIX pathnames, with "/" representing the root of the file system.
-        They may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If at least one of the given paths is invalid, raise InvalidPathFileSystemError.
         If new_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
@@ -199,8 +164,7 @@ class FileSystem(object):
         """Copy a file or directory from path to copy_path.
         
         new_path includes the name of the copied file or directory.
-        The paths must be POSIX pathnames, with "/" representing the root of the file system.
-        They may be absolute, or relative to the current working directory.
+        The paths must be absolute POSIX pathnames, with "/" representing the root of the file system.
         
         If at least one of the given paths is invalid, raise InvalidPathFileSystemError.
         If copy_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
@@ -216,8 +180,7 @@ class FileSystem(object):
         If the given path corresponds to a directory that is not empty, all its files and subdirectories
         must be deleted first.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
@@ -231,8 +194,7 @@ class FileSystem(object):
         
         If num_bytes is not specified, read all remaining bytes of the file.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         The return value is an iterable of bytes.
         
@@ -248,8 +210,7 @@ class FileSystem(object):
         
         If a file corresponding to this path already exists, it is overwritten.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         The size parameter indicates the number of bytes that must be allocated for the new file.
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
@@ -265,8 +226,7 @@ class FileSystem(object):
         """Append the given data to the uncommitted file corresponding to the given path.
         
         The data must be an iterable of bytes.
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
         If the the declared size of the file is exceeded, raise WriteOverflowFileSystemError.
@@ -278,8 +238,7 @@ class FileSystem(object):
     def commit_new_file(self, path):
         """Commit a file that was previously created/overwritten, then populated with data.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.     
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
@@ -290,8 +249,7 @@ class FileSystem(object):
     def flush_new_file(self, path):
         """Delete an uncommitted file.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.                
