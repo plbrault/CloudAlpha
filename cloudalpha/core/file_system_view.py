@@ -202,9 +202,10 @@ class FileSystemView(object):
         The paths must be POSIX pathnames, with "/" representing the root of the file system.
         They may be absolute, or relative to the current working directory.
         
-        If at least one of the given paths is invalid, raise InvalidPathFileSystemError.
+        If old_path is invalid, raise InvalidPathFileSystemError.
         If new_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
-        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
+        If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
+        If new_path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         abs_old_path = self._get_absolute_virtual_path(old_path)
@@ -218,8 +219,9 @@ class FileSystemView(object):
         The paths must be POSIX pathnames, with "/" representing the root of the file system.
         They may be absolute, or relative to the current working directory.
         
-        If at least one of the given paths is invalid, raise InvalidPathFileSystemError.
+        If path is invalid, raise InvalidPathFileSystemError.
         If copy_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
         If copy_path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """

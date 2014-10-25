@@ -220,8 +220,9 @@ class DummyFileSystem(FileSystem):
         
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
-        If at least one of the given paths is invalid, raise InvalidPathFileSystemError.
+        If old_path is invalid, raise InvalidPathFileSystemError.
         If new_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
         If new_path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
@@ -231,7 +232,7 @@ class DummyFileSystem(FileSystem):
             if not os.path.exists(real_old_path):
                 raise InvalidPathFileSystemError()
             if real_old_path in real_new_path:
-                raise InvalidPathFileSystemError()
+                raise ForbiddenOperationFileSystemError()
             if os.path.exists(real_new_path):
                 raise AlreadyExistsFileSystemError()
             if new_path in self._new_files:
@@ -247,8 +248,10 @@ class DummyFileSystem(FileSystem):
         new_path includes the name of the copied file or directory.
         The paths must be absolute POSIX pathnames, with "/" representing the root of the file system.
         
-        If at least one of the given paths is invalid, raise InvalidPathFileSystemError.
+        If path is invalid, raise InvalidPathFileSystemError.
         If copy_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
+        If copy_path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         with self._lock:
@@ -257,7 +260,7 @@ class DummyFileSystem(FileSystem):
             if not os.path.exists(real_path):
                 raise InvalidPathFileSystemError()
             if real_path in real_copy_path:
-                raise InvalidPathFileSystemError()
+                raise ForbiddenOperationFileSystemError()
             if os.path.exists(real_copy_path):
                 raise AlreadyExistsFileSystemError()
             if copy_path in self._new_files:
