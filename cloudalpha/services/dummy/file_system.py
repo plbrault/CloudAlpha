@@ -455,12 +455,15 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.                
         """
         virtual_path = self._get_absolute_virtual_path(path)
+        real_path = self._get_real_path(virtual_path)
         if virtual_path not in self._new_files:
             raise InvalidTargetFileSystemError()
         temp_file, file_size = self._new_files.pop(virtual_path)
         try:
             temp_file.close()
             self._space_used += file_size
+            if os.path.exists(real_path):
+                self._space_used -= os.path.getsize(real_path)
         except:
             pass
         try:
