@@ -412,7 +412,7 @@ class DummyFileSystem(FileSystem):
         if virtual_path not in self._new_files:
             raise InvalidTargetFileSystemError()
         temp_file, file_size = self._new_files[virtual_path]
-        if temp_file.tell() + len(data) >= file_size:
+        if temp_file.tell() + len(data) > file_size:
             raise WriteOverflowFileSystemError()
         try:
             temp_file.write(data)
