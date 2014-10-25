@@ -1,7 +1,13 @@
+import os
+import shutil
+import time
+
+from core.exceptions import InvalidPathFileSystemError, \
+    AlreadyExistsFileSystemError, InvalidTargetFileSystemError, \
+    AccessFailedFileSystemError, UncommittedExistsFileSystemError, \
+    WriteOverflowFileSystemError
 from core.file_system import FileSystem
-from core.exceptions import InvalidPathFileSystemError, AlreadyExistsFileSystemError, InvalidTargetFileSystemError, \
-    AccessFailedFileSystemError, UncommittedExistsFileSystemError, WriteOverflowFileSystemError
-import os, time, shutil
+from threading import Lock
 
 
 class DummyFileSystem(FileSystem):
@@ -12,6 +18,8 @@ class DummyFileSystem(FileSystem):
     _total_space = 1000000000
     _space_used = 0
     _new_files = {}
+
+    _lock = Lock()
 
     def _get_absolute_virtual_path(self, path):
         """Return the absolute virtual path corresponding to the given relative one.
