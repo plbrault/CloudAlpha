@@ -13,7 +13,7 @@ class DummyAccount(Account):
         
         If the operation fails, raise AuthenticationFailedAccountError.
         """
-        if not self.authenticated:
+        if not self._authenticated:
             try:
                 data = bytearray("# The Zen of Python\nBeautiful is better than ugly.\nExplicit is better than implicit.\nSimple is better than complex."
                         + "\nComplex is better than complicated.\nFlat is better than nested.\nSparse is better than dense.\nReadability counts."
@@ -38,7 +38,7 @@ class DummyAccount(Account):
 
                 self.file_system.working_dir = "/"
 
-                self.authenticated = True
+                self._authenticated = True
             except:
                 raise AuthenticationFailedAccountError()
 
