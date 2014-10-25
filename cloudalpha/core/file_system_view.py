@@ -46,12 +46,13 @@ class FileSystemView(object):
         If the given path does not correspond to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        abs_path = self._get_absolute_virtual_path(path)
-        if not self._file_system.exists(abs_path):
-            raise InvalidPathFileSystemError()
-        if not self._file_system.is_dir(abs_path):
-            raise InvalidTargetFileSystemError()
-        self._working_dir = abs_path
+        with self._file_system.lock:
+            abs_path = self._get_absolute_virtual_path(path)
+            if not self._file_system.exists(abs_path):
+                raise InvalidPathFileSystemError()
+            if not self._file_system.is_dir(abs_path):
+                raise InvalidTargetFileSystemError()
+            self._working_dir = abs_path
 
     @property
     def space_used(self):
