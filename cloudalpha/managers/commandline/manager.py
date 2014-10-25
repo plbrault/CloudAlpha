@@ -14,74 +14,74 @@ class CommandLineManager(Manager):
 
         while True:
 
-            var = input(">" + self.file_system.working_dir + ":").split(" ")
+            var = input(">" + self.file_system_view.working_dir + ":").split(" ")
             var = list(filter(None, var))
             if var[0] == "pwd":
-                print(self.file_system.working_dir)
+                print(self.file_system_view.working_dir)
 
             elif var[0] == "cd":
                 if len(var) > 1:
-                    self.file_system.working_dir = str(var[1])
+                    self.file_system_view.working_dir = str(var[1])
 
             elif var[0] == "space_used":
-                print(self.file_system.space_used)
+                print(self.file_system_view.space_used)
 
             elif var[0] == "free_space":
-                print(self.file_system.free_space)
+                print(self.file_system_view.free_space)
 
             elif var[0] == "ls":
                 if len(var) == 1:
-                    print(self.file_system.list_dir())
+                    print(self.file_system_view.list_dir())
                 else:
-                    print(self.file_system.list_dir(var[1]))
+                    print(self.file_system_view.list_dir(var[1]))
 
             elif var[0] == "type":
                 if len(var) > 1:
-                    if self.file_system.is_dir(str(var[1])):
+                    if self.file_system_view.is_dir(str(var[1])):
                         print("directory")
-                    elif self.file_system.is_file(str(var[1])):
+                    elif self.file_system_view.is_file(str(var[1])):
                         print("file")
 
             elif var[0] == "size":
-                print(self.file_system.get_size(str(var[1])))
+                print(self.file_system_view.get_size(str(var[1])))
 
             elif var[0] == "created_dt":
                 if len(var) > 1:
-                    print(self.file_system.get_created_datetime(str(var[1])))
+                    print(self.file_system_view.get_created_datetime(str(var[1])))
                 else:
-                    print(self.file_system.get_created_datetime(self.file_system.working_dir))
+                    print(self.file_system_view.get_created_datetime(self.file_system_view.working_dir))
 
             elif var[0] == "modified_dt":
                 if len(var) > 1:
-                    print(self.file_system.get_modified_datetime(str(var[1])))
+                    print(self.file_system_view.get_modified_datetime(str(var[1])))
                 else:
-                    print(self.file_system.get_modified_datetime(self.file_system.working_dir))
+                    print(self.file_system_view.get_modified_datetime(self.file_system_view.working_dir))
 
             elif var[0] == "accessed_dt":
                 if len(var) > 1:
-                    print(self.file_system.get_accessed_datetime(str(var[1])))
+                    print(self.file_system_view.get_accessed_datetime(str(var[1])))
                 else:
-                    print(self.file_system.get_accessed_datetime(self.file_system.working_dir))
+                    print(self.file_system_view.get_accessed_datetime(self.file_system_view.working_dir))
 
             elif var[0] == "mkdir":
                 if len(var) > 1:
-                    self.file_system.make_dir(str(var[1]))
+                    self.file_system_view.make_dir(str(var[1]))
 
             elif var[0] == "mv":
                 if len(var) > 2:
-                    self.file_system.move(str(var[1]), str(var[2]))
+                    self.file_system_view.move(str(var[1]), str(var[2]))
 
             elif var[0] == "cp":
                 if len(var) > 2:
-                    self.file_system.copy(str(var[1]), str(var[2]))
+                    self.file_system_view.copy(str(var[1]), str(var[2]))
 
             elif var[0] == "rm":
                 if len(var) > 1:
-                    self.file_system.delete(str(var[1]))
+                    self.file_system_view.delete(str(var[1]))
 
             elif var[0] == "download":
                 if len(var) == 3:
-                    data = self.file_system.read(str(var[1]), 0)
+                    data = self.file_system_view.read(str(var[1]), 0)
                     local_file = open(str(var[2]), "ab")
                     local_file.write(data)
                     local_file.close()
@@ -91,9 +91,9 @@ class CommandLineManager(Manager):
                     local_file = open(str(var[1]), "rb")
                     data = local_file.read()
                     local_file.close()
-                    self.file_system.create_new_file(str(var[2]), len(data))
-                    self.file_system.write_to_new_file(str(var[2]), data)
-                    self.file_system.commit_new_file(str(var[2]))
+                    self.file_system_view.create_new_file(str(var[2]), len(data))
+                    self.file_system_view.write_to_new_file(str(var[2]), data)
+                    self.file_system_view.commit_new_file(str(var[2]))
 
             elif var[0] == "help":
                 print("- pwd"
