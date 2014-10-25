@@ -392,7 +392,7 @@ class DummyFileSystem(FileSystem):
                 if not os.path.exists(temp_dir_path):
                     os.mkdir(temp_dir_path)
             temp_file_path = os.path.join(temp_dir_path, virtual_path_split[-1:][0])
-            self._new_files[virtual_path] = (open(temp_file_path, 'a'), size)
+            self._new_files[virtual_path] = (open(temp_file_path, "ab"), size)
             self._space_used += size
         except:
             raise AccessFailedFileSystemError()
