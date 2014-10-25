@@ -9,12 +9,14 @@ class CommandLineManager(Manager):
         If the operation fails for any other reason, raise StartupFailedManagerError.
         """
 
+        print("Type help for a list of available commands.")
+
         terminate = False
 
         while not terminate:
             try:
 
-                var = input(">" + self.file_system_view.working_dir + ":").split(" ")
+                var = input(">" + self.file_system_view.working_dir + ": ").split(" ")
                 var = list(filter(None, var))
                 if var[0] == "pwd":
                     print(self.file_system_view.working_dir)
