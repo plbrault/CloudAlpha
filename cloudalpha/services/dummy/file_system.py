@@ -266,7 +266,10 @@ class DummyFileSystem(FileSystem):
             if copy_path in self._new_files:
                 raise UncommittedExistsFileSystemError()
             try:
-                shutil.copy(real_path, real_copy_path)
+                if os.path.isdir(real_path):
+                    shutil.copytree(real_path, real_copy_path)
+                else:
+                    shutil.copy(real_path, real_copy_path)
             except:
                 raise AccessFailedFileSystemError()
 
