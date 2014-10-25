@@ -1,9 +1,6 @@
 from core.manager import Manager
-import os
 
 class CommandLineManager(Manager):
-
-
 
     def run(self):
         """Put the manager into action.
@@ -12,7 +9,9 @@ class CommandLineManager(Manager):
         If the operation fails for any other reason, raise StartupFailedManagerError.
         """
 
-        while True:
+        terminate = False
+
+        while not terminate:
 
             var = input(">" + self.file_system_view.working_dir + ":").split(" ")
             var = list(filter(None, var))
@@ -95,6 +94,9 @@ class CommandLineManager(Manager):
                     self.file_system_view.write_to_new_file(self.unique_id, str(var[2]), data)
                     self.file_system_view.commit_new_file(self.unique_id, str(var[2]))
 
+            elif var[0] == "exit":
+                terminate = True;
+
             elif var[0] == "help":
                 print("- pwd"
                     + "\n    prints the current working directory"
@@ -129,7 +131,9 @@ class CommandLineManager(Manager):
                     + "\n- upload [LOCAL-PATH] [REMOTE-PATH]"
                     + "\n    uploads a file from the local hard drive to REMOTE-PATH"
                     + "\n- help"
-                    + "\n    shows the list of available commands")
+                    + "\n    shows the list of available commands"
+                    + "\n- exit"
+                    + "\n    terminate the Commandline manager")
             else:
                 print("Command \"" + var[0] + "\" not recognised")
 
