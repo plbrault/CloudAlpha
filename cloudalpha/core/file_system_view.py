@@ -260,11 +260,12 @@ class FileSystemView(object):
         abs_path = self._get_absolute_virtual_path(path)
         return self._file_system.read(abs_path, start_byte, num_bytes)
 
-    def create_new_file(self, path, size):
+    def create_new_file(self, caller_unique_id, path, size):
         """Create an empty file corresponding to the given path.
         
         If a file corresponding to this path already exists, it is overwritten.
         
+        The caller_unique_id is used to ensure that only the file creator can write to it, flush it or commit it.
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
         The size parameter indicates the number of bytes that must be allocated for the new file.
@@ -276,41 +277,47 @@ class FileSystemView(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         abs_path = self._get_absolute_virtual_path(path)
-        self._file_system.create_new_file(abs_path, size)
+        self._file_system.create_new_file(caller_unique_id, abs_path, size)
 
-    def write_to_new_file(self, path, data):
+    def write_to_new_file(self, caller_unique_id, path, data):
         """Append the given data to the uncommitted file corresponding to the given path.
         
+        The caller_unique_id is used to ensure that only the file creator can write to it.
         The data must be an iterable of bytes.
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
+        If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
         If the the declared size of the file is exceeded, raise WriteOverflowFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         abs_path = self._get_absolute_virtual_path(path)
-        self._file_system.write_to_new_file(abs_path, data)
+        self._file_system.write_to_new_file(caller_unique_id, abs_path, data)
 
-    def commit_new_file(self, path):
+    def commit_new_file(self, caller_unique_id, path):
         """Commit a file that was previously created/overwritten, then populated with data.
         
+        The caller_unique_id is used to ensure that only the file creator can commit it.
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.        
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
+        If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         abs_path = self._get_absolute_virtual_path(path)
-        self._file_system.commit_new_file(abs_path)
+        self._file_system.commit_new_file(caller_unique_id, abs_path)
 
-    def flush_new_file(self, path):
+    def flush_new_file(self, caller_unique_id, path):
         """Delete an uncommitted file.
         
+        The caller_unique_id is used to ensure that only the file creator can flush it.
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
+        If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.                
         """
         abs_path = self._get_absolute_virtual_path(path)

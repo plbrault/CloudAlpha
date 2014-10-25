@@ -22,6 +22,9 @@ class WriteOverflowFileSystemError(FileSystemError):
 class AccessFailedFileSystemError(FileSystemError):
     pass
 
+class ForbiddenOperationFileSystemError(FileSystemError):
+    pass
+
 
 class AccountError(Exception):
     pass

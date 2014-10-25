@@ -50,8 +50,8 @@ class FileSystem(object):
         pass
 
     @abstractmethod
-    def list_dir(self, path=None):
-        """Return the content of the specified directory. If no directory is specified, return the content of the current working directory.
+    def list_dir(self, path):
+        """Return the content of the specified directory.
         
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
                 
@@ -212,11 +212,12 @@ class FileSystem(object):
         pass
 
     @abstractmethod
-    def create_new_file(self, path, size):
+    def create_new_file(self, caller_unique_id, path, size):
         """Create an empty file corresponding to the given path.
         
         If a file corresponding to this path already exists, it is overwritten.
         
+        The caller_unique_id is used to ensure that only the file creator can write to it, flush it or commit it.
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         The size parameter indicates the number of bytes that must be allocated for the new file.
         
@@ -229,36 +230,42 @@ class FileSystem(object):
         pass
 
     @abstractmethod
-    def write_to_new_file(self, path, data):
+    def write_to_new_file(self, caller_unique_id, path, data):
         """Append the given data to the uncommitted file corresponding to the given path.
         
+        The caller_unique_id is used to ensure that only the file creator can write to it.
         The data must be an iterable of bytes.
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
-        If the the declared size of the file is exceeded, raise WriteOverflowFileSystemError.
+        If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
+        If the declared size of the file is exceeded, raise WriteOverflowFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
 
     @abstractmethod
-    def commit_new_file(self, path):
+    def commit_new_file(self, caller_unique_id, path):
         """Commit a file that was previously created/overwritten, then populated with data.
         
+        The caller_unique_id is used to ensure that only the file creator can commit it.
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.     
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
+        If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
 
     @abstractmethod
-    def flush_new_file(self, path):
+    def flush_new_file(self, caller_unique_id, path):
         """Delete an uncommitted file.
         
+        The caller_unique_id is used to ensure that only the file creator can flush it.
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
+        If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.                
         """
         pass

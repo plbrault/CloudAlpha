@@ -12,16 +12,16 @@ class DummyAccount(Account):
                 + "\nNow is better than never.\nAlthough never is often better than *right* now.\nIf the implementation is hard to explain, it's a bad idea."
                 + "\nIf the implementation is easy to explain, it may be a good idea.\nNamespaces are one honking great idea -- let's do more of those!", "utf-8")
 
-        self.file_system.create_new_file("/file1.txt", 860)
-        self.file_system.write_to_new_file("/file1.txt", data)
-        self.file_system.commit_new_file("/file1.txt")
+        self.file_system.create_new_file("account_authenticate", "/file1.txt", 860)
+        self.file_system.write_to_new_file("account_authenticate", "/file1.txt", data)
+        self.file_system.commit_new_file("account_authenticate", "/file1.txt")
 
         self.file_system.make_dir("/dir1")
         self.file_system.make_dir("/dir2")
 
-        self.file_system.create_new_file("/dir2/file2.txt", 860)
-        self.file_system.write_to_new_file("/dir2/file2.txt", data)
-        self.file_system.commit_new_file("/dir2/file2.txt")
+        self.file_system.create_new_file("account_authenticate", "/dir2/file2.txt", 860)
+        self.file_system.write_to_new_file("account_authenticate", "/dir2/file2.txt", data)
+        self.file_system.commit_new_file("account_authenticate", "/dir2/file2.txt")
 
         self.file_system.make_dir("/dir2/subdir1")
 
