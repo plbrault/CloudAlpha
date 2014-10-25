@@ -6,13 +6,13 @@ class Manager(object):
     interface, as a network protocol.
     
     Upon its initialization, an instance of a Manager subclass is provided with
-    an instance of a FileSystem subclass, which it is intended to interact with.
+    an instance of a FileSystemView subclass, which it is intended to interact with.
     """
 
     __metaclass__ = ABCMeta
 
     unique_id = None
-    file_system = None
+    file_system_view = None
 
     @abstractmethod
     def run(self):
