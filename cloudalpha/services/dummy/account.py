@@ -1,10 +1,3 @@
-"""TODO: 
-
-Implement a dummy account, for testing purposes.
-
-Reminder: Account and FileSystem subclasses must be implemented in a thread-safe way.
-"""
-
 from core.account import Account
 from services.dummy.file_system import DummyFileSystem
 
