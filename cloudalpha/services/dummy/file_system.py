@@ -328,9 +328,11 @@ class DummyFileSystem(FileSystem):
         else:
             raise InvalidPathFileSystemError()
 
-    def read(self, path, start_byte, num_bytes):
+    def read(self, path, start_byte, num_bytes=None):
         """Read the number of bytes corresponding to num_bytes from the file corresponding to the given path,
         beginning at start_byte.
+        
+        If num_bytes is not specified, read all remaining bytes of the file.
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
@@ -341,13 +343,15 @@ class DummyFileSystem(FileSystem):
         If the given path corresponds to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        path = self._get_real_path(path)
-        if not os.path.exists(path):
+        real_path = self._get_real_path(path)
+        if not os.path.exists(real_path):
             raise InvalidPathFileSystemError()
-        if os.path.isdir():
+        if os.path.isdir(real_path):
             raise InvalidTargetFileSystemError()
+        if num_bytes == None:
+            num_bytes = self.get_size(path) - start_byte
         try:
-            file = open(path, 'rb')
+            file = open(real_path, 'rb')
             file.seek(start_byte)
             data = bytearray(file.read(num_bytes))
             file.close()
