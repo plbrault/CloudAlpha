@@ -446,9 +446,9 @@ class DummyFileSystem(FileSystem):
             else:
                 raise ForbiddenOperationFileSystemError()
 
-    def __init__(self):
+    def __init__(self, account):
         """DummyFileSystem initializer"""
-        super(DummyFileSystem, self).__init__()
+        super(DummyFileSystem, self).__init__(account)
         root = os.path.abspath(self._REAL_ROOT_DIR)
         temp = os.path.abspath(self._TEMP_DIR)
         if os.path.exists(root):

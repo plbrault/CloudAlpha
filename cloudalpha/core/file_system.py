@@ -15,6 +15,8 @@ class FileSystem(object):
 
     __metaclass__ = ABCMeta
 
+    _account = None
+
     @property
     @abstractmethod
     def lock(self):
@@ -273,3 +275,7 @@ class FileSystem(object):
     def get_new_view(self):
         """Return a new FileSystemView linked to the current FileSystem subclass instance."""
         return FileSystemView(self)
+
+    def __init__(self, account):
+        """The super initializer for FileSystem subclasses."""
+        self._account = account

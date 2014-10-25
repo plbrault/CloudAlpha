@@ -29,4 +29,4 @@ class DummyAccount(Account):
 
     def __init__(self, unique_id):
         super(DummyAccount, self).__init__(unique_id)
-        self.file_system = DummyFileSystem()
+        self.file_system = DummyFileSystem(self)
