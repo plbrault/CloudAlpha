@@ -87,7 +87,13 @@ class CommandLineManager(Manager):
                     local_file.close()
 
             elif var[0] == "upload":
-                pass
+                if len(var) == 3:
+                    local_file = open(str(var[1]), "rb")
+                    data = local_file.read()
+                    local_file.close()
+                    self.file_system.create_new_file(str(var[2]), len(data))
+                    self.file_system.write_to_new_file(str(var[2]), data)
+                    self.file_system.commit_new_file(str(var[2]))
 
             elif var[0] == "help":
                 print("- pwd"
