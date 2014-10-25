@@ -17,6 +17,12 @@ class FileSystem(object):
 
     @property
     @abstractmethod
+    def lock(self):
+        """Return the Lock object for the current instance."""
+        pass
+
+    @property
+    @abstractmethod
     def space_used(self):
         """Return the number of bytes used on the file system.
         

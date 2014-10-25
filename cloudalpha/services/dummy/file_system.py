@@ -19,6 +19,13 @@ class DummyFileSystem(FileSystem):
     _space_used = 0
     _new_files = {}
 
+    _lock = Lock()
+
+    @property
+    def lock(self):
+        """Return the Lock object for the current instance."""
+        return self._lock
+
     def _get_real_path(self, path):
         """Return the real path corresponding to the specified virtual path.
         """
