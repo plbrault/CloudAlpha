@@ -34,6 +34,8 @@ class DummyAccount(Account):
 
         self.file_system.make_dir("subdir1")
 
+        self.file_system.working_dir = ".."
+
     def __init__(self, unique_id):
         super(DummyAccount, self).__init__(unique_id)
         self.file_system = DummyFileSystem()

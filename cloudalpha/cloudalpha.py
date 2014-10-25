@@ -9,4 +9,4 @@ if __name__ == '__main__':
     manager.file_system = account.file_system
 
     account.authenticate()
-    # manager.run()
+    manager.run()
