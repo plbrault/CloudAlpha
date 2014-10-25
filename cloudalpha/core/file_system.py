@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from core.file_system_view import FileSystemView
 
 class FileSystem(object):
 
@@ -255,3 +256,7 @@ class FileSystem(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.                
         """
         pass
+
+    def get_new_view(self):
+        """Return a new FileSystemView linked to the current FileSystem subclass instance."""
+        return FileSystemView(self)
