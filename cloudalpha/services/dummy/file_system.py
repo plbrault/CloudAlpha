@@ -283,8 +283,15 @@ class DummyFileSystem(FileSystem):
             if os.path.exists(path):
                 try:
                     if os.path.isdir(path):
+                        dir_size = 0
+                        for dir_path, dir_names, filenames in os.walk(path):
+                            for f in filenames:
+                                fp = os.path.join(dir_path, f)
+                                dir_size += os.path.getsize(fp)
+                        self._space_used -= dir_size
                         shutil.rmtree(path)
                     else:
+                        self._space_used -= os.path.getsize(path)
                         os.remove(path)
                 except:
                     raise AccessFailedFileSystemError()
