@@ -1,5 +1,6 @@
 import os
 import shutil
+from threading import Lock
 import time
 
 from core.exceptions import InvalidPathFileSystemError, \
@@ -7,7 +8,6 @@ from core.exceptions import InvalidPathFileSystemError, \
     AccessFailedFileSystemError, UncommittedExistsFileSystemError, \
     WriteOverflowFileSystemError
 from core.file_system import FileSystem
-from threading import Lock
 
 
 class DummyFileSystem(FileSystem):
@@ -19,57 +19,10 @@ class DummyFileSystem(FileSystem):
     _space_used = 0
     _new_files = {}
 
-    _lock = Lock()
-
-    def _get_absolute_virtual_path(self, path):
-        """Return the absolute virtual path corresponding to the given relative one.
-        """
-        abs_levels = []
-        if path[:1] == "/":
-            path = path[1:]
-        elif self._working_dir != "/":
-            for level in self._working_dir[1:].split("/"):
-                abs_levels.append(level)
-        for level in path.split("/"):
-            if level == "..":
-                if len(abs_levels) > 0:
-                    abs_levels.pop()
-            elif level != ".":
-                abs_levels.append(level)
-        abs_path = ""
-        for level in abs_levels:
-            abs_path += "/" + level
-        if abs_path == "":
-            abs_path = "/"
-        return abs_path
-
     def _get_real_path(self, path):
         """Return the real path corresponding to the specified virtual path.
         """
-        path = self._get_absolute_virtual_path(path)
         return os.path.abspath(os.path.join(self._REAL_ROOT_DIR, path[1:]))
-
-    @property
-    def working_dir(self):
-        return self._working_dir
-
-    @working_dir.setter
-    def working_dir(self, path):
-        """Change the working directory.
-        
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
-        
-        If the given path is invalid, raise InvalidPathFileSystemError.
-        If the given path does not correspond to a directory, raise InvalidTargetFileSystemError.
-        If the real file system is inaccessible, raise AccessFailedFileSystemError.
-        """
-        real_path = self._get_real_path(path)
-        if not os.path.exists(real_path):
-            raise InvalidPathFileSystemError()
-        if not os.path.isdir(self._get_real_path(path)):
-            raise InvalidTargetFileSystemError()
-        self._working_dir = self._get_absolute_virtual_path(path)
 
     @property
     def space_used(self):
@@ -90,8 +43,7 @@ class DummyFileSystem(FileSystem):
     def exists(self, path):
         """Return True if the given path is valid.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.        
         """
@@ -100,8 +52,7 @@ class DummyFileSystem(FileSystem):
     def list_dir(self, path=None):
         """Return the content of the specified directory. If no directory is specified, return the content of the current working directory.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
                 
         The return value is a list of file and folder names. It does not contain references to the current
         or parent directory (e.g. « . » or « .. »).
@@ -128,8 +79,7 @@ class DummyFileSystem(FileSystem):
     def is_dir(self, path):
         """Return a boolean value indicating if the given path corresponds to a directory.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
@@ -142,8 +92,7 @@ class DummyFileSystem(FileSystem):
     def is_file(self, path):
         """Return a boolean value indicating if the given path corresponds to a file.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
@@ -156,8 +105,7 @@ class DummyFileSystem(FileSystem):
     def get_size(self, path):
         """Return the size, in bytes, of the file corresponding to the given path.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to a directory, raise FileSystemTargetError.
@@ -176,8 +124,7 @@ class DummyFileSystem(FileSystem):
     def get_created_datetime(self, path):
         """Return the date and time of creation of the file or directory corresponding to the given path.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         The return value is a datetime object.
         
@@ -195,8 +142,7 @@ class DummyFileSystem(FileSystem):
     def get_modified_datetime(self, path):
         """Return the date and time of the last modification to the file or directory corresponding to the given path.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         The return value is a datetime object.
         
@@ -215,8 +161,7 @@ class DummyFileSystem(FileSystem):
         """Return the date and time of the last time the given file or directory was accessed.
         If not available, return the date and time of the last modification.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         The return value is a datetime object.
         
@@ -234,22 +179,20 @@ class DummyFileSystem(FileSystem):
     def make_dir(self, path):
         """Creates a new directory corresponding to the given path.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        virtual_path = self._get_absolute_virtual_path(path)
-        real_path = self._get_real_path(virtual_path)
+        real_path = self._get_real_path(path)
         real_parent_path = real_path.rsplit("/", 1)[0].rsplit("\\", 1)[0]
         if not os.path.exists(real_parent_path):
             raise InvalidPathFileSystemError()
         if os.path.exists(real_path):
             raise AlreadyExistsFileSystemError()
-        if virtual_path in self._new_files:
+        if path in self._new_files:
             raise UncommittedExistsFileSystemError()
         try:
             os.mkdir(real_path)
@@ -261,8 +204,7 @@ class DummyFileSystem(FileSystem):
         
         new_path includes the new name of the file or directory.
         
-        The paths must be POSIX pathnames, with "/" representing the root of the file system.
-        They may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If at least one of the given paths is invalid, raise InvalidPathFileSystemError.
         If new_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
@@ -270,7 +212,6 @@ class DummyFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         real_old_path = self._get_real_path(old_path)
-        virtual_new_path = self._get_absolute_virtual_path(new_path)
         real_new_path = self._get_real_path(new_path)
         if not os.path.exists(real_old_path):
             raise InvalidPathFileSystemError()
@@ -278,7 +219,7 @@ class DummyFileSystem(FileSystem):
             raise InvalidPathFileSystemError()
         if os.path.exists(real_new_path):
             raise AlreadyExistsFileSystemError()
-        if virtual_new_path in self._new_files:
+        if new_path in self._new_files:
             raise UncommittedExistsFileSystemError()
         try:
             shutil.move(real_old_path, real_new_path)
@@ -289,15 +230,13 @@ class DummyFileSystem(FileSystem):
         """Copy a file or directory from path to copy_path.
         
         new_path includes the name of the copied file or directory.
-        The paths must be POSIX pathnames, with "/" representing the root of the file system.
-        They may be absolute, or relative to the current working directory.
+        The paths must be absolute POSIX pathnames, with "/" representing the root of the file system.
         
         If at least one of the given paths is invalid, raise InvalidPathFileSystemError.
         If copy_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         real_path = self._get_real_path(path)
-        virtual_copy_path = self._get_absolute_virtual_path(copy_path)
         real_copy_path = self._get_real_path(copy_path)
         if not os.path.exists(real_path):
             raise InvalidPathFileSystemError()
@@ -305,7 +244,7 @@ class DummyFileSystem(FileSystem):
             raise InvalidPathFileSystemError()
         if os.path.exists(real_copy_path):
             raise AlreadyExistsFileSystemError()
-        if virtual_copy_path in self._new_files:
+        if copy_path in self._new_files:
             raise UncommittedExistsFileSystemError()
         try:
             shutil.copy(real_path, real_copy_path)
@@ -318,8 +257,7 @@ class DummyFileSystem(FileSystem):
         If the given path corresponds to a directory that is not empty, all its files and subdirectories
         must be deleted first.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
@@ -342,8 +280,7 @@ class DummyFileSystem(FileSystem):
         
         If num_bytes is not specified, read all remaining bytes of the file.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         The return value is an iterable of bytes.
         
@@ -372,8 +309,7 @@ class DummyFileSystem(FileSystem):
         
         If a file corresponding to this path already exists, it is overwritten.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         The size parameter indicates the number of bytes that must be allocated for the new file.
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
@@ -382,25 +318,23 @@ class DummyFileSystem(FileSystem):
         If there is not enough free space to store the new file, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        virtual_path = self._get_absolute_virtual_path(path)
         real_path = self._get_real_path(path)
         real_parent_path = real_path.rsplit("/", 1)[0].rsplit("\\", 1)[0]
         if not os.path.exists(real_parent_path):
             raise InvalidPathFileSystemError()
         if os.path.isdir(real_path):
             raise InvalidTargetFileSystemError()
-        if virtual_path in self._new_files:
+        if path in self._new_files:
             raise UncommittedExistsFileSystemError()
         try:
-            virtual_path = self._get_absolute_virtual_path(path)
             temp_dir_path = os.path.abspath(self._TEMP_DIR)
-            virtual_path_split = virtual_path.split("/")
+            virtual_path_split = path.split("/")
             for level in virtual_path_split[:-1]:
                 temp_dir_path = os.path.join(temp_dir_path, level)
                 if not os.path.exists(temp_dir_path):
                     os.mkdir(temp_dir_path)
             temp_file_path = os.path.join(temp_dir_path, virtual_path_split[-1:][0])
-            self._new_files[virtual_path] = (open(temp_file_path, "ab"), size)
+            self._new_files[path] = (open(temp_file_path, "ab"), size)
             self._space_used += size
             if os.path.exists(real_path):
                 self._space_used -= os.path.getsize(real_path)
@@ -411,17 +345,15 @@ class DummyFileSystem(FileSystem):
         """Append the given data to the uncommitted file corresponding to the given path.
         
         The data must be an iterable of bytes.
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
         If the the declared size of the file is exceeded, raise WriteOverflowFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        virtual_path = self._get_absolute_virtual_path(path)
-        if virtual_path not in self._new_files:
+        if path not in self._new_files:
             raise InvalidTargetFileSystemError()
-        temp_file, file_size = self._new_files[virtual_path]
+        temp_file, file_size = self._new_files[path]
         if temp_file.tell() + len(data) > file_size:
             raise WriteOverflowFileSystemError()
         try:
@@ -432,23 +364,21 @@ class DummyFileSystem(FileSystem):
     def commit_new_file(self, path):
         """Commit a file that was previously created/overwritten, then populated with data.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.   
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        virtual_path = self._get_absolute_virtual_path(path)
-        if virtual_path not in self._new_files:
+        if path not in self._new_files:
             raise InvalidTargetFileSystemError()
-        temp_file = self._new_files.pop(virtual_path)[0]
+        temp_file = self._new_files.pop(path)[0]
         try:
             temp_file.close()
         except:
             pass
         try:
-            abs_temp_path = os.path.abspath(os.path.join(self._TEMP_DIR, virtual_path[1:]))
-            abs_real_path = self._get_real_path(virtual_path)
+            abs_temp_path = os.path.abspath(os.path.join(self._TEMP_DIR, path[1:]))
+            abs_real_path = self._get_real_path(path)
             shutil.move(abs_temp_path, abs_real_path)
         except:
             raise AccessFailedFileSystemError()
@@ -456,17 +386,15 @@ class DummyFileSystem(FileSystem):
     def flush_new_file(self, path):
         """Delete an uncommitted file.
         
-        The given path must be a POSIX pathname, with "/" representing the root of the file system.
-        It may be absolute, or relative to the current working directory.
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.                
         """
-        virtual_path = self._get_absolute_virtual_path(path)
-        real_path = self._get_real_path(virtual_path)
-        if virtual_path not in self._new_files:
+        real_path = self._get_real_path(path)
+        if path not in self._new_files:
             raise InvalidTargetFileSystemError()
-        temp_file, file_size = self._new_files.pop(virtual_path)
+        temp_file, file_size = self._new_files.pop(path)
         try:
             temp_file.close()
             self._space_used += file_size
@@ -475,7 +403,7 @@ class DummyFileSystem(FileSystem):
         except:
             pass
         try:
-            real_temp_path = os.path.abspath(os.path.join(self._TEMP_DIR, virtual_path[1:]))
+            real_temp_path = os.path.abspath(os.path.join(self._TEMP_DIR, path[1:]))
             os.remove(real_temp_path)
         except:
             raise AccessFailedFileSystemError()
