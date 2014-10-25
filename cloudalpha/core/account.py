@@ -18,7 +18,7 @@ class Account(object):
 
     @abstractmethod
     def authenticate(self):
-        """Link the object to a real file hosting account.
+        """Link the object to a real file hosting account. If already done, do nothing.
         
         The association process might require an interaction with the user.
         
