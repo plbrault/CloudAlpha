@@ -41,7 +41,7 @@ class DropBoxAccount(Account):
             except:
                 raise AuthenticationFailedAccountError()
 
-        client = DropboxClient(access_token)
+        self.file_system._client = DropboxClient(access_token)
 
     def __init__(self, unique_id):
         super(DropBoxAccount, self).__init__(unique_id)
