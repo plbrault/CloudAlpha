@@ -31,7 +31,7 @@ class DropBoxFileSystem(FileSystem):
                 raise InvalidTargetFileSystemError()
             try:
                 dropbox_meta = self._client.metadata(path)
-                for contents in dropbox_meta["contents"]:  # data is a list of dictionaries
+                for contents in dropbox_meta["contents"]:
                     items = items + " " + contents['path']
                 return items
             except:
