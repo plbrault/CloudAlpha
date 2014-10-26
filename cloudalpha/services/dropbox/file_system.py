@@ -41,6 +41,13 @@ class DropBoxFileSystem(FileSystem):
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.        
         """
+        with self._lock:
+            try:
+                self._client.metadata(path)
+                return True
+            except:
+                return False
+
 
     def list_dir(self, path):
         """Return the content of the specified directory. If no directory is specified, return the content of the current working directory.
@@ -72,6 +79,12 @@ class DropBoxFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
+        with self._lock:
+            try:
+                dropbox_meta = self._client.metadata(path)
+                return dropbox_meta["is_dir"]
+            except:
+                raise AccessFailedFileSystemError()
 
     def is_file(self, path):
         """Return a boolean value indicating if the given path corresponds to a file.
@@ -81,6 +94,12 @@ class DropBoxFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
+        with self._lock:
+            try:
+                dropbox_meta = self._client.metadata(path)
+                return not dropbox_meta["is_dir"]
+            except:
+                raise AccessFailedFileSystemError()
 
     def get_size(self, path):
         """Return the size, in bytes, of the file corresponding to the given path.
