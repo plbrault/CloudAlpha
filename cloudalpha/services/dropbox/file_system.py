@@ -16,16 +16,13 @@ class DropBoxFileSystem(FileSystem):
         """Return the Lock object for the current instance."""
         return self._lock
 
-    def _get_real_path(self, path):
-        """Return the real path corresponding to the specified virtual path.
-        """
-
     @property
     def space_used(self):
         """Return the number of bytes used on the file system.
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
+        return self._client.account_info()["quota_info"]["normal"] + self._client.account_info()["quota_info"]["shared"]
 
     @property
     def free_space(self):
@@ -33,6 +30,7 @@ class DropBoxFileSystem(FileSystem):
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
+        return self._client.account_info()["quota_info"]["quota"] - self._client.account_info()["quota_info"]["normal"] - self._client.account_info()["quota_info"]["shared"]
 
     def exists(self, path):
         """Return True if the given path is valid.
