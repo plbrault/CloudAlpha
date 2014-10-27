@@ -7,6 +7,7 @@ from core.account import Account
 from core.exceptions import AuthenticationFailedAccountError
 from services.dropbox.file_system import DropBoxFileSystem
 from services.dropbox.settings import Settings
+from core.datastore import DataStore
 
 class DropBoxAccount(Account):
 
@@ -25,21 +26,21 @@ class DropBoxAccount(Account):
         authorize_url = flow.start()
 
         if not self._authenticated:
-
-            webbrowser.open(authorize_url)
-            print('Allow access and enter the authorization code :')
-
-            code = input().strip()
-            print()
-
             try:
-                access_token, user_id = flow.finish(code)
+                access_token = DataStore().get_value(self.unique_id, "access_token")
+
+                if access_token == None:
+                    webbrowser.open(authorize_url)
+                    print('Allow access and enter the authorization code :')
+                    code = input().strip()
+                    print()
+                    access_token = flow.finish(code)[0]
+                    DataStore().set_value(self.unique_id, "access_token", access_token)
+
+                self.file_system._client = DropboxClient(access_token)
                 print("Authentication succeeded")
-                self._authenticated = True
             except:
                 raise AuthenticationFailedAccountError()
-
-        self.file_system._client = DropboxClient(access_token)
 
     def __init__(self, unique_id):
         super(DropBoxAccount, self).__init__(unique_id)
