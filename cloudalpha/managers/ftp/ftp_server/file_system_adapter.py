@@ -5,14 +5,16 @@ class FileSystemAdapter(AbstractedFS):
     _next_class_id = 0
     _file_system_view = None
 
+    def _subclass_init(self, root, cmd_channel):
+        AbstractedFS.__init__(self, "/", cmd_channel)
+        self._file_system_view.working_dir = root
+
     @staticmethod
     def get_class(file_system_view):
+        """Create a new FileSystemAdapter subclass bound to the given FileSystemView instance."""
         FileSystemAdapter._next_class_id += 1
-        return type("FileSystemAdapter_cls" + FileSystemAdapter._next_class_id, (FileSystemAdapter,), {"_file_system_view":file_system_view})
-
-    def __init__(self, root, cmd_channel):
-        super(FileSystemAdapter, self).__init__("/", cmd_channel)
-        self._file_system_view.working_dir = root
+        return type("FileSystemAdapter_cls" + FileSystemAdapter._next_class_id, (FileSystemAdapter,),
+                    {"__init__":FileSystemAdapter._subclass_init, "_file_system_view":file_system_view})
 
     @property
     def cwd(self):
