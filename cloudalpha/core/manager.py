@@ -18,7 +18,7 @@ class Manager(object):
     def run(self):
         """Put the manager into action.
         
-        If file_system is not set, raise FileSystemNotSetManagerError.
+        If file_system_view is not set, raise FileSystemNotSetManagerError.
         If the operation fails for any other reason, raise StartupFailedManagerError.
         """
         pass
