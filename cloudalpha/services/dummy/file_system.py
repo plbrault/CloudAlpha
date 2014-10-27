@@ -1,7 +1,7 @@
 import os
 import shutil
 from threading import RLock
-import time
+from datetime import datetime
 
 from core.exceptions import InvalidPathFileSystemError, \
     AlreadyExistsFileSystemError, InvalidTargetFileSystemError, \
@@ -146,7 +146,7 @@ class DummyFileSystem(FileSystem):
             if not os.path.exists(path):
                 raise InvalidPathFileSystemError
             try:
-                return time.ctime(os.path.getctime(path))
+                return datetime.fromtimestamp(os.path.getctime(path))
             except:
                 raise AccessFailedFileSystemError()
 
@@ -165,7 +165,7 @@ class DummyFileSystem(FileSystem):
             if not os.path.exists(path):
                 raise InvalidPathFileSystemError
             try:
-                return time.ctime(os.path.getmtime(path))
+                return datetime.fromtimestamp(os.path.getmtime(path))
             except:
                 raise AccessFailedFileSystemError()
 
@@ -185,7 +185,7 @@ class DummyFileSystem(FileSystem):
             if not os.path.exists(path):
                 raise InvalidPathFileSystemError
             try:
-                return time.ctime(os.path.getatime(path))
+                return datetime.fromtimestamp(os.path.getatime(path))
             except:
                 raise AccessFailedFileSystemError()
 
