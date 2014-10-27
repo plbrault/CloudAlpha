@@ -49,7 +49,8 @@ class FileSystemAdapter(AbstractedFS):
         return fspath
 
     def validpath(self, path):
-        pass
+        """Return true if the given path is valid."""
+        return self._file_system_view.exists(path)
 
     def open(self, filename, mode):
         pass
