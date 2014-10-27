@@ -6,14 +6,13 @@ class FileSystemAdapter(AbstractedFS):
     _file_system_view = None
 
     def _subclass_init(self, root, cmd_channel):
-        AbstractedFS.__init__(self, "/", cmd_channel)
-        self._file_system_view.working_dir = root
+        self.cmd_channel = cmd_channel
 
     @staticmethod
     def get_class(file_system_view):
         """Create a new FileSystemAdapter subclass bound to the given FileSystemView instance."""
         FileSystemAdapter._next_class_id += 1
-        return type("FileSystemAdapter_cls" + FileSystemAdapter._next_class_id, (FileSystemAdapter,),
+        return type("FileSystemAdapter_cls" + str(FileSystemAdapter._next_class_id), (FileSystemAdapter,),
                     {"__init__":FileSystemAdapter._subclass_init, "_file_system_view":file_system_view})
 
     @property
@@ -103,10 +102,10 @@ class FileSystemAdapter(AbstractedFS):
             class Modes:
                 FILE = 33206
                 DIRECTORY = 16895
-        mode = self.StatResult.Modes.FILE
-        if self._file_system_view.is_dir(path):
-            mode = self.StatResult.Modes.DIRECTORY
-        size = self._file_system_view.get_size(path)
+        mode = StatResult.Modes.FILE
+        if self.isdir(path):
+            mode = StatResult.Modes.DIRECTORY
+        size = self.getsize(path)
         accessed_datetime = self._file_system_view.get_accessed_datetime(path)
         modified_datetime = self._file_system_view.get_modified_datetime(path)
         created_datetime = self._file_system_view.get_created_datetime(path)
@@ -134,6 +133,8 @@ class FileSystemAdapter(AbstractedFS):
 
     def getsize(self, path):
         """Return the size of the specified file in bytes."""
+        if not self._file_system_view.is_file(path):
+            return 0
         return self._file_system_view.get_size(path)
 
     def getmtime(self, path):
