@@ -1,10 +1,12 @@
-from core.account import Account
-from services.dropbox.file_system import DropBoxFileSystem
-from core.exceptions import AuthenticationFailedAccountError
-from dropbox.client import DropboxOAuth2FlowNoRedirect, DropboxClient
-
 import json
 import webbrowser
+
+from dropbox.client import DropboxOAuth2FlowNoRedirect, DropboxClient
+
+from core.account import Account
+from core.exceptions import AuthenticationFailedAccountError
+from services.dropbox.file_system import DropBoxFileSystem
+from services.dropbox.settings import Settings
 
 class DropBoxAccount(Account):
 
@@ -18,11 +20,7 @@ class DropBoxAccount(Account):
         If the operation fails, raise AuthenticationFailedAccountError.
         """
 
-        _file_data = open("services/dropbox/settings.json").read()
-        _json_obj = json.loads(_file_data)
-
-        flow = DropboxOAuth2FlowNoRedirect(_json_obj["app_key"], _json_obj["app_secret"])
-
+        flow = DropboxOAuth2FlowNoRedirect(Settings.app_key, Settings.app_secret)
 
         authorize_url = flow.start()
 

@@ -3,11 +3,11 @@ import json
 
 class Settings:
 
-    if os.path.isfile("settings.dev.json"):
-        _file_data = open("settings.dev.json").read()
+    if os.path.isfile("services/dropbox/settings.dev.json"):
+        _file_data = open("services/dropbox/settings.dev.json").read()
         _json_obj = json.loads(_file_data)
     else:
-        _file_data = open("settings.json").read()
+        _file_data = open("services/dropbox/settings.json").read()
         _json_obj = json.loads(_file_data)
 
     app_key = _json_obj["app_key"]
