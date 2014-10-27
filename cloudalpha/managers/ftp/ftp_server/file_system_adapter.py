@@ -36,14 +36,17 @@ class FileSystemAdapter(AbstractedFS):
         """Override the root setter of the base class to make it effectless"""
         pass
 
-    def ftpnorm(self, ftppath):
-        pass
+    def ftpnorm(self, path):
+        """Return the absolute path corresponding to the given relative path."""
+        return self._file_system_view.get_abs_path(path)
 
     def ftp2fs(self, ftppath):
-        pass
+        """Same as ftpnorm."""
+        return self.ftpnorm(ftppath)
 
     def fs2ftp(self, fspath):
-        pass
+        """Return fspath as is."""
+        return fspath
 
     def validpath(self, path):
         pass
