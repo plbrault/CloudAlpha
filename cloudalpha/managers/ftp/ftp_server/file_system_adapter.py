@@ -59,13 +59,15 @@ class FileSystemAdapter(AbstractedFS):
         pass
 
     def chdir(self, path):
-        pass
+        """Change the current directory."""
+        self._file_system_view.working_dir = path
 
     def mkdir(self, path):
         pass
 
     def listdir(self, path):
-        pass
+        """List the content of a directory."""
+        return self._file_system_view.list_dir(path)
 
     def rmdir(self, path):
         pass
@@ -79,14 +81,40 @@ class FileSystemAdapter(AbstractedFS):
     def chmod(self, path, mode):
         pass
 
-    class StatResult():
-        pass
-
     def stat(self, path):
-        pass
+        """Emulate a stat() system call on the given path."""
+        class StatResult():
+            st_mode = None
+            st_ino = 0
+            st_dev = 0
+            st_nlink = 1
+            st_uid = 0
+            st_gid = 0
+            st_size = None
+            st_atime = None
+            st_mtime = None
+            st_ctime = None
+            def __init__(self, mode, size, accessed_time, modified_time, created_time):
+                self.st_mode = mode
+                self.st_size = size
+                self.st_atime = accessed_time
+                self.st_mtime = modified_time
+                self.st_ctime = created_time
+            class Modes:
+                FILE = 33206
+                DIRECTORY = 16895
+        mode = self.StatResult.Modes.FILE
+        if self._file_system_view.is_dir(path):
+            mode = self.StatResult.Modes.DIRECTORY
+        size = self._file_system_view.get_size(path)
+        accessed_datetime = self._file_system_view.get_accessed_datetime(path)
+        modified_datetime = self._file_system_view.get_modified_datetime(path)
+        created_datetime = self._file_system_view.get_created_datetime(path)
+        return StatResult(mode, size, accessed_datetime.timestamp(), modified_datetime.timestamp(), created_datetime.timestamp())
 
     def lstat(self, path):
-        pass
+        """Same as stat."""
+        return self.stat(path)
 
     def readlink(self, path):
         pass
