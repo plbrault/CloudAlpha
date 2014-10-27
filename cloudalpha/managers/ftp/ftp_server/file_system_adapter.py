@@ -117,7 +117,8 @@ class FileSystemAdapter(AbstractedFS):
         return self.stat(path)
 
     def readlink(self, path):
-        pass
+        """Return the given path as is."""
+        return path
 
     def isfile(self, path):
         pass
