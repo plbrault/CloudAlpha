@@ -8,26 +8,30 @@ class FileSystemAdapter(AbstractedFS):
     @staticmethod
     def get_class(file_system_view):
         FileSystemAdapter._next_class_id += 1
-        return type("FileSystemAdapter" + FileSystemAdapter._next_class_id, (FileSystemAdapter,), {"_file_system_view":file_system_view})
+        return type("FileSystemAdapter_cls" + FileSystemAdapter._next_class_id, (FileSystemAdapter,), {"_file_system_view":file_system_view})
 
     def __init__(self, root, cmd_channel):
         super(FileSystemAdapter, self).__init__("/", cmd_channel)
-        self._cwd = self._root
-
-    @property
-    def root(self):
-        pass
+        self._file_system_view.working_dir = root
 
     @property
     def cwd(self):
-        pass
-
-    @root.setter
-    def root(self, path):
-        pass
+        """Return the current working directory."""
+        return self._file_system_view.working_dir
 
     @cwd.setter
     def cwd(self, path):
+        """Set the current working directory."""
+        self._file_system_view.working_dir = path
+
+    @property
+    def root(self):
+        """Return the root path of the file system."""
+        return "/"
+
+    @root.setter
+    def root(self, path):
+        """Override the root setter of the base class to make it effectless"""
         pass
 
     def ftpnorm(self, ftppath):
