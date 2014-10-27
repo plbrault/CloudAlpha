@@ -121,37 +121,37 @@ class FileSystemAdapter(AbstractedFS):
         return path
 
     def isfile(self, path):
-        pass
+        """Return True if path is a file."""
+        return self._file_system_view.is_file(path)
 
     def islink(self, path):
-        pass
+        """Return False."""
+        return False
 
     def isdir(self, path):
-        pass
+        """Return True if path is a directory."""
+        return self._file_system_view.is_dir(path)
 
     def getsize(self, path):
-        pass
+        """Return the size of the specified file in bytes."""
+        return self._file_system_view.get_size(path)
 
     def getmtime(self, path):
-        pass
+        """Return the last modified time of path as a number of seconds since the epoch."""
+        return self._file_system_view.get_modified_datetime(path).timestamp()
 
     def realpath(self, path):
-        pass
+        """Return the given path as is."""
+        return path
 
     def lexists(self, path):
-        pass
+        """Same as validpath."""
+        return self.validpath(path)
 
     def get_user_by_uid(self, uid):
-        pass
+        """Return the value "owner"."""
+        return "owner"
 
     def get_group_by_gid(self, gid):
-        pass
-
-    def get_list_dir(self, path):
-        pass
-
-    def format_list(self, basedir, listing, ignore_err=True):
-        pass
-
-    def format_mlsx(self, basedir, listing, perms, facts, ignore_err=True):
-        pass
+        """Return the value "group"."""
+        return "group"
