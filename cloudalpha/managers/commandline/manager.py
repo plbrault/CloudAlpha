@@ -1,13 +1,17 @@
 from core.manager import Manager
+from core.exceptions import FileSystemNotSetManagerError
 
 class CommandLineManager(Manager):
 
     def run(self):
         """Put the manager into action.
         
-        If file_system is not set, raise FileSystemNotSetManagerError.
+        If file_system_view is not set, raise FileSystemNotSetManagerError.
         If the operation fails for any other reason, raise StartupFailedManagerError.
         """
+
+        if self.file_system_view == None:
+            raise FileSystemNotSetManagerError()
 
         print("Type help for a list of available commands.")
 
