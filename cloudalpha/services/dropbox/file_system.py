@@ -59,12 +59,12 @@ class DropBoxFileSystem(FileSystem):
         If the given path does not correspond to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        items = ""
+        items = []
         with self._lock:
             try:
                 dropbox_meta = self._client.metadata(path)
                 for contents in dropbox_meta["contents"]:
-                    items = items + " " + contents['path']
+                    items.append(contents['path'].rsplit("/", 1)[1])
                 return items
             except:
                 raise AccessFailedFileSystemError()
