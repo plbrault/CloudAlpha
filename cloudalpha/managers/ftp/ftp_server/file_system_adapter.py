@@ -2,8 +2,15 @@ from pyftpdlib.filesystems import AbstractedFS
 
 class FileSystemAdapter(AbstractedFS):
 
-    def __init__(self, root, cmd_channel):
+    _next_class_id = 0
+    _file_system_view = None
 
+    @staticmethod
+    def get_class(file_system_view):
+        FileSystemAdapter._next_class_id += 1
+        return type("FileSystemAdapter" + FileSystemAdapter._next_class_id, (FileSystemAdapter,), {"_file_system_view":file_system_view})
+
+    def __init__(self, root, cmd_channel):
         super(FileSystemAdapter, self).__init__("/", cmd_channel)
         self._cwd = self._root
 
