@@ -5,8 +5,8 @@ class FileSystemView(object):
     _file_system = None
     _working_dir = "/"
 
-    def _get_absolute_virtual_path(self, path):
-        """Return the absolute virtual path corresponding to the given relative one.
+    def get_abs_path(self, path):
+        """Return the absolute path corresponding to the given relative path.
         """
         abs_levels = []
         if path[:1] == "/":
@@ -47,7 +47,7 @@ class FileSystemView(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         with self._file_system.lock:
-            abs_path = self._get_absolute_virtual_path(path)
+            abs_path = self.get_abs_path(path)
             if not self._file_system.exists(abs_path):
                 raise InvalidPathFileSystemError()
             if not self._file_system.is_dir(abs_path):
@@ -78,7 +78,7 @@ class FileSystemView(object):
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.        
         """
-        abs_path = self._get_absolute_virtual_path(path)
+        abs_path = self.get_abs_path(path)
         return self._file_system.exists(abs_path)
 
     def list_dir(self, path=None):
@@ -97,7 +97,7 @@ class FileSystemView(object):
         if path == None:
             abs_path = self._working_dir
         else:
-            abs_path = self._get_absolute_virtual_path(path)
+            abs_path = self.get_abs_path(path)
         return self._file_system.list_dir(abs_path)
 
     def is_dir(self, path):
@@ -109,7 +109,7 @@ class FileSystemView(object):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        abs_path = self._get_absolute_virtual_path(path)
+        abs_path = self.get_abs_path(path)
         return self._file_system.is_dir(abs_path)
 
     def is_file(self, path):
@@ -121,7 +121,7 @@ class FileSystemView(object):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        abs_path = self._get_absolute_virtual_path(path)
+        abs_path = self.get_abs_path(path)
         return self._file_system.is_file(abs_path)
 
     def get_size(self, path):
@@ -134,7 +134,7 @@ class FileSystemView(object):
         If the given path corresponds to a directory, raise FileSystemTargetError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
-        abs_path = self._get_absolute_virtual_path(path)
+        abs_path = self.get_abs_path(path)
         return self._file_system.get_size(abs_path)
 
     def get_created_datetime(self, path):
@@ -148,7 +148,7 @@ class FileSystemView(object):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        abs_path = self._get_absolute_virtual_path(path)
+        abs_path = self.get_abs_path(path)
         return self._file_system.get_created_datetime(abs_path)
 
     def get_modified_datetime(self, path):
@@ -162,7 +162,7 @@ class FileSystemView(object):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        abs_path = self._get_absolute_virtual_path(path)
+        abs_path = self.get_abs_path(path)
         return self._file_system.get_modified_datetime(abs_path)
 
     def get_accessed_datetime(self, path):
@@ -177,7 +177,7 @@ class FileSystemView(object):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        abs_path = self._get_absolute_virtual_path(path)
+        abs_path = self.get_abs_path(path)
         return self._file_system.get_accessed_datetime(abs_path)
 
     def make_dir(self, path):
@@ -191,7 +191,7 @@ class FileSystemView(object):
         If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        abs_path = self._get_absolute_virtual_path(path)
+        abs_path = self.get_abs_path(path)
         self._file_system.make_dir(abs_path)
 
     def move(self, old_path, new_path):
@@ -208,8 +208,8 @@ class FileSystemView(object):
         If new_path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        abs_old_path = self._get_absolute_virtual_path(old_path)
-        abs_new_path = self._get_absolute_virtual_path(new_path)
+        abs_old_path = self.get_abs_path(old_path)
+        abs_new_path = self.get_abs_path(new_path)
         self._file_system.move(abs_old_path, abs_new_path)
 
     def copy(self, path, copy_path):
@@ -225,8 +225,8 @@ class FileSystemView(object):
         If copy_path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
-        abs_path = self._get_absolute_virtual_path(path)
-        abs_copy_path = self._get_absolute_virtual_path(copy_path)
+        abs_path = self.get_abs_path(path)
+        abs_copy_path = self.get_abs_path(copy_path)
         self._file_system.copy(abs_path, abs_copy_path)
 
     def delete(self, path):
@@ -241,7 +241,7 @@ class FileSystemView(object):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        abs_path = self._get_absolute_virtual_path(path)
+        abs_path = self.get_abs_path(path)
         self._file_system.delete(abs_path)
 
     def read(self, path, start_byte, num_bytes=None):
@@ -259,7 +259,7 @@ class FileSystemView(object):
         If the given path corresponds to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        abs_path = self._get_absolute_virtual_path(path)
+        abs_path = self.get_abs_path(path)
         return self._file_system.read(abs_path, start_byte, num_bytes)
 
     def create_new_file(self, caller_unique_id, path, size):
@@ -278,7 +278,7 @@ class FileSystemView(object):
         If there is not enough free space to store the new file, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        abs_path = self._get_absolute_virtual_path(path)
+        abs_path = self.get_abs_path(path)
         self._file_system.create_new_file(caller_unique_id, abs_path, size)
 
     def write_to_new_file(self, caller_unique_id, path, data):
@@ -294,7 +294,7 @@ class FileSystemView(object):
         If the the declared size of the file is exceeded, raise WriteOverflowFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        abs_path = self._get_absolute_virtual_path(path)
+        abs_path = self.get_abs_path(path)
         self._file_system.write_to_new_file(caller_unique_id, abs_path, data)
 
     def commit_new_file(self, caller_unique_id, path):
@@ -308,7 +308,7 @@ class FileSystemView(object):
         If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        abs_path = self._get_absolute_virtual_path(path)
+        abs_path = self.get_abs_path(path)
         self._file_system.commit_new_file(caller_unique_id, abs_path)
 
     def flush_new_file(self, caller_unique_id, path):
@@ -322,7 +322,7 @@ class FileSystemView(object):
         If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.                
         """
-        abs_path = self._get_absolute_virtual_path(path)
+        abs_path = self.get_abs_path(path)
         self._file_system.flush_new_file(abs_path)
 
     def __init__(self, file_system):
