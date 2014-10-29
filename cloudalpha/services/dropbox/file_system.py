@@ -107,6 +107,12 @@ class DropBoxFileSystem(FileSystem):
         If the given path corresponds to a directory, raise FileSystemTargetError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
+        with self._lock:
+            try:
+                dropbox_meta = self._client.metadata(path)
+                return dropbox_meta["size"]
+            except:
+                raise AccessFailedFileSystemError()
 
     def get_created_datetime(self, path):
         """Return the date and time of creation of the file or directory corresponding to the given path.
