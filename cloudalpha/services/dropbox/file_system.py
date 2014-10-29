@@ -135,6 +135,12 @@ class DropBoxFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
+        with self._lock:
+            try:
+                dropbox_meta = self._client.metadata(path)
+                return dropbox_meta["modified"]
+            except:
+                raise AccessFailedFileSystemError()
 
     def get_accessed_datetime(self, path):
         """Return the date and time of the last time the given file or directory was accessed.
