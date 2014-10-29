@@ -1,5 +1,5 @@
 from core.file_system import FileSystem
-from core.exceptions import AccessFailedFileSystemError, AlreadyExistsFileSystemError, InvalidPathFileSystemError, InvalidTargetFileSystemError
+from core.exceptions import AccessFailedFileSystemError, AlreadyExistsFileSystemError, InvalidPathFileSystemError, InvalidTargetFileSystemError, ForbiddenOperationFileSystemError
 from threading import RLock
 from datetime import datetime
 
@@ -215,6 +215,17 @@ class DropBoxFileSystem(FileSystem):
         If new_path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
+        with self._lock:
+            if not self.exists(old_path):
+                raise InvalidPathFileSystemError()
+            if self.exists(new_path):
+                raise AlreadyExistsFileSystemError()
+            if old_path in new_path.rsplit("/", 1)[0]:
+                raise ForbiddenOperationFileSystemError()
+            try:
+                self._client.file_move(old_path, new_path)
+            except:
+                raise AccessFailedFileSystemError()
 
     def copy(self, path, copy_path):
         """Copy a file or directory from path to copy_path.
@@ -228,6 +239,17 @@ class DropBoxFileSystem(FileSystem):
         If copy_path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
+        with self._lock:
+            if not self.exists(path):
+                raise InvalidPathFileSystemError()
+            if self.exists(copy_path):
+                raise AlreadyExistsFileSystemError()
+            if path in copy_path.rsplit("/", 1)[0]:
+                raise ForbiddenOperationFileSystemError()
+            try:
+                self._client.file_copy(path, copy_path)
+            except:
+                raise AccessFailedFileSystemError()
 
     def delete(self, path):
         """Delete the file or directory corresponding to the given path.
