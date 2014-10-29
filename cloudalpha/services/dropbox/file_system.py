@@ -1,10 +1,6 @@
 from core.file_system import FileSystem
-from dropbox.client import DropboxClient
-from core.exceptions import InvalidPathFileSystemError, InvalidTargetFileSystemError, AccessFailedFileSystemError
+from core.exceptions import AccessFailedFileSystemError
 from threading import RLock
-
-import os
-import json
 
 class DropBoxFileSystem(FileSystem):
 
@@ -43,8 +39,11 @@ class DropBoxFileSystem(FileSystem):
             try:
                 self._client.metadata(path)
                 return True
-            except:
-                return False
+            except Exception as e:
+                if str(e).startswith("[404] \"Path \'"):
+                    return False
+                else:
+                    raise AccessFailedFileSystemError()
 
 
     def list_dir(self, path):
