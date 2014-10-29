@@ -1,6 +1,7 @@
 from core.file_system import FileSystem
 from core.exceptions import AccessFailedFileSystemError
 from threading import RLock
+from datetime import datetime
 
 class DropBoxFileSystem(FileSystem):
 
@@ -124,6 +125,12 @@ class DropBoxFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
+        with self._lock:
+            try:
+                dropbox_meta = self._client.metadata(path)
+                return datetime.strptime(dropbox_meta["modified"], '%a, %d %b %Y %H:%M:%S +0000')
+            except:
+                raise AccessFailedFileSystemError()
 
     def get_modified_datetime(self, path):
         """Return the date and time of the last modification to the file or directory corresponding to the given path.
@@ -138,7 +145,7 @@ class DropBoxFileSystem(FileSystem):
         with self._lock:
             try:
                 dropbox_meta = self._client.metadata(path)
-                return dropbox_meta["modified"]
+                return datetime.strptime(dropbox_meta["modified"], '%a, %d %b %Y %H:%M:%S +0000')
             except:
                 raise AccessFailedFileSystemError()
 
@@ -153,6 +160,12 @@ class DropBoxFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
+        with self._lock:
+            try:
+                dropbox_meta = self._client.metadata(path)
+                return datetime.strptime(dropbox_meta["modified"], '%a, %d %b %Y %H:%M:%S +0000')
+            except:
+                raise AccessFailedFileSystemError()
 
     def make_dir(self, path):
         """Creates a new directory corresponding to the given path.
