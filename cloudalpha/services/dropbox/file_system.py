@@ -241,7 +241,11 @@ class DropBoxFileSystem(FileSystem):
             if not self.exists(path):
                 raise InvalidPathFileSystemError()
             try:
-                print(self._client.file_delete(path))
+                dropbox_meta = self._client.metadata(path)
+                if self.is_dir(path):
+                    for contents in dropbox_meta["contents"]:
+                        self.delete(contents.get("path"))
+                self._client.file_delete(path)
             except:
                 raise AccessFailedFileSystemError()
 
