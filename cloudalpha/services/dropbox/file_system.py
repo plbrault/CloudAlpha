@@ -1,5 +1,5 @@
 from core.file_system import FileSystem
-from core.exceptions import AccessFailedFileSystemError
+from core.exceptions import AccessFailedFileSystemError, AlreadyExistsFileSystemError
 from threading import RLock
 from datetime import datetime
 
@@ -177,6 +177,13 @@ class DropBoxFileSystem(FileSystem):
         If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
+        with self._lock:
+            if self.exists(path):
+                raise AlreadyExistsFileSystemError()
+            try:
+                self._client.file_create_folder(path)
+            except:
+                raise AccessFailedFileSystemError()
 
     def move(self, old_path, new_path):
         """Move and/or rename a file or directory from old_path to new_path.
