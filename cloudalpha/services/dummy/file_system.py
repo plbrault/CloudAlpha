@@ -117,7 +117,7 @@ class DummyFileSystem(FileSystem):
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
-        If the given path corresponds to a directory, raise FileSystemTargetError.
+        If the given path corresponds to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         with self._lock:

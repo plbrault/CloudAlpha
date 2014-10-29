@@ -1,5 +1,5 @@
 from core.file_system import FileSystem
-from core.exceptions import AccessFailedFileSystemError, AlreadyExistsFileSystemError
+from core.exceptions import AccessFailedFileSystemError, AlreadyExistsFileSystemError, InvalidPathFileSystemError, InvalidTargetFileSystemError
 from threading import RLock
 from datetime import datetime
 
@@ -38,8 +38,11 @@ class DropBoxFileSystem(FileSystem):
         """
         with self._lock:
             try:
-                self._client.metadata(path)
-                return True
+                dropbox_meta = self._client.metadata(path)
+                if dropbox_meta.get("is_deleted"):
+                    return False
+                else:
+                    return True
             except Exception as e:
                 if str(e).startswith("[404] \"Path \'"):
                     return False
@@ -78,11 +81,14 @@ class DropBoxFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         with self._lock:
-            try:
-                dropbox_meta = self._client.metadata(path)
-                return dropbox_meta["is_dir"]
-            except:
-                raise AccessFailedFileSystemError()
+            if self.exists(path):
+                try:
+                    dropbox_meta = self._client.metadata(path)
+                    return dropbox_meta["is_dir"]
+                except:
+                    raise AccessFailedFileSystemError()
+            else:
+                raise InvalidPathFileSystemError()
 
     def is_file(self, path):
         """Return a boolean value indicating if the given path corresponds to a file.
@@ -93,11 +99,14 @@ class DropBoxFileSystem(FileSystem):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         with self._lock:
-            try:
-                dropbox_meta = self._client.metadata(path)
-                return not dropbox_meta["is_dir"]
-            except:
-                raise AccessFailedFileSystemError()
+            if self.exists(path):
+                try:
+                    dropbox_meta = self._client.metadata(path)
+                    return not dropbox_meta["is_dir"]
+                except:
+                    raise AccessFailedFileSystemError()
+            else:
+                raise InvalidPathFileSystemError()
 
     def get_size(self, path):
         """Return the size, in bytes, of the file corresponding to the given path.
@@ -105,15 +114,20 @@ class DropBoxFileSystem(FileSystem):
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
-        If the given path corresponds to a directory, raise FileSystemTargetError.
+        If the given path corresponds to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         with self._lock:
-            try:
-                dropbox_meta = self._client.metadata(path)
-                return dropbox_meta["size"]
-            except:
-                raise AccessFailedFileSystemError()
+            if self.exists(path):
+                if self.is_dir(path):
+                    raise InvalidTargetFileSystemError()
+                try:
+                    dropbox_meta = self._client.metadata(path)
+                    return not dropbox_meta["size"]
+                except:
+                    raise AccessFailedFileSystemError()
+            else:
+                raise InvalidPathFileSystemError()
 
     def get_created_datetime(self, path):
         """Return the date and time of creation of the file or directory corresponding to the given path.
@@ -223,6 +237,13 @@ class DropBoxFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
+        with self._lock:
+            if not self.exists(path):
+                raise InvalidPathFileSystemError()
+            try:
+                print(self._client.file_delete(path))
+            except:
+                raise AccessFailedFileSystemError()
 
     def read(self, path, start_byte, num_bytes=None):
         """Read the number of bytes corresponding to num_bytes from the file corresponding to the given path,
