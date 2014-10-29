@@ -194,6 +194,9 @@ class DropBoxFileSystem(FileSystem):
         with self._lock:
             if self.exists(path):
                 raise AlreadyExistsFileSystemError()
+            parentPath = path.rsplit("/", 1)[0]
+            if not self.exists(parentPath):
+                raise InvalidPathFileSystemError()
             try:
                 self._client.file_create_folder(path)
             except:
@@ -241,8 +244,8 @@ class DropBoxFileSystem(FileSystem):
             if not self.exists(path):
                 raise InvalidPathFileSystemError()
             try:
-                dropbox_meta = self._client.metadata(path)
                 if self.is_dir(path):
+                    dropbox_meta = self._client.metadata(path)
                     for contents in dropbox_meta["contents"]:
                         self.delete(contents.get("path"))
                 self._client.file_delete(path)
