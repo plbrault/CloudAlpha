@@ -37,7 +37,7 @@ class FileSystemAdapter(AbstractedFS):
 
     def ftpnorm(self, path):
         """Return the absolute path corresponding to the given relative path."""
-        return self._file_system_view.get_abs_path(path)
+        return self._file_system_view.get_abs_path(path.replace("\\", "/"))
 
     def ftp2fs(self, ftppath):
         """Same as ftpnorm."""
@@ -82,6 +82,7 @@ class FileSystemAdapter(AbstractedFS):
 
     def stat(self, path):
         """Emulate a stat() system call on the given path."""
+        path = self.ftpnorm(path)
         class StatResult():
             st_mode = None
             st_ino = 0
