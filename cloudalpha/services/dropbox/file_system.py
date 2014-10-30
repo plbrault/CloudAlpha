@@ -123,7 +123,7 @@ class DropBoxFileSystem(FileSystem):
                     raise InvalidTargetFileSystemError()
                 try:
                     dropbox_meta = self._client.metadata(path)
-                    return dropbox_meta["size"]
+                    return dropbox_meta["bytes"]
                 except:
                     raise AccessFailedFileSystemError()
             else:
