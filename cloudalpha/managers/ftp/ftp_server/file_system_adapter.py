@@ -3,7 +3,7 @@ from pyftpdlib.filesystems import AbstractedFS
 class FileSystemAdapter(AbstractedFS):
 
     _next_class_id = 0
-    _file_system_view = None
+    file_system_view = None
 
     def _subclass_init(self, root, cmd_channel):
         self.cmd_channel = cmd_channel
@@ -13,17 +13,17 @@ class FileSystemAdapter(AbstractedFS):
         """Create a new FileSystemAdapter subclass bound to the given FileSystemView instance."""
         FileSystemAdapter._next_class_id += 1
         return type("FileSystemAdapter_cls" + str(FileSystemAdapter._next_class_id), (FileSystemAdapter,),
-                    {"__init__":FileSystemAdapter._subclass_init, "_file_system_view":file_system_view})
+                    {"__init__":FileSystemAdapter._subclass_init, "file_system_view":file_system_view})
 
     @property
     def cwd(self):
         """Return the current working directory."""
-        return self._file_system_view.working_dir
+        return self.file_system_view.working_dir
 
     @cwd.setter
     def cwd(self, path):
         """Set the current working directory."""
-        self._file_system_view.working_dir = path
+        self.file_system_view.working_dir = path
 
     @property
     def root(self):
@@ -37,7 +37,7 @@ class FileSystemAdapter(AbstractedFS):
 
     def ftpnorm(self, path):
         """Return the absolute path corresponding to the given relative path."""
-        return self._file_system_view.get_abs_path(path.replace("\\", "/"))
+        return self.file_system_view.get_abs_path(path.replace("\\", "/"))
 
     def ftp2fs(self, ftppath):
         """Same as ftpnorm."""
@@ -49,7 +49,7 @@ class FileSystemAdapter(AbstractedFS):
 
     def validpath(self, path):
         """Return true if the given path is valid."""
-        return self._file_system_view.exists(path)
+        return self.file_system_view.exists(path)
 
     def open(self, filename, mode):
         pass
@@ -59,14 +59,14 @@ class FileSystemAdapter(AbstractedFS):
 
     def chdir(self, path):
         """Change the current directory."""
-        self._file_system_view.working_dir = path
+        self.file_system_view.working_dir = path
 
     def mkdir(self, path):
         pass
 
     def listdir(self, path):
         """List the content of a directory."""
-        return self._file_system_view.list_dir(path)
+        return self.file_system_view.list_dir(path)
 
     def rmdir(self, path):
         pass
@@ -107,9 +107,9 @@ class FileSystemAdapter(AbstractedFS):
         if self.isdir(path):
             mode = StatResult.Modes.DIRECTORY
         size = self.getsize(path)
-        accessed_datetime = self._file_system_view.get_accessed_datetime(path)
-        modified_datetime = self._file_system_view.get_modified_datetime(path)
-        created_datetime = self._file_system_view.get_created_datetime(path)
+        accessed_datetime = self.file_system_view.get_accessed_datetime(path)
+        modified_datetime = self.file_system_view.get_modified_datetime(path)
+        created_datetime = self.file_system_view.get_created_datetime(path)
         return StatResult(mode, size, accessed_datetime.timestamp(), modified_datetime.timestamp(), created_datetime.timestamp())
 
     def lstat(self, path):
@@ -122,7 +122,7 @@ class FileSystemAdapter(AbstractedFS):
 
     def isfile(self, path):
         """Return True if path is a file."""
-        return self._file_system_view.is_file(path)
+        return self.file_system_view.is_file(path)
 
     def islink(self, path):
         """Return False."""
@@ -130,17 +130,17 @@ class FileSystemAdapter(AbstractedFS):
 
     def isdir(self, path):
         """Return True if path is a directory."""
-        return self._file_system_view.is_dir(path)
+        return self.file_system_view.is_dir(path)
 
     def getsize(self, path):
         """Return the size of the specified file in bytes."""
-        if not self._file_system_view.is_file(path):
+        if not self.file_system_view.is_file(path):
             return 0
-        return self._file_system_view.get_size(path)
+        return self.file_system_view.get_size(path)
 
     def getmtime(self, path):
         """Return the last modified time of path as a number of seconds since the epoch."""
-        return self._file_system_view.get_modified_datetime(path).timestamp()
+        return self.file_system_view.get_modified_datetime(path).timestamp()
 
     def realpath(self, path):
         """Return the given path as is."""
