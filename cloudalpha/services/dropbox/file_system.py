@@ -11,7 +11,7 @@ class DropBoxFileSystem(FileSystem):
     _new_files = {}
     _new_file_upload_ids = {}
     _uncomitted_file_space = 0
-    _TEMP_DIR = ".dummytemp"
+    _TEMP_DIR = ".dropboxtemp"
 
     @property
     def lock(self):
@@ -35,7 +35,7 @@ class DropBoxFileSystem(FileSystem):
         return self._client.account_info()["quota_info"]["quota"] - self._client.account_info()["quota_info"]["normal"] - self._client.account_info()["quota_info"]["shared"]
 
     def exists(self, path):
-        """Return True if the given path is valid.
+        """Return True if the given path points to an existing file or directory, excluding uncommitted files.
         
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
@@ -433,6 +433,14 @@ class DropBoxFileSystem(FileSystem):
                     raise AccessFailedFileSystemError()
             else:
                 raise ForbiddenOperationFileSystemError()
+
+    def new_file_exists(self, path):
+        """Return True if the given path corresponds to an uncommitted file.
+        
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+        """
+        with self._lock:
+            return path in self._new_files
 
     def __init__(self, account):
         super(DropBoxFileSystem, self).__init__(account)

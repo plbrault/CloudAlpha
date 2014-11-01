@@ -43,7 +43,7 @@ class FileSystem(object):
 
     @abstractmethod
     def exists(self, path):
-        """Return True if the given path is valid.
+        """Return True if the given path points to an existing file or directory, excluding uncommitted files.
         
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
@@ -271,6 +271,14 @@ class FileSystem(object):
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
         If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.                
+        """
+        pass
+
+    @abstractmethod
+    def new_file_exists(self, path):
+        """Return True if the given path corresponds to an uncommitted file.
+        
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
 

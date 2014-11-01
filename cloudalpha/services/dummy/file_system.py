@@ -50,7 +50,7 @@ class DummyFileSystem(FileSystem):
             return self._total_space - self._space_used
 
     def exists(self, path):
-        """Return True if the given path is valid.
+        """Return True if the given path points to an existing file or directory, excluding uncommitted files.
         
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
@@ -458,6 +458,14 @@ class DummyFileSystem(FileSystem):
                     raise AccessFailedFileSystemError()
             else:
                 raise ForbiddenOperationFileSystemError()
+
+    def new_file_exists(self, path):
+        """Return True if the given path corresponds to an uncommitted file.
+        
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+        """
+        with self._lock:
+            return path in self._new_files
 
     def __init__(self, account):
         """DummyFileSystem initializer"""

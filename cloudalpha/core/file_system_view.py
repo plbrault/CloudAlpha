@@ -71,7 +71,7 @@ class FileSystemView(object):
         return self._file_system.free_space
 
     def exists(self, path):
-        """Return True if the given path is valid.
+        """Return True if the given path points to an existing file or directory, excluding uncommitted files.
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
@@ -324,6 +324,14 @@ class FileSystemView(object):
         """
         abs_path = self.get_abs_path(path)
         self._file_system.flush_new_file(abs_path)
+
+    def new_file_exists(self, path):
+        """Return True if the given path corresponds to an uncommitted file.
+        
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+        """
+        abs_path = self.get_abs_path(path)
+        return self._file_system.new_file_exists(abs_path)
 
     def __init__(self, file_system):
         """Create a new FileSystemView instance linked to the given FileSystem subclass instance."""
