@@ -3,6 +3,7 @@ from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 from managers.ftp.ftp_server.file_system_adapter import FileSystemAdapter
+from managers.ftp.ftp_server.adapted_handler import AdaptedHandler
 
 class FtpManager(object):
 
@@ -28,7 +29,7 @@ class FtpManager(object):
         authorizer.add_user('user', '12345', '.', perm='elradfmwM')
 
         # Instantiate FTP handler class
-        handler = FTPHandler
+        handler = AdaptedHandler
         handler.authorizer = authorizer
         handler.abstracted_fs = fs_adapter
 
