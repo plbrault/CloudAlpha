@@ -397,7 +397,7 @@ class DropBoxFileSystem(FileSystem):
                 except:
                     pass
                 try:
-                    self._client.commit_chunked_upload(path.strip("/"), upload_id, True)
+                    self._client.commit_chunked_upload("/auto/" + path.strip("/"), upload_id, True)
                     self._uncomitted_file_space -= file_size
                 except Exception as e:
                     print(e)
