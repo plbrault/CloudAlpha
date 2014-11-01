@@ -7,6 +7,8 @@ class AdaptedHandler(FTPHandler):
         FTPHandler.__init__(self, conn, server, ioloop)
 
     def ftp_RETR(self, file):
+        print("ftp_RETR", file)
+
         """Retrieve the specified file (transfer from the server to the
         client).  On success return the file path else None.
         """
