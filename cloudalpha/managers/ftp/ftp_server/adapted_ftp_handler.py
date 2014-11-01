@@ -1,7 +1,10 @@
 from pyftpdlib.handlers import FTPHandler
 from managers.ftp.ftp_server.adapted_file_producer import AdaptedFileProducer
+from managers.ftp.ftp_server.adapted_dtp_handler import AdaptedDTPHandler
 
-class AdaptedHandler(FTPHandler):
+class AdaptedFTPHandler(FTPHandler):
+
+    dtp_handler = AdaptedDTPHandler
 
     def __init__(self, conn, server, ioloop=None):
         FTPHandler.__init__(self, conn, server, ioloop)
@@ -16,12 +19,6 @@ class AdaptedHandler(FTPHandler):
         self._restart_position = 0
 
         if rest_pos:
-            # Make sure that the requested offset is valid (within the
-            # size of the file being resumed).
-            # According to RFC-1123 a 554 reply may result in case that
-            # the existing file cannot be repositioned as specified in
-            # the REST.
-            ok = 0
             try:
                 if rest_pos > self.fs.getsize(file):
                     raise ValueError
@@ -34,3 +31,31 @@ class AdaptedHandler(FTPHandler):
         producer = AdaptedFileProducer(self.fs.file_system_view, file)
         self.push_dtp_data(producer, isproducer=True, cmd="RETR")
         return file
+
+#     def ftp_STOR(self, file, mode='w'):
+#         if 'a' in mode:
+#             cmd = 'APPE'
+#         else:
+#             cmd = 'STOR'
+#         rest_pos = self._restart_position
+#         self._restart_position = 0
+#         if rest_pos:
+#             mode = 'r+'
+#
+#
+#         if self.data_channel is not None:
+#             resp = "Data connection already open. Transfer starting."
+#             self.respond("125 " + resp)
+#
+#
+#             self.data_channel.file_obj = fd
+#             self.data_channel.enable_receiving(self._current_type, cmd)
+#
+#
+#         else:
+#             resp = "File status okay. About to open data connection."
+#             self.respond("150 " + resp)
+#
+#
+#             self._in_dtp_queue = (fd, cmd)
+#         return file
