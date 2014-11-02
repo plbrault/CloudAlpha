@@ -3,19 +3,21 @@ from pyftpdlib.filesystems import AbstractedFS
 class FileSystemAdapter(AbstractedFS):
 
     _next_class_id = 0
+
+    manager_unique_id = None
     file_system_view = None
 
     def _subclass_init(self, root, cmd_channel):
         self.cmd_channel = cmd_channel
 
     @staticmethod
-    def get_class(file_system_view):
+    def get_class(manager_unique_id, file_system_view):
         print("get_class", file_system_view)
 
         """Create a new FileSystemAdapter subclass bound to the given FileSystemView instance."""
         FileSystemAdapter._next_class_id += 1
         return type("FileSystemAdapter_cls" + str(FileSystemAdapter._next_class_id), (FileSystemAdapter,),
-                    {"__init__":FileSystemAdapter._subclass_init, "file_system_view":file_system_view})
+                    {"__init__":FileSystemAdapter._subclass_init, "manager_unique_id":manager_unique_id, "file_system_view":file_system_view})
 
     @property
     def cwd(self):

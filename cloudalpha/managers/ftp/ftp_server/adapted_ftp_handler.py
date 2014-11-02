@@ -6,6 +6,8 @@ class AdaptedFTPHandler(FTPHandler):
 
     dtp_handler = AdaptedDTPHandler
 
+    upload_path = None
+
     def __init__(self, conn, server, ioloop=None):
         FTPHandler.__init__(self, conn, server, ioloop)
 
@@ -32,30 +34,8 @@ class AdaptedFTPHandler(FTPHandler):
         self.push_dtp_data(producer, isproducer=True, cmd="RETR")
         return file
 
-#     def ftp_STOR(self, file, mode='w'):
-#         if 'a' in mode:
-#             cmd = 'APPE'
-#         else:
-#             cmd = 'STOR'
-#         rest_pos = self._restart_position
-#         self._restart_position = 0
-#         if rest_pos:
-#             mode = 'r+'
-#
-#
-#         if self.data_channel is not None:
-#             resp = "Data connection already open. Transfer starting."
-#             self.respond("125 " + resp)
-#
-#
-#             self.data_channel.file_obj = fd
-#             self.data_channel.enable_receiving(self._current_type, cmd)
-#
-#
-#         else:
-#             resp = "File status okay. About to open data connection."
-#             self.respond("150 " + resp)
-#
-#
-#             self._in_dtp_queue = (fd, cmd)
-#         return file
+    def ftp_STOR(self, file, mode='w'):
+        print("ftp_STOR")
+
+        self.upload_path = file
+        super(FTPHandler, self).ftp_STOR(file, mode)

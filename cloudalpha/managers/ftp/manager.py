@@ -19,7 +19,7 @@ class FtpManager(object):
             raise FileSystemNotSetManagerError()
 
         # Generate FileSystemAdapter subclass
-        fs_adapter = FileSystemAdapter.get_class(self.file_system_view)
+        fs_adapter = FileSystemAdapter.get_class(self.unique_id, self.file_system_view)
 
         # Instantiate a dummy authorizer for managing 'virtual' users
         authorizer = DummyAuthorizer()
