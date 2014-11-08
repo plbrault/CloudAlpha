@@ -6,7 +6,7 @@ from datetime import datetime
 from core.exceptions import InvalidPathFileSystemError, \
     AlreadyExistsFileSystemError, InvalidTargetFileSystemError, \
     AccessFailedFileSystemError, UncommittedExistsFileSystemError, \
-    WriteOverflowFileSystemError, ForbiddenOperationFileSystemError
+    ForbiddenOperationFileSystemError, InsufficientSpaceFileSystemError
 from core.file_system import FileSystem
 
 
@@ -335,7 +335,7 @@ class DummyFileSystem(FileSystem):
             except:
                 raise AccessFailedFileSystemError()
 
-    def create_new_file(self, caller_unique_id, path, size):
+    def create_new_file(self, caller_unique_id, path):
         """Create an empty file corresponding to the given path.
         
         If a file corresponding to this path already exists, it is overwritten.
@@ -346,8 +346,7 @@ class DummyFileSystem(FileSystem):
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.
-        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
-        If there is not enough free space to store the new file, raise InsufficientSpaceFileSystemError.
+        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.        
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         with self._lock:
@@ -367,8 +366,7 @@ class DummyFileSystem(FileSystem):
                     if not os.path.exists(temp_dir_path):
                         os.mkdir(temp_dir_path)
                 temp_file_path = os.path.join(temp_dir_path, virtual_path_split[-1:][0])
-                self._new_files[path] = (caller_unique_id, open(temp_file_path, "ab"), size)
-                self._space_used += size
+                self._new_files[path] = (caller_unique_id, open(temp_file_path, "ab"))
                 if os.path.exists(real_path):
                     self._space_used -= os.path.getsize(real_path)
             except:
@@ -383,19 +381,22 @@ class DummyFileSystem(FileSystem):
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
         If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
-        If the declared size of the file is exceeded, raise WriteOverflowFileSystemError.
+        If there is not enough free space to store the new data, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         with self._lock:
             if path not in self._new_files:
                 raise InvalidTargetFileSystemError()
-        creator_unique_id, temp_file, file_size = self._new_files[path]
+            if len(data) > self.free_space:
+                raise InsufficientSpaceFileSystemError()
+            self._space_used += len(data)
+        creator_unique_id, temp_file = self._new_files[path]
         if caller_unique_id == creator_unique_id:
-            if temp_file.tell() + len(data) > file_size:
-                raise WriteOverflowFileSystemError()
             try:
                 temp_file.write(data)
             except:
+                with self._lock:
+                    self._space_used -= len(data)
                 raise AccessFailedFileSystemError()
         else:
             raise ForbiddenOperationFileSystemError()

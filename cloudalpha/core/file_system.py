@@ -216,7 +216,7 @@ class FileSystem(object):
         pass
 
     @abstractmethod
-    def create_new_file(self, caller_unique_id, path, size):
+    def create_new_file(self, caller_unique_id, path):
         """Create an empty file corresponding to the given path.
         
         If a file corresponding to this path already exists, it is overwritten.
@@ -227,8 +227,7 @@ class FileSystem(object):
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.
-        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
-        If there is not enough free space to store the new file, raise InsufficientSpaceFileSystemError.
+        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.        
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
@@ -243,7 +242,7 @@ class FileSystem(object):
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
         If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
-        If the declared size of the file is exceeded, raise WriteOverflowFileSystemError.
+        If there is not enough free space to store the new data, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass

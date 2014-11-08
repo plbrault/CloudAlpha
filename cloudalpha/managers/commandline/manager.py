@@ -109,7 +109,7 @@ class CommandLineManager(Manager):
                         local_file = open(str(var[1]), "rb")
                         data = local_file.read()
                         local_file.close()
-                        self.file_system_view.create_new_file(self.unique_id, str(var[2]), len(data))
+                        self.file_system_view.create_new_file(self.unique_id, str(var[2]))
                         self.file_system_view.write_to_new_file(self.unique_id, str(var[2]), data)
                         self.file_system_view.commit_new_file(self.unique_id, str(var[2]))
                     else:
