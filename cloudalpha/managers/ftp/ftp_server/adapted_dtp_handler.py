@@ -36,18 +36,16 @@ class AdaptedDTPHandler(DTPHandler):
     @property
     def file_obj(self):
         print("file_obj")
-
-        return self._file_adapter
+        if self.file_path is None:
+            return None
+        else:
+            return self.FileAdapter(self.cmd_channel.fs.manager_unique_id, self.cmd_channel.fs.file_system_view, self.file_path)
 
     @file_obj.setter
     def file_obj(self, obj):
         print("file_obj", obj)
 
-        if obj is not None:
-            file_system_view = self.cmd_channel.fs.file_system_view
-            self._file_adapter = self.FileAdapter(self.cmd_channel.fs.manager_unique_id, file_system_view, self.file_path)
-        else:
-            self._file_adapter = None
+        pass
 
     def __init__(self, sock, cmd_channel):
         super(AdaptedDTPHandler, self).__init__(sock, cmd_channel)
@@ -60,9 +58,9 @@ class AdaptedDTPHandler(DTPHandler):
     def enable_receiving(self, type, cmd):
         print("enable_receiving", type, cmd)
 
-        self.file_path = cmd.upload_path
-        file_system_view = cmd.fs.file_system_view
-        file_system_view.create_new_file(cmd.fs.manager_unique_id, self.file_path)
+        self.file_path = self.cmd_channel.upload_path
+        file_system_view = self.cmd_channel.fs.file_system_view
+        file_system_view.create_new_file(self.cmd_channel.fs.manager_unique_id, self.file_path)
         super(AdaptedDTPHandler, self).enable_receiving(type, cmd)
 
     def close(self):

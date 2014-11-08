@@ -68,8 +68,8 @@ class FileSystemAdapter(AbstractedFS):
     def validpath(self, path):
         print("validpath", path)
 
-        """Return true if the given path is valid."""
-        return self.file_system_view.exists(path)
+        """Return true if the given path starts with "/"."""
+        return path.startswith("/")
 
     def open(self, filename, mode):
         print("open", filename, mode)
