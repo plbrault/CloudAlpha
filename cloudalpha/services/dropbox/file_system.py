@@ -14,9 +14,6 @@ class DropBoxFileSystem(FileSystem):
     _lock = RLock()
     _working_dir = '/'
     _new_files = {}
-    _new_file_upload_ids = {}
-    _uncomitted_file_space = 0
-    _TEMP_DIR = ".dropboxtemp"
 
     @property
     def lock(self):
@@ -336,17 +333,7 @@ class DropBoxFileSystem(FileSystem):
                     raise InvalidTargetFileSystemError()
             if path in self._new_files:
                 raise UncommittedExistsFileSystemError()
-            try:
-                temp_dir_path = os.path.abspath(self._TEMP_DIR)
-                virtual_path_split = path.split("/")
-                for level in virtual_path_split[:-1]:
-                    temp_dir_path = os.path.join(temp_dir_path, level)
-                    if not os.path.exists(temp_dir_path):
-                        os.mkdir(temp_dir_path)
-                temp_file_path = os.path.join(temp_dir_path, virtual_path_split[-1:][0])
-                self._new_files[path] = (caller_unique_id, open(temp_file_path, "ab"))
-            except:
-                raise AccessFailedFileSystemError()
+            self._new_files[path] = (caller_unique_id, None, None)
 
     def write_to_new_file(self, caller_unique_id, path, data):
         """Append the given data to the uncommitted file corresponding to the given path.
@@ -363,12 +350,17 @@ class DropBoxFileSystem(FileSystem):
         with self._lock:
             if path not in self._new_files:
                 raise InvalidTargetFileSystemError()
-            creator_unique_id, temp_file = self._new_files[path]
+            creator_unique_id, upload_id, uploaded_bytes = self._new_files[path]
             if caller_unique_id == creator_unique_id:
                 if len(data) > self.free_space:
                     raise InsufficientSpaceFileSystemError()
                 try:
-                    self._new_file_upload_ids[path] = self._client.upload_chunk(data, len(data), 0)[-1]
+                    if upload_id is None:
+                        upload_id = self._client.upload_chunk(data, len(data), 0)[-1]
+                        self._new_files[path] = (creator_unique_id, upload_id, len(data))
+                    else:
+                        self._client.upload_chunk(data, offset=uploaded_bytes, upload_id=upload_id)
+                        self._new_files[path] = (creator_unique_id, upload_id, uploaded_bytes + len(data))
                 except:
                     raise AccessFailedFileSystemError()
             else:
@@ -387,17 +379,12 @@ class DropBoxFileSystem(FileSystem):
         with self._lock:
             if path not in self._new_files:
                 raise InvalidTargetFileSystemError()
-            creator_unique_id, temp_file = self._new_files.pop(path)
-            upload_id = self._new_file_upload_ids.pop(path)
+            creator_unique_id, upload_id, uploaded_bytes = self._new_files[path]
             if caller_unique_id == creator_unique_id:
                 try:
-                    temp_file.close()
-                except:
-                    pass
-                try:
                     self._client.commit_chunked_upload("/auto/" + path.strip("/"), upload_id, True)
+                    del self._new_files[path]
                 except Exception as e:
-                    print(e)
                     raise AccessFailedFileSystemError()
             else:
                 raise ForbiddenOperationFileSystemError()
@@ -415,19 +402,9 @@ class DropBoxFileSystem(FileSystem):
         with self._lock:
             if path not in self._new_files:
                 raise InvalidTargetFileSystemError()
-            creator_unique_id, temp_file, file_size = self._new_files.pop(path)
-            self._new_file_upload_ids.pop(path)
+            creator_unique_id = self._new_files[path][0]
             if caller_unique_id == creator_unique_id:
-                try:
-                    temp_file.close()
-                    self._uncomitted_file_space -= file_size
-                except:
-                    pass
-                try:
-                    real_temp_path = os.path.abspath(os.path.join(self._TEMP_DIR, path[1:]))
-                    os.remove(real_temp_path)
-                except:
-                    raise AccessFailedFileSystemError()
+                del self._new_files[path]
             else:
                 raise ForbiddenOperationFileSystemError()
 
