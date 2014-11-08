@@ -443,11 +443,11 @@ class DummyFileSystem(FileSystem):
             real_path = self._get_real_path(path)
             if path not in self._new_files:
                 raise InvalidTargetFileSystemError()
-            creator_unique_id, temp_file, file_size = self._new_files.pop(path)
+            creator_unique_id, temp_file = self._new_files.pop(path)
             if caller_unique_id == creator_unique_id:
                 try:
+                    self._space_used -= temp_file.tell()
                     temp_file.close()
-                    self._space_used += file_size
                     if os.path.exists(real_path):
                         self._space_used -= os.path.getsize(real_path)
                 except:
