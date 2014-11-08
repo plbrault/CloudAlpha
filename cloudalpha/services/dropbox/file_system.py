@@ -1,8 +1,13 @@
-from core.file_system import FileSystem
-from core.exceptions import AccessFailedFileSystemError, AlreadyExistsFileSystemError, InvalidPathFileSystemError, InvalidTargetFileSystemError, ForbiddenOperationFileSystemError, UncommittedExistsFileSystemError, WriteOverflowFileSystemError, InsufficientSpaceFileSystemError
-from threading import RLock
 from datetime import datetime
 import os
+from threading import RLock
+
+from core.exceptions import AccessFailedFileSystemError, \
+    AlreadyExistsFileSystemError, InvalidPathFileSystemError, \
+    InvalidTargetFileSystemError, ForbiddenOperationFileSystemError, \
+    UncommittedExistsFileSystemError, InsufficientSpaceFileSystemError
+from core.file_system import FileSystem
+
 
 class DropBoxFileSystem(FileSystem):
 
@@ -308,7 +313,7 @@ class DropBoxFileSystem(FileSystem):
             except:
                 raise AccessFailedFileSystemError()
 
-    def create_new_file(self, caller_unique_id, path, size):
+    def create_new_file(self, caller_unique_id, path):
         """Create an empty file corresponding to the given path.
         
         If a file corresponding to this path already exists, it is overwritten.
@@ -319,8 +324,7 @@ class DropBoxFileSystem(FileSystem):
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.
-        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
-        If there is not enough free space to store the new file, raise InsufficientSpaceFileSystemError.
+        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.        
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         with self._lock:
@@ -332,8 +336,6 @@ class DropBoxFileSystem(FileSystem):
                     raise InvalidTargetFileSystemError()
             if path in self._new_files:
                 raise UncommittedExistsFileSystemError()
-            if self.free_space + self._uncomitted_file_space < size:
-                raise InsufficientSpaceFileSystemError()
             try:
                 temp_dir_path = os.path.abspath(self._TEMP_DIR)
                 virtual_path_split = path.split("/")
@@ -342,8 +344,7 @@ class DropBoxFileSystem(FileSystem):
                     if not os.path.exists(temp_dir_path):
                         os.mkdir(temp_dir_path)
                 temp_file_path = os.path.join(temp_dir_path, virtual_path_split[-1:][0])
-                self._new_files[path] = (caller_unique_id, open(temp_file_path, "ab"), size)
-                self._uncomitted_file_space += size
+                self._new_files[path] = (caller_unique_id, open(temp_file_path, "ab"))
             except:
                 raise AccessFailedFileSystemError()
 
@@ -356,22 +357,22 @@ class DropBoxFileSystem(FileSystem):
         
         If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
         If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
-        If the declared size of the file is exceeded, raise WriteOverflowFileSystemError.
+        If there is not enough free space to store the new data, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         with self._lock:
             if path not in self._new_files:
                 raise InvalidTargetFileSystemError()
-        creator_unique_id, temp_file, file_size = self._new_files[path]
-        if caller_unique_id == creator_unique_id:
-            if temp_file.tell() + len(data) > file_size:
-                raise WriteOverflowFileSystemError()
-            try:
-                self._new_file_upload_ids[path] = self._client.upload_chunk(data, file_size, 0)[-1]
-            except:
-                raise AccessFailedFileSystemError()
-        else:
-            raise ForbiddenOperationFileSystemError()
+            creator_unique_id, temp_file = self._new_files[path]
+            if caller_unique_id == creator_unique_id:
+                if len(data) > self.free_space:
+                    raise InsufficientSpaceFileSystemError()
+                try:
+                    self._new_file_upload_ids[path] = self._client.upload_chunk(data, len(data), 0)[-1]
+                except:
+                    raise AccessFailedFileSystemError()
+            else:
+                raise ForbiddenOperationFileSystemError()
 
     def commit_new_file(self, caller_unique_id, path):
         """Commit a file that was previously created/overwritten, then populated with data.
@@ -386,7 +387,7 @@ class DropBoxFileSystem(FileSystem):
         with self._lock:
             if path not in self._new_files:
                 raise InvalidTargetFileSystemError()
-            creator_unique_id, temp_file, file_size = self._new_files.pop(path)
+            creator_unique_id, temp_file = self._new_files.pop(path)
             upload_id = self._new_file_upload_ids.pop(path)
             if caller_unique_id == creator_unique_id:
                 try:
@@ -395,7 +396,6 @@ class DropBoxFileSystem(FileSystem):
                     pass
                 try:
                     self._client.commit_chunked_upload("/auto/" + path.strip("/"), upload_id, True)
-                    self._uncomitted_file_space -= file_size
                 except Exception as e:
                     print(e)
                     raise AccessFailedFileSystemError()
