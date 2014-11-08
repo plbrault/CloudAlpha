@@ -367,9 +367,7 @@ class DropBoxFileSystem(FileSystem):
             if temp_file.tell() + len(data) > file_size:
                 raise WriteOverflowFileSystemError()
             try:
-                upload_id = self._client.upload_chunk(data, file_size, 0)
-                self._new_file_upload_ids[path] = upload_id[-1]
-                print(self._new_file_upload_ids[path])
+                self._new_file_upload_ids[path] = self._client.upload_chunk(data, file_size, 0)[-1]
             except:
                 raise AccessFailedFileSystemError()
         else:
@@ -390,7 +388,6 @@ class DropBoxFileSystem(FileSystem):
                 raise InvalidTargetFileSystemError()
             creator_unique_id, temp_file, file_size = self._new_files.pop(path)
             upload_id = self._new_file_upload_ids.pop(path)
-            print(upload_id)
             if caller_unique_id == creator_unique_id:
                 try:
                     temp_file.close()
