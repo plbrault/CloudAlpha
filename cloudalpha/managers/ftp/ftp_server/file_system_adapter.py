@@ -90,7 +90,8 @@ class FileSystemAdapter(AbstractedFS):
     def mkdir(self, path):
         print("mkdir", path)
 
-        pass
+        """Create the specified directory."""
+        self.file_system_view.make_dir(path)
 
     def listdir(self, path):
         print("listdir", path)
