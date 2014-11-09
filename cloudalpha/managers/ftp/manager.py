@@ -3,6 +3,7 @@ from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.servers import FTPServer
 from managers.ftp.ftp_server.file_system_adapter import FileSystemAdapter
 from managers.ftp.ftp_server.adapted_ftp_handler import AdaptedFTPHandler
+import managers.ftp.ftp_server.strerror
 
 class FtpManager(object):
 

@@ -1,4 +1,5 @@
 from pyftpdlib.filesystems import AbstractedFS
+from core.exceptions import InvalidPathFileSystemError, InvalidTargetFileSystemError
 
 class FileSystemAdapter(AbstractedFS):
 
@@ -85,7 +86,12 @@ class FileSystemAdapter(AbstractedFS):
         print("chdir", path)
 
         """Change the current directory."""
-        self.file_system_view.working_dir = path
+        try:
+            self.file_system_view.working_dir = path
+        except InvalidPathFileSystemError:
+            raise FileNotFoundError
+        except InvalidTargetFileSystemError:
+            raise NotADirectoryError
 
     def mkdir(self, path):
         print("mkdir", path)
