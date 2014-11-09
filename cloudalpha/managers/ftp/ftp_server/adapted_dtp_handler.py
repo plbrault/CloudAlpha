@@ -1,4 +1,6 @@
-from pyftpdlib.handlers import DTPHandler
+from pyftpdlib.handlers import DTPHandler, _FileReadWriteError
+import socket
+import sys
 
 ########## TEMP #####################
 from pyftpdlib.ioloop import AsyncChat
@@ -18,7 +20,7 @@ class AdaptedDTPHandler(DTPHandler):
 
         @property
         def name(self):
-            return self.file_path
+            return self._file_path
 
         def __init__(self, manager_unique_id, file_system_view, file_path):
             self._manager_unique_id = manager_unique_id
@@ -26,7 +28,8 @@ class AdaptedDTPHandler(DTPHandler):
             self._file_path = file_path
 
         def write(self, chunk):
-            self.file_system_view.write_to_new_file(self._manager_unique_id, self._file_path, chunk)
+            print("file_obj.write", chunk)
+            self._file_system_view.write_to_new_file(self._manager_unique_id, self._file_path, chunk)
 
         def close(self):
             self.closed = True
@@ -148,7 +151,27 @@ class AdaptedDTPHandler(DTPHandler):
 
     def handle_read(self):
         print("handle_read")
-        return super(AdaptedDTPHandler, self).handle_read()
+
+        try:
+            chunk = self.recv(self.ac_in_buffer_size)
+            print("!!!!!!!!!!!!", chunk)
+        except socket.error:
+            print("!!!!!!!!!!!!!!!!socket.error")
+            self.handle_error()
+        else:
+            self.tot_bytes_received += len(chunk)
+            if not chunk:
+                self.transfer_finished = True
+                # self.close()  # <-- asyncore.recv() already do that...
+                return
+            if self._data_wrapper is not None:
+                chunk = self._data_wrapper(chunk)
+            try:
+                self.file_obj.write(chunk)
+            except OSError:
+                err = sys.exc_info()[1]
+                raise _FileReadWriteError(err)
+
 
     handle_read_event = handle_read  # small speedup
 
