@@ -126,6 +126,7 @@ class FileSystem(object):
     @abstractmethod
     def get_created_datetime(self, path):
         """Return the date and time of creation of the file or directory corresponding to the given path.
+        If not available, return the date and time of the last modification.
         
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
