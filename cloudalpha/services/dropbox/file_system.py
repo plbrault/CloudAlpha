@@ -198,12 +198,7 @@ class DropBoxFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        with self._lock:
-            try:
-                dropbox_meta = self._client.metadata(path)
-                return datetime.strptime(dropbox_meta["modified"], '%a, %d %b %Y %H:%M:%S +0000')
-            except:
-                raise AccessFailedFileSystemError()
+        return self.get_modified_datetime(path)
 
     def get_modified_datetime(self, path):
         """Return the date and time of the last modification to the file or directory corresponding to the given path.
@@ -218,6 +213,13 @@ class DropBoxFileSystem(FileSystem):
         with self._lock:
             try:
                 dropbox_meta = self._client.metadata(path)
+                if path == "/":
+                    modified = datetime(2000, 1, 1)
+                    for content in dropbox_meta["contents"]:
+                        content_modified = datetime.strptime(content["modified"], '%a, %d %b %Y %H:%M:%S +0000')
+                        if  content_modified > modified:
+                            modified = content_modified
+                    return modified
                 return datetime.strptime(dropbox_meta["modified"], '%a, %d %b %Y %H:%M:%S +0000')
             except:
                 raise AccessFailedFileSystemError()
@@ -233,12 +235,7 @@ class DropBoxFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        with self._lock:
-            try:
-                dropbox_meta = self._client.metadata(path)
-                return datetime.strptime(dropbox_meta["modified"], '%a, %d %b %Y %H:%M:%S +0000')
-            except:
-                raise AccessFailedFileSystemError()
+        return self.get_modified_datetime(path)
 
     def make_dir(self, path):
         """Creates a new directory corresponding to the given path.
