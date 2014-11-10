@@ -1,5 +1,4 @@
 from datetime import datetime
-import os
 from threading import RLock
 
 from core.exceptions import AccessFailedFileSystemError, \
