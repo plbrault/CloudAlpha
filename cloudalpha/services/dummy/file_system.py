@@ -231,14 +231,14 @@ class DummyFileSystem(FileSystem):
             real_new_path = self._get_real_path(new_path)
             if not os.path.exists(real_old_path):
                 raise InvalidPathFileSystemError()
-            if real_old_path in real_new_path:
-                raise ForbiddenOperationFileSystemError()
             if os.path.exists(real_new_path):
                 raise AlreadyExistsFileSystemError()
             if new_path in self._new_files:
                 raise UncommittedExistsFileSystemError()
             try:
                 shutil.move(real_old_path, real_new_path)
+            except PermissionError:
+                raise ForbiddenOperationFileSystemError()
             except:
                 raise AccessFailedFileSystemError()
 
