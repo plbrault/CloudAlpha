@@ -10,11 +10,11 @@ if __name__ == '__main__':
 ######### Dummy + Commandline test #########
 ############################################
 
-#     dummyAccount = DummyAccount("dummy1")
-#     manager = CommandLineManager("commandline1")
-#     manager.file_system_view = dummyAccount.file_system.get_new_view()
-#     dummyAccount.authenticate();
-#     manager.run()
+    dummyAccount = DummyAccount("dummy1")
+    manager = CommandLineManager("commandline1")
+    manager.file_system_view = dummyAccount.file_system.get_new_view()
+    dummyAccount.authenticate();
+    manager.run()
 
 
 ##############################################
@@ -32,11 +32,11 @@ if __name__ == '__main__':
 ######### Dummy + FTP test #########
 ####################################
 
-    dummyAccount = DummyAccount("dummy1")
-    manager = FtpManager("ftp1")
-    manager.file_system_view = dummyAccount.file_system.get_new_view()
-    dummyAccount.authenticate()
-    manager.run()
+#     dummyAccount = DummyAccount("dummy1")
+#     manager = FtpManager("ftp1")
+#     manager.file_system_view = dummyAccount.file_system.get_new_view()
+#     dummyAccount.authenticate()
+#     manager.run()
 
 ######################################
 ######### Dropbox + FTP test #########

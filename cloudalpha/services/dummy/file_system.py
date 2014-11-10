@@ -8,6 +8,7 @@ from core.exceptions import InvalidPathFileSystemError, \
     AccessFailedFileSystemError, UncommittedExistsFileSystemError, \
     ForbiddenOperationFileSystemError, InsufficientSpaceFileSystemError
 from core.file_system import FileSystem
+from core.file_metadata import FileMetadata
 
 
 class DummyFileSystem(FileSystem):
@@ -130,6 +131,48 @@ class DummyFileSystem(FileSystem):
                 return os.path.getsize(path)
             except:
                 raise AccessFailedFileSystemError()
+
+    def get_metadata(self, path):
+        """Return a FileMetadata object representing the file or directory corresponding to the given path.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError. 
+        """
+        with self._lock:
+            if self.exists(path):
+                is_dir = self.is_dir(path)
+                if is_dir:
+                    size = 0
+                else:
+                    size = self.get_size(path)
+                return FileMetadata(path, is_dir, size, self.get_created_datetime(path), self.get_accessed_datetime(path), self.get_modified_datetime(path))
+            else:
+                raise InvalidPathFileSystemError
+
+    def get_content_metadata(self, path):
+        """Return an iterable of FileMetadata objects representing the contents of the directory corresponding to the given path.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the given path does not point to a directory, raise InvalidTargetFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.         
+        """
+        with self._lock:
+            if self.exists(path):
+                if self.is_dir(path):
+                    if path[-1:] != "/":
+                        path += "/"
+                    res = []
+                    for filename in self.list_dir(path):
+                        res.append(self.get_metadata(path + filename))
+                    return res
+                else:
+                    raise InvalidTargetFileSystemError
+            else:
+                raise InvalidPathFileSystemError
 
     def get_created_datetime(self, path):
         """Return the date and time of creation of the file or directory corresponding to the given path.

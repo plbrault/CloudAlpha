@@ -137,19 +137,23 @@ class FileSystemView(object):
         abs_path = self.get_abs_path(path)
         return self._file_system.get_size(abs_path)
 
-    def get_metadata(self, path):
+    def get_metadata(self, path=None):
         """Return a FileMetadata object representing the file or directory corresponding to the given path.
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
+        If path is None, use the current working directory.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
-        abs_path = self.get_abs_path(path)
+        if path == None:
+            abs_path = self._working_dir
+        else:
+            abs_path = self.get_abs_path(path)
         return self._file_system.get_metadata(abs_path)
 
-    def get_content_metadata(self, path):
+    def get_content_metadata(self, path=None):
         """Return an iterable of FileMetadata objects representing the contents of the directory corresponding to the given path.
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
@@ -159,7 +163,10 @@ class FileSystemView(object):
         If the given path does not point to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.         
         """
-        abs_path = self.get_abs_path(path)
+        if path == None:
+            abs_path = self._working_dir
+        else:
+            abs_path = self.get_abs_path(path)
         return self._file_system.get_content_metadata(abs_path)
 
     def get_created_datetime(self, path):

@@ -41,6 +41,20 @@ class CommandLineManager(Manager):
                     else:
                         print(self.file_system_view.list_dir(var[1]))
 
+                elif var[0] == "meta":
+                    if len(var) > 1:
+                        print(self.file_system_view.get_metadata(var[1]))
+                    else:
+                        print(self.file_system_view.get_metadata())
+
+                elif var[0] == "lsm":
+                    if len(var) > 1:
+                        content_meta = self.file_system_view.get_content_metadata(var[1])
+                    else:
+                        content_meta = self.file_system_view.get_content_metadata()
+                    for meta in content_meta:
+                        print(meta)
+
                 elif var[0] == "type":
                     if len(var) > 1:
                         if self.file_system_view.is_dir(str(var[1])):
@@ -129,6 +143,10 @@ class CommandLineManager(Manager):
                         + "\n    prints the number of bytes of free space on the file system"
                         + "\n- ls [PATH]"
                         + "\n    lists the contents of PATH. If PATH is not supplied, uses the current working directory."
+                        + "\n- meta [PATH]"
+                        + "\n    prints the metadata of PATH. If PATH is not supplied, uses the current working directory."
+                        + "\n- lsm [PATH]"
+                        + "\n    prints the metadata of the contents of PATH. If PATH is not supplied, uses the current working directory."
                         + "\n- type [PATH]"
                         + "\n    prints \"dir\" if PATH is a directory, and \"file\" if it is a file"
                         + "\n- size [PATH]"
@@ -160,6 +178,7 @@ class CommandLineManager(Manager):
 
             except Exception as e :
                 print("An error has occured : ", type(e), e)
+                raise e
 
     def stop(self):
         """Stop the manager.
