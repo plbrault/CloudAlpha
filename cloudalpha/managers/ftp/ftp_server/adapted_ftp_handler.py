@@ -271,10 +271,6 @@ class AdaptedFTPHandler(FTPHandler):
         print("ftp_MLSD")
         return super(AdaptedFTPHandler, self).ftp_MLSD(path)
 
-    def ftp_STOU(self, line):
-        print("ftp_STOU")
-        return super(AdaptedFTPHandler, self).ftp_STOU(line)
-
     def ftp_APPE(self, file):
         print("ftp_APPE")
         return super(AdaptedFTPHandler, self).ftp_APPE(file)
