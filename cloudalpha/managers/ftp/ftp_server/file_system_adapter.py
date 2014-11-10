@@ -120,7 +120,8 @@ class FileSystemAdapter(AbstractedFS):
     def rename(self, src, dst):
         print("rename", src, dst)
 
-        pass
+        """Rename the specified src file to the dst filename."""
+        self.file_system_view.move(src, dst)
 
     def chmod(self, path, mode):
         print("chmod", path, mode)
