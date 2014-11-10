@@ -126,12 +126,12 @@ class FileSystemView(object):
 
     def get_size(self, path):
         """Return the size, in bytes, of the file corresponding to the given path.
+        If the path points to a directory, return 0.
         
         The given path must be a POSIX pathname, with "/" representing the root of the file system.
         It may be absolute, or relative to the current working directory.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
-        If the given path corresponds to a directory, raise FileSystemTargetError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         abs_path = self.get_abs_path(path)

@@ -91,11 +91,11 @@ class FileSystem(object):
     @abstractmethod
     def get_size(self, path):
         """Return the size, in bytes, of the file corresponding to the given path.
+        If the path points to a directory, return 0.
         
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
-        If the given path corresponds to a directory, raise FileSystemTargetError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         pass

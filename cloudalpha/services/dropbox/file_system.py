@@ -117,17 +117,15 @@ class DropBoxFileSystem(FileSystem):
 
     def get_size(self, path):
         """Return the size, in bytes, of the file corresponding to the given path.
+        If the path points to a directory, return 0.
         
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
         If the given path is invalid, raise InvalidPathFileSystemError.
-        If the given path corresponds to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         with self._lock:
             if self.exists(path):
-                if self.is_dir(path):
-                    raise InvalidTargetFileSystemError()
                 try:
                     dropbox_meta = self._client.metadata(path)
                     return dropbox_meta["bytes"]
