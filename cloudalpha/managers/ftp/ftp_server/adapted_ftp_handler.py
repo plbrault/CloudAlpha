@@ -40,8 +40,8 @@ class AdaptedFTPHandler(FTPHandler):
         self.upload_path = file
         super(AdaptedFTPHandler, self).ftp_STOR(file, mode)
 
-
-
+    def ftp_STOU(self, line):
+        self.respond("500 Syntax error, command unrecognized.")
 
     ###### TEMP ######
 

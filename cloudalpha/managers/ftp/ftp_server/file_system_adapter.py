@@ -77,11 +77,6 @@ class FileSystemAdapter(AbstractedFS):
 
         pass
 
-    def mkstemp(self, suffix='', prefix='', dir=None, mode='wb'):
-        print("mkstemp", suffix, prefix, dir, mode)
-
-        pass
-
     def chdir(self, path):
         print("chdir", path)
 
