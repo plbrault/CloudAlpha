@@ -6,6 +6,7 @@ from core.exceptions import AccessFailedFileSystemError, \
     InvalidTargetFileSystemError, ForbiddenOperationFileSystemError, \
     UncommittedExistsFileSystemError, InsufficientSpaceFileSystemError
 from core.file_system import FileSystem
+from core.file_metadata import FileMetadata
 
 
 class DropBoxFileSystem(FileSystem):
@@ -134,6 +135,59 @@ class DropBoxFileSystem(FileSystem):
                     raise AccessFailedFileSystemError()
             else:
                 raise InvalidPathFileSystemError()
+
+    def get_metadata(self, path):
+        """Return a FileMetadata object representing the file or directory corresponding to the given path.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError. 
+        """
+        with self._lock:
+            try:
+                dropbox_meta = self._client.metadata(path)
+                if path == "/":
+                    modified = datetime(2000, 1, 1)
+                    for content in dropbox_meta["contents"]:
+                        content_modified = datetime.strptime(content["modified"], '%a, %d %b %Y %H:%M:%S +0000')
+                        if  content_modified > modified:
+                            modified = content_modified
+                else:
+                    modified = datetime.strptime(dropbox_meta["modified"], '%a, %d %b %Y %H:%M:%S +0000')
+                return FileMetadata(path, dropbox_meta["is_dir"], dropbox_meta["bytes"], modified, modified, modified)
+            except Exception as e:
+                raise e
+                if str(e).startswith("[404] \"Path \'"):
+                    raise InvalidPathFileSystemError
+                else:
+                    raise AccessFailedFileSystemError
+
+    def get_content_metadata(self, path):
+        """Return an iterable of FileMetadata objects representing the contents of the directory corresponding to the given path.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the given path does not point to a directory, raise InvalidTargetFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.         
+        """
+        with self._lock:
+            try:
+                dropbox_meta = self._client.metadata(path)
+                if not dropbox_meta["is_dir"]:
+                    raise InvalidTargetFileSystemError
+                content_metadata = []
+                for content in dropbox_meta["contents"]:
+                    modified = datetime.strptime(content["modified"], '%a, %d %b %Y %H:%M:%S +0000')
+                    content_metadata.append(FileMetadata(content["path"], content["is_dir"], content["bytes"], modified, modified, modified))
+                return content_metadata
+            except Exception as e:
+                raise e
+                if str(e).startswith("[404] \"Path \'"):
+                    raise InvalidPathFileSystemError
+                else:
+                    raise AccessFailedFileSystemError
 
     def get_created_datetime(self, path):
         """Return the date and time of creation of the file or directory corresponding to the given path.

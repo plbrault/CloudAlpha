@@ -178,7 +178,6 @@ class CommandLineManager(Manager):
 
             except Exception as e :
                 print("An error has occured : ", type(e), e)
-                raise e
 
     def stop(self):
         """Stop the manager.
