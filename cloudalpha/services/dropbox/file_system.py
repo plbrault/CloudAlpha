@@ -389,7 +389,7 @@ class DropBoxFileSystem(FileSystem):
                 try:
                     self._client.commit_chunked_upload("/auto/" + path.strip("/"), upload_id, True)
                     del self._new_files[path]
-                except Exception as e:
+                except:
                     raise AccessFailedFileSystemError()
             else:
                 raise ForbiddenOperationFileSystemError()
