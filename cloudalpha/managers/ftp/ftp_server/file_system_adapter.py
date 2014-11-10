@@ -126,6 +126,7 @@ class FileSystemAdapter(AbstractedFS):
     def chmod(self, path, mode):
         print("chmod", path, mode)
 
+        """Do nothing"""
         pass
 
     def stat(self, path):
