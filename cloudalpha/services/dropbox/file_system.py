@@ -285,6 +285,8 @@ class DropBoxFileSystem(FileSystem):
         """Read the number of bytes corresponding to num_bytes from the file corresponding to the given path,
         beginning at start_byte.
         
+        If start_byte is greater than the size of the file, return an empty iterable.
+        
         If num_bytes is not specified, read all remaining bytes of the file.
         
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
@@ -300,8 +302,11 @@ class DropBoxFileSystem(FileSystem):
                 raise InvalidPathFileSystemError()
             if self.is_dir(path):
                 raise InvalidTargetFileSystemError()
+            file_size = self.get_size(path)
+            if start_byte >= file_size:
+                return ()
             if num_bytes == None:
-                num_bytes = self.get_size(path) - start_byte
+                num_bytes = file_size - start_byte
             try:
                 file = self._client.get_file(path, None, start_byte, num_bytes)
                 data = file.read()
