@@ -108,12 +108,14 @@ class FileSystemAdapter(AbstractedFS):
     def rmdir(self, path):
         print("rmdir", path)
 
-        pass
+        """Remove the specified directory."""
+        self.file_system_view.delete(path)
 
     def remove(self, path):
         print("remove", path)
 
-        pass
+        """Remove the specified file."""
+        self.file_system_view.delete(path)
 
     def rename(self, src, dst):
         print("rename", src, dst)
