@@ -154,9 +154,7 @@ class AdaptedDTPHandler(DTPHandler):
 
         try:
             chunk = self.recv(self.ac_in_buffer_size)
-            print("!!!!!!!!!!!!", chunk)
         except socket.error:
-            print("!!!!!!!!!!!!!!!!socket.error")
             self.handle_error()
         else:
             self.tot_bytes_received += len(chunk)
