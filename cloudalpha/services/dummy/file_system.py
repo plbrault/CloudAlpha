@@ -5,7 +5,7 @@ from datetime import datetime
 
 from core.exceptions import InvalidPathFileSystemError, \
     AlreadyExistsFileSystemError, InvalidTargetFileSystemError, \
-    AccessFailedFileSystemError, UncommittedExistsFileSystemError, \
+    AccessFailedFileSystemError, IDNotFoundFileSystemError, \
     ForbiddenOperationFileSystemError, InsufficientSpaceFileSystemError
 from core.file_system import FileSystem
 from core.file_metadata import FileMetadata
@@ -19,6 +19,7 @@ class DummyFileSystem(FileSystem):
     _total_space = 1000000000
     _space_used = 0
     _new_files = {}
+    _next_new_file_id = 0
 
     _lock = RLock()
 
@@ -238,7 +239,6 @@ class DummyFileSystem(FileSystem):
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
-        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         with self._lock:
@@ -248,8 +248,6 @@ class DummyFileSystem(FileSystem):
                 raise InvalidPathFileSystemError()
             if os.path.exists(real_path):
                 raise AlreadyExistsFileSystemError()
-            if path in self._new_files:
-                raise UncommittedExistsFileSystemError()
             try:
                 os.mkdir(real_path)
             except:
@@ -265,7 +263,6 @@ class DummyFileSystem(FileSystem):
         If old_path is invalid, raise InvalidPathFileSystemError.
         If new_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
-        If new_path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         with self._lock:
@@ -275,8 +272,6 @@ class DummyFileSystem(FileSystem):
                 raise InvalidPathFileSystemError()
             if os.path.exists(real_new_path):
                 raise AlreadyExistsFileSystemError()
-            if new_path in self._new_files:
-                raise UncommittedExistsFileSystemError()
             try:
                 shutil.move(real_old_path, real_new_path)
             except PermissionError:
@@ -293,7 +288,6 @@ class DummyFileSystem(FileSystem):
         If path is invalid, raise InvalidPathFileSystemError.
         If copy_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
-        If copy_path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         with self._lock:
@@ -305,8 +299,6 @@ class DummyFileSystem(FileSystem):
                 raise ForbiddenOperationFileSystemError()
             if os.path.exists(real_copy_path):
                 raise AlreadyExistsFileSystemError()
-            if copy_path in self._new_files:
-                raise UncommittedExistsFileSystemError()
             try:
                 if os.path.isdir(real_path):
                     shutil.copytree(real_path, real_copy_path)
@@ -379,130 +371,90 @@ class DummyFileSystem(FileSystem):
             except:
                 raise AccessFailedFileSystemError()
 
-    def create_new_file(self, caller_unique_id, path):
-        """Create an empty file corresponding to the given path.
+    def create_new_file(self):
+        """Create an empty file that will be populated by successive calls to write_to_new_file. Return a unique
+        ID that will be needed to perform write_to_new_file, commit_new_file and flush_new_file calls.
         
-        If a file corresponding to this path already exists, it is overwritten.
-        
-        The caller_unique_id is used to ensure that only the file creator can write to it, flush it or commit it.
-        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
-        The size parameter indicates the number of bytes that must be allocated for the new file.
-        
-        If the parent path is invalid, raise InvalidPathFileSystemError.
-        If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.
-        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.        
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         with self._lock:
-            real_path = self._get_real_path(path)
-            real_parent_path = real_path.rsplit("/", 1)[0].rsplit("\\", 1)[0]
-            if not os.path.exists(real_parent_path):
-                raise InvalidPathFileSystemError()
-            if os.path.isdir(real_path):
-                raise InvalidTargetFileSystemError()
-            if path in self._new_files:
-                raise UncommittedExistsFileSystemError()
+            new_file_id = self._next_new_file_id = self._next_new_file_id + 1
+            temp_dir_path = os.path.abspath(self._TEMP_DIR)
+            temp_path = os.path.join(temp_dir_path, str(new_file_id))
             try:
-                temp_dir_path = os.path.abspath(self._TEMP_DIR)
-                virtual_path_split = path.split("/")
-                for level in virtual_path_split[:-1]:
-                    temp_dir_path = os.path.join(temp_dir_path, level)
-                    if not os.path.exists(temp_dir_path):
-                        os.mkdir(temp_dir_path)
-                temp_file_path = os.path.join(temp_dir_path, virtual_path_split[-1:][0])
-                self._new_files[path] = (caller_unique_id, open(temp_file_path, "ab"))
-                if os.path.exists(real_path):
-                    self._space_used -= os.path.getsize(real_path)
+                self._new_files[new_file_id] = open(temp_path, "ab")
             except:
-                raise AccessFailedFileSystemError()
+                raise AccessFailedFileSystemError
+            return new_file_id
 
-    def write_to_new_file(self, caller_unique_id, path, data):
-        """Append the given data to the uncommitted file corresponding to the given path.
+    def write_to_new_file(self, new_file_id, data):
+        """Append the given data to the uncommitted file corresponding to new_file_id.
         
-        The caller_unique_id is used to ensure that only the file creator can write to it.
         The data must be an iterable of bytes.
-        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
-        If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
-        If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
+        If there is no uncommited file corresponding to new_file_id, raise IDNotFoundFileSystemError.
         If there is not enough free space to store the new data, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         with self._lock:
-            if path not in self._new_files:
-                raise InvalidTargetFileSystemError()
+            if new_file_id not in self._new_files:
+                raise IDNotFoundFileSystemError
             if len(data) > self.free_space:
-                raise InsufficientSpaceFileSystemError()
+                raise InsufficientSpaceFileSystemError
             self._space_used += len(data)
-        creator_unique_id, temp_file = self._new_files[path]
-        if caller_unique_id == creator_unique_id:
-            try:
-                temp_file.write(data)
-            except:
-                with self._lock:
-                    self._space_used -= len(data)
-                raise AccessFailedFileSystemError()
-        else:
-            raise ForbiddenOperationFileSystemError()
+            temp_file = self._new_files[new_file_id]
+        try:
+            temp_file.write(data)
+        except:
+            with self._lock:
+                self._space_used -= len(data)
+            raise AccessFailedFileSystemError
 
-    def commit_new_file(self, caller_unique_id, path):
-        """Commit a file that was previously created/overwritten, then populated with data.
+    def commit_new_file(self, new_file_id, path):
+        """Commit the file corresponding to new_file_id and store it at the location represented by path.
         
-        The caller_unique_id is used to ensure that only the file creator can commit it.
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.     
         
-        If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
-        If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
+        If there is no uncommited file corresponding to new_file_id, raise IDNotFoundFileSystemError.
+        If the parent path is invalid, raise InvalidPathFileSystemError. 
+        If the parent path does not correspond to a directory, raise InvalidTargetFileSystemError.
+        If the given path points to an existing file, overwrite it.
+        If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.  
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         with self._lock:
-            if path not in self._new_files:
-                raise InvalidTargetFileSystemError()
-            creator_unique_id, temp_file = self._new_files.pop(path)[:2]
-            if caller_unique_id == creator_unique_id:
-                try:
-                    temp_file.close()
-                except:
-                    pass
-                try:
-                    abs_temp_path = os.path.abspath(os.path.join(self._TEMP_DIR, path[1:]))
-                    abs_real_path = self._get_real_path(path)
-                    shutil.move(abs_temp_path, abs_real_path)
-                except:
-                    raise AccessFailedFileSystemError()
-            else:
-                raise ForbiddenOperationFileSystemError()
+            if new_file_id not in self._new_files:
+                raise IDNotFoundFileSystemError
+            real_path = self._get_real_path(path)
+            real_parent_path = real_path.rsplit("/", 1)[0].rsplit("\\", 1)[0]
+            if not os.path.exists(real_parent_path):
+                raise InvalidPathFileSystemError
+            if os.path.isdir(real_path):
+                raise InvalidTargetFileSystemError
+            temp_file = self._new_files[new_file_id]
+            try:
+                temp_file.close()
+                shutil.move(temp_file.name, real_path)
+                del self._new_files[new_file_id]
+            except:
+                raise AccessFailedFileSystemError
 
-    def flush_new_file(self, caller_unique_id, path):
+    def flush_new_file(self, new_file_id):
         """Delete an uncommitted file.
         
-        The caller_unique_id is used to ensure that only the file creator can flush it.
-        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
-        
-        If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
-        If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
+        If there is no uncommited file corresponding to new_file_id, raise IDNotFoundFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.                
         """
         with self._lock:
-            real_path = self._get_real_path(path)
-            if path not in self._new_files:
-                raise InvalidTargetFileSystemError()
-            creator_unique_id, temp_file = self._new_files.pop(path)
-            if caller_unique_id == creator_unique_id:
-                try:
-                    self._space_used -= temp_file.tell()
-                    temp_file.close()
-                    if os.path.exists(real_path):
-                        self._space_used -= os.path.getsize(real_path)
-                except:
-                    pass
-                try:
-                    real_temp_path = os.path.abspath(os.path.join(self._TEMP_DIR, path[1:]))
-                    os.remove(real_temp_path)
-                except:
-                    raise AccessFailedFileSystemError()
-            else:
-                raise ForbiddenOperationFileSystemError()
+            if new_file_id not in self._new_files:
+                raise IDNotFoundFileSystemError
+            temp_file = self._new_files[new_file_id]
+            try:
+                self._space_used -= temp_file.tell()
+                temp_file.close()
+                os.remove(temp_file.name)
+            except:
+                raise AccessFailedFileSystemError()
 
     def new_file_exists(self, path):
         """Return True if the given path corresponds to an uncommitted file.

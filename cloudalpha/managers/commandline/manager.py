@@ -123,9 +123,9 @@ class CommandLineManager(Manager):
                         local_file = open(str(var[1]), "rb")
                         data = local_file.read()
                         local_file.close()
-                        self.file_system_view.create_new_file(self.unique_id, str(var[2]))
-                        self.file_system_view.write_to_new_file(self.unique_id, str(var[2]), data)
-                        self.file_system_view.commit_new_file(self.unique_id, str(var[2]))
+                        new_file_id = self.file_system_view.create_new_file()
+                        self.file_system_view.write_to_new_file(new_file_id, data)
+                        self.file_system_view.commit_new_file(new_file_id, str(var[2]))
                     else:
                         raise Exception("missing arguments")
 

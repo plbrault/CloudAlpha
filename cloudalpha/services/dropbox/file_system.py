@@ -4,9 +4,9 @@ from threading import RLock
 from core.exceptions import AccessFailedFileSystemError, \
     AlreadyExistsFileSystemError, InvalidPathFileSystemError, \
     InvalidTargetFileSystemError, ForbiddenOperationFileSystemError, \
-    UncommittedExistsFileSystemError, InsufficientSpaceFileSystemError
-from core.file_system import FileSystem
+    InsufficientSpaceFileSystemError
 from core.file_metadata import FileMetadata
+from core.file_system import FileSystem
 
 
 class DropBoxFileSystem(FileSystem):

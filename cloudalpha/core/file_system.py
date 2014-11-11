@@ -172,7 +172,6 @@ class FileSystem(object):
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
-        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
@@ -188,7 +187,6 @@ class FileSystem(object):
         If old_path is invalid, raise InvalidPathFileSystemError.
         If new_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
-        If new_path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
@@ -203,7 +201,6 @@ class FileSystem(object):
         If path is invalid, raise InvalidPathFileSystemError.
         If copy_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
-        If copy_path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         pass
@@ -242,59 +239,46 @@ class FileSystem(object):
         pass
 
     @abstractmethod
-    def create_new_file(self, caller_unique_id, path):
-        """Create an empty file corresponding to the given path.
+    def create_new_file(self):
+        """Create an empty file that will be populated by successive calls to write_to_new_file. Return a unique
+        ID that will be needed to perform write_to_new_file, commit_new_file and flush_new_file calls.
         
-        If a file corresponding to this path already exists, it is overwritten.
-        
-        The caller_unique_id is used to ensure that only the file creator can write to it, flush it or commit it.
-        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
-        The size parameter indicates the number of bytes that must be allocated for the new file.
-        
-        If the parent path is invalid, raise InvalidPathFileSystemError.
-        If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.
-        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.        
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
 
     @abstractmethod
-    def write_to_new_file(self, caller_unique_id, path, data):
-        """Append the given data to the uncommitted file corresponding to the given path.
+    def write_to_new_file(self, new_file_id, data):
+        """Append the given data to the uncommitted file corresponding to new_file_id.
         
-        The caller_unique_id is used to ensure that only the file creator can write to it.
         The data must be an iterable of bytes.
-        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
         
-        If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
-        If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
+        If there is no uncommited file corresponding to new_file_id, raise IDNotFoundFileSystemError.
         If there is not enough free space to store the new data, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
 
     @abstractmethod
-    def commit_new_file(self, caller_unique_id, path):
-        """Commit a file that was previously created/overwritten, then populated with data.
+    def commit_new_file(self, new_file_id, path):
+        """Commit the file corresponding to new_file_id and store it at the location represented by path.
         
-        The caller_unique_id is used to ensure that only the file creator can commit it.
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.     
         
-        If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
-        If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
+        If there is no uncommited file corresponding to new_file_id, raise IDNotFoundFileSystemError.
+        If the parent path is invalid, raise InvalidPathFileSystemError. 
+        If the parent path does not correspond to a directory, raise InvalidTargetFileSystemError.
+        If the given path points to an existing file, overwrite it.
+        If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.  
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         pass
 
     @abstractmethod
-    def flush_new_file(self, caller_unique_id, path):
+    def flush_new_file(self, new_file_id):
         """Delete an uncommitted file.
         
-        The caller_unique_id is used to ensure that only the file creator can flush it.
-        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
-        
-        If the given path does not correspond to an uncommitted file, raise InvalidTargetFileSystemError.
-        If caller_unique_id does not correspond to the unique_id of the file creator, raise ForbiddenOperationFileSystemError.
+        If there is no uncommited file corresponding to new_file_id, raise IDNotFoundFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.                
         """
         pass

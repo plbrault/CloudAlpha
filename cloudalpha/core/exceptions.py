@@ -10,7 +10,7 @@ class InvalidTargetFileSystemError(FileSystemError):
 class AlreadyExistsFileSystemError(FileSystemError):
     pass
 
-class UncommittedExistsFileSystemError(FileSystemError):
+class IDNotFoundFileSystemError(FileSystemError):
     pass
 
 class InsufficientSpaceFileSystemError(FileSystemError):
