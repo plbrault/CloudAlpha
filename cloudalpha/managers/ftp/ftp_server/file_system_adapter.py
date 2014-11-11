@@ -1,9 +1,11 @@
 from pyftpdlib.filesystems import AbstractedFS
 from core.exceptions import InvalidPathFileSystemError, InvalidTargetFileSystemError
+from managers.ftp.ftp_server.stat_result import StatResult
 
 class FileSystemAdapter(AbstractedFS):
 
     _next_class_id = 0
+    _listed_dirs = {}
 
     manager_unique_id = None
     file_system_view = None
@@ -98,7 +100,13 @@ class FileSystemAdapter(AbstractedFS):
         print("listdir", path)
 
         """List the content of a directory."""
-        return self.file_system_view.list_dir(path)
+        if path[-1] != "/":
+            path += "/"
+        self._listed_dirs[path] = self.file_system_view.get_content_metadata(path)
+        res = []
+        for metadata in self._listed_dirs[path]:
+            res.append(metadata.name)
+        return res
 
     def rmdir(self, path):
         print("rmdir", path)
@@ -129,34 +137,22 @@ class FileSystemAdapter(AbstractedFS):
 
         """Emulate a stat() system call on the given path."""
         path = self.ftpnorm(path)
-        class StatResult():
-            st_mode = None
-            st_ino = 0
-            st_dev = 0
-            st_nlink = 1
-            st_uid = 0
-            st_gid = 0
-            st_size = None
-            st_atime = None
-            st_mtime = None
-            st_ctime = None
-            def __init__(self, mode, size, accessed_time, modified_time, created_time):
-                self.st_mode = mode
-                self.st_size = size
-                self.st_atime = accessed_time
-                self.st_mtime = modified_time
-                self.st_ctime = created_time
-            class Modes:
-                FILE = 33206
-                DIRECTORY = 16895
+        if path[-1] == "/":
+            path = path[:-1]
+        path_split = path.rsplit("/", 1)
+        parent_path = path_split[0]
+        filename = path_split[1]
+        meta = None
+        if parent_path in self._listed_dirs:
+            for content_meta in self._listed_dirs[parent_path]:
+                if content_meta.name == filename:
+                    meta = content_meta
+        if meta == None:
+            meta = self.file_system_view.get_metadata(path)
         mode = StatResult.Modes.FILE
-        if self.isdir(path):
+        if meta.is_dir:
             mode = StatResult.Modes.DIRECTORY
-        size = self.getsize(path)
-        accessed_datetime = self.file_system_view.get_accessed_datetime(path)
-        modified_datetime = self.file_system_view.get_modified_datetime(path)
-        created_datetime = self.file_system_view.get_created_datetime(path)
-        return StatResult(mode, size, accessed_datetime.timestamp(), modified_datetime.timestamp(), created_datetime.timestamp())
+        return StatResult(mode, meta.size, meta.accessed_datetime.timestamp(), meta.modified_datetime.timestamp(), meta.created_datetime.timestamp())
 
     def lstat(self, path):
         print("lstat", path)
