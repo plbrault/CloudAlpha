@@ -221,7 +221,6 @@ class FileSystemView(object):
         
         If the parent path is invalid, raise InvalidPathFileSystemError.
         If the given path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
-        If the given path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         abs_path = self.get_abs_path(path)
@@ -238,7 +237,6 @@ class FileSystemView(object):
         If old_path is invalid, raise InvalidPathFileSystemError.
         If new_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
-        If new_path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
         abs_old_path = self.get_abs_path(old_path)
@@ -255,7 +253,6 @@ class FileSystemView(object):
         If path is invalid, raise InvalidPathFileSystemError.
         If copy_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
-        If copy_path corresponds to an uncommitted file or directory, raise UncommittedExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
         abs_path = self.get_abs_path(path)
@@ -339,14 +336,6 @@ class FileSystemView(object):
         If the real file system is inaccessible, raise AccessFailedFileSystemError.                
         """
         self._file_system.flush_new_file(new_file_id)
-
-    def new_file_exists(self, path):
-        """Return True if the given path corresponds to an uncommitted file.
-        
-        If the real file system is inaccessible, raise AccessFailedFileSystemError.
-        """
-        abs_path = self.get_abs_path(path)
-        return self._file_system.new_file_exists(abs_path)
 
     def __init__(self, file_system):
         """Create a new FileSystemView instance linked to the given FileSystem subclass instance."""

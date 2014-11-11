@@ -283,14 +283,6 @@ class FileSystem(object):
         """
         pass
 
-    @abstractmethod
-    def new_file_exists(self, path):
-        """Return True if the given path corresponds to an uncommitted file.
-        
-        If the real file system is inaccessible, raise AccessFailedFileSystemError.
-        """
-        pass
-
     def get_new_view(self):
         """Return a new FileSystemView linked to the current FileSystem subclass instance."""
         return FileSystemView(self)

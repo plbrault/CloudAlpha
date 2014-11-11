@@ -429,6 +429,8 @@ class DummyFileSystem(FileSystem):
             real_parent_path = real_path.rsplit("/", 1)[0].rsplit("\\", 1)[0]
             if not os.path.exists(real_parent_path):
                 raise InvalidPathFileSystemError
+            if not os.path.isdir(real_parent_path):
+                raise InvalidTargetFileSystemError
             if os.path.isdir(real_path):
                 raise InvalidTargetFileSystemError
             temp_file = self._new_files[new_file_id]
@@ -455,14 +457,6 @@ class DummyFileSystem(FileSystem):
                 os.remove(temp_file.name)
             except:
                 raise AccessFailedFileSystemError()
-
-    def new_file_exists(self, path):
-        """Return True if the given path corresponds to an uncommitted file.
-        
-        If the real file system is inaccessible, raise AccessFailedFileSystemError.
-        """
-        with self._lock:
-            return path in self._new_files
 
     def __init__(self, account):
         """DummyFileSystem initializer"""
