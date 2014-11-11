@@ -52,7 +52,7 @@ class DropBoxFileSystem(FileSystem):
         with self._lock:
             try:
                 dropbox_meta = self._client.metadata(path)
-                return dropbox_meta.get("is_deleted")
+                return not dropbox_meta.get("is_deleted")
             except Exception as e:
                 if str(e).startswith("[404] \"Path \'"):
                     return False
