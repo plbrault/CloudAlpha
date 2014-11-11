@@ -9,12 +9,13 @@ from pyftpdlib.ioloop import AsyncChat
 class AdaptedDTPHandler(DTPHandler):
 
     file_path = None
+    _new_file_id = None
 
     class FileAdapter(object):
 
-        _manager_unique_id = None
-        _file_system_view = None
         _file_path = None
+        _new_file_id = None
+        _file_system_view = None
 
         closed = False
 
@@ -22,14 +23,14 @@ class AdaptedDTPHandler(DTPHandler):
         def name(self):
             return self._file_path
 
-        def __init__(self, manager_unique_id, file_system_view, file_path):
-            self._manager_unique_id = manager_unique_id
+        def __init__(self, file_system_view, file_path, new_file_id):
             self._file_system_view = file_system_view
             self._file_path = file_path
+            self._new_file_id = new_file_id
 
         def write(self, chunk):
             print("file_obj.write", chunk)
-            self._file_system_view.write_to_new_file(self._manager_unique_id, self._file_path, chunk)
+            self._file_system_view.write_to_new_file(self._new_file_id, chunk)
 
         def close(self):
             self.closed = True
@@ -42,7 +43,7 @@ class AdaptedDTPHandler(DTPHandler):
         if self.file_path is None:
             return None
         else:
-            return self.FileAdapter(self.cmd_channel.fs.manager_unique_id, self.cmd_channel.fs.file_system_view, self.file_path)
+            return self.FileAdapter(self.cmd_channel.fs.file_system_view, self.file_path, self._new_file_id)
 
     @file_obj.setter
     def file_obj(self, obj):
@@ -63,7 +64,7 @@ class AdaptedDTPHandler(DTPHandler):
 
         self.file_path = self.cmd_channel.upload_path
         file_system_view = self.cmd_channel.fs.file_system_view
-        file_system_view.create_new_file(self.cmd_channel.fs.manager_unique_id, self.file_path)
+        self._new_file_id = file_system_view.create_new_file()
         super(AdaptedDTPHandler, self).enable_receiving(type, cmd)
 
     def close(self):
@@ -72,9 +73,9 @@ class AdaptedDTPHandler(DTPHandler):
         if not self._closed and self.file_obj != None:
             file_system_view = self.cmd_channel.fs.file_system_view
             if self.transfer_finished:
-                file_system_view.commit_new_file(self.cmd_channel.fs.manager_unique_id, self.file_path)
+                file_system_view.commit_new_file(self._new_file_id, self.file_path)
             else:
-                file_system_view.flush_new_file(self.cmd_channel.fs.manager_unique_id, self.file_path)
+                file_system_view.flush_new_file(self._new_file_id)
         self.cmd_channel._on_dtp_close()
         super(AdaptedDTPHandler, self).close()
 
