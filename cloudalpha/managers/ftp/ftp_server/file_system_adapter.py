@@ -129,19 +129,17 @@ class FileSystemAdapter(AbstractedFS):
     def chmod(self, path, mode):
         print("chmod", path, mode)
 
-        """Do nothing"""
+        """Do nothing."""
         pass
 
-    def stat(self, path):
-        print("stat", path)
-
-        """Emulate a stat() system call on the given path."""
+    def metadata(self, path):
+        """Return a FileMetadata object corresponding to path."""
         path = self.ftpnorm(path)
         if path[-1] == "/":
             path = path[:-1]
         path_split = path.rsplit("/", 1)
         parent_path = path_split[0]
-        filename = path_split[1]
+        filename = path_split[-1]
         meta = None
         if parent_path in self._listed_dirs:
             for content_meta in self._listed_dirs[parent_path]:
@@ -149,6 +147,13 @@ class FileSystemAdapter(AbstractedFS):
                     meta = content_meta
         if meta == None:
             meta = self.file_system_view.get_metadata(path)
+        return meta
+
+    def stat(self, path):
+        print("stat", path)
+
+        """Emulate a stat() system call on the given path."""
+        meta = self.metadata(path)
         mode = StatResult.Modes.FILE
         if meta.is_dir:
             mode = StatResult.Modes.DIRECTORY
@@ -170,7 +175,7 @@ class FileSystemAdapter(AbstractedFS):
         print("isfile", path)
 
         """Return True if path is a file."""
-        return self.file_system_view.is_file(path)
+        return not self.metadata(path).is_dir
 
     def islink(self, path):
         print("islink", path)
@@ -182,21 +187,19 @@ class FileSystemAdapter(AbstractedFS):
         print("isdir", path)
 
         """Return True if path is a directory."""
-        return self.file_system_view.is_dir(path)
+        return self.metadata(path).is_dir
 
     def getsize(self, path):
         print("getsize", path)
 
         """Return the size of the specified file in bytes."""
-        if not self.file_system_view.is_file(path):
-            return 0
-        return self.file_system_view.get_size(path)
+        return self.metadata(path).size
 
     def getmtime(self, path):
         print("getmtime", path)
 
         """Return the last modified time of path as a number of seconds since the epoch."""
-        return self.file_system_view.get_modified_datetime(path).timestamp()
+        return self.metadata(path).modified_datetime.timestamp()
 
     def realpath(self, path):
         print("realpath", path)
