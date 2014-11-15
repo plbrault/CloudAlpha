@@ -1,5 +1,5 @@
-from pyftpdlib.filesystems import AbstractedFS
-from core.exceptions import InvalidPathFileSystemError, InvalidTargetFileSystemError
+from pyftpdlib.filesystems import AbstractedFS, FilesystemError
+from core.exceptions import InvalidPathFileSystemError, InvalidTargetFileSystemError, AccessFailedFileSystemError
 from managers.ftp.ftp_server.stat_result import StatResult
 
 class FileSystemAdapter(AbstractedFS):
@@ -28,7 +28,14 @@ class FileSystemAdapter(AbstractedFS):
     @cwd.setter
     def cwd(self, path):
         """Set the current working directory."""
-        self.file_system_view.working_dir = path
+        try:
+            self.file_system_view.working_dir = path
+        except InvalidPathFileSystemError:
+            raise FilesystemError("No such file or directory")
+        except InvalidTargetFileSystemError:
+            raise FilesystemError("Not a directory")
+        except AccessFailedFileSystemError:
+            raise FilesystemError("Storage account currently inaccessible")
 
     @property
     def root(self):
@@ -61,12 +68,7 @@ class FileSystemAdapter(AbstractedFS):
 
     def chdir(self, path):
         """Change the current directory."""
-        try:
-            self.file_system_view.working_dir = path
-        except InvalidPathFileSystemError:
-            raise FileNotFoundError
-        except InvalidTargetFileSystemError:
-            raise NotADirectoryError
+        self.cwd = path
 
     def mkdir(self, path):
         """Create the specified directory."""
