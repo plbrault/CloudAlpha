@@ -278,7 +278,7 @@ class DropBoxFileSystem(FileSystem):
                 raise InvalidPathFileSystemError()
             if self.exists(new_path):
                 raise AlreadyExistsFileSystemError()
-            if old_path in new_path.rsplit("/", 1)[0]:
+            if new_path.rsplit("/", 1)[0].startswith(old_path):
                 raise ForbiddenOperationFileSystemError()
             try:
                 self._client.file_move(old_path, new_path)
