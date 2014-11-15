@@ -98,7 +98,7 @@ class FileSystemAdapter(AbstractedFS):
         self.file_system_view.move(src, dst)
 
     def chmod(self, path, mode):
-        """Do nothing."""
+        """Override the chmod method of the base class to make it useless."""
         pass
 
     def metadata(self, path):
@@ -163,9 +163,9 @@ class FileSystemAdapter(AbstractedFS):
         return self.validpath(path)
 
     def get_user_by_uid(self, uid):
-        """Return the value "owner"."""
+        """Return the string "owner"."""
         return "owner"
 
     def get_group_by_gid(self, gid):
-        """Return the value "group"."""
+        """Return the string "group"."""
         return "group"
