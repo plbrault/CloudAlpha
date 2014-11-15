@@ -44,7 +44,7 @@ class FileSystemAdapter(AbstractedFS):
 
     @root.setter
     def root(self, path):
-        """Override the root setter of the base class to make it effectless"""
+        """Override the root setter of the base class to make it useless."""
         pass
 
     def ftpnorm(self, path):
@@ -64,6 +64,7 @@ class FileSystemAdapter(AbstractedFS):
         return path.startswith("/")
 
     def open(self, filename, mode):
+        """Override the open method of the base class to make it useless."""
         pass
 
     def chdir(self, path):
