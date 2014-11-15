@@ -5,6 +5,10 @@ class FileSystemView(object):
     _file_system = None
     _working_dir = "/"
 
+    @property
+    def lock(self):
+        return self._file_system.lock
+
     def get_abs_path(self, path):
         """Return the absolute path corresponding to the given relative path.
         """

@@ -1,5 +1,5 @@
-from pyftpdlib.filesystems import AbstractedFS, FilesystemError
-from core.exceptions import InvalidPathFileSystemError, InvalidTargetFileSystemError, AccessFailedFileSystemError
+from pyftpdlib.filesystems import AbstractedFS, FilesystemError as FTPError
+from core.exceptions import InvalidPathFileSystemError, InvalidTargetFileSystemError, AccessFailedFileSystemError, AlreadyExistsFileSystemError
 from managers.ftp.ftp_server.stat_result import StatResult
 
 class FileSystemAdapter(AbstractedFS):
@@ -31,11 +31,11 @@ class FileSystemAdapter(AbstractedFS):
         try:
             self.file_system_view.working_dir = path
         except InvalidPathFileSystemError:
-            raise FilesystemError("No such file or directory")
+            raise FTPError("No such file or directory")
         except InvalidTargetFileSystemError:
-            raise FilesystemError("Not a directory")
+            raise FTPError("Not a directory")
         except AccessFailedFileSystemError:
-            raise FilesystemError("Storage account currently inaccessible")
+            raise FTPError("File system currently inaccessible")
 
     @property
     def root(self):
@@ -73,29 +73,77 @@ class FileSystemAdapter(AbstractedFS):
 
     def mkdir(self, path):
         """Create the specified directory."""
-        self.file_system_view.make_dir(path)
+        try:
+            self.file_system_view.make_dir(path)
+        except InvalidPathFileSystemError:
+            raise FTPError("Invalid path for new directory")
+        except AlreadyExistsFileSystemError:
+            raise FTPError("Can't create directory: File exists")
+        except AccessFailedFileSystemError:
+            raise FTPError("File system currently inaccessible")
 
     def listdir(self, path):
         """List the content of a directory."""
         if path[-1] != "/":
             path += "/"
-        self._listed_dirs[path] = self.file_system_view.get_content_metadata(path)
-        res = []
-        for metadata in self._listed_dirs[path]:
-            res.append(metadata.name)
-        return res
+        try:
+            self._listed_dirs[path] = self.file_system_view.get_content_metadata(path)
+            res = []
+            for metadata in self._listed_dirs[path]:
+                res.append(metadata.name)
+            return res
+        except InvalidPathFileSystemError:
+            raise FTPError("No such file or directory")
+        except InvalidTargetFileSystemError:
+            raise FTPError("Not a directory")
+        except AccessFailedFileSystemError:
+            raise FTPError("File system currently inaccessible")
 
     def rmdir(self, path):
         """Remove the specified directory."""
-        self.file_system_view.delete(path)
+        with self.file_system_view.lock:
+            try:
+                if self.file_system_view.is_dir(path):
+                        self.file_system_view.delete(path)
+                else:
+                    raise FTPError("Not a directory")
+            except InvalidPathFileSystemError:
+                raise FTPError("No such file or directory")
+            except AccessFailedFileSystemError:
+                raise FTPError("File system currently inaccessible")
 
     def remove(self, path):
         """Remove the specified file."""
-        self.file_system_view.delete(path)
+        with self.file_system_view.lock:
+            try:
+                if self.file_system_view.is_file(path):
+                    self.file_system_view.delete(path)
+                else:
+                    raise FTPError("Given path points to a directory")
+            except InvalidPathFileSystemError:
+                raise FTPError("No such file or directory")
+            except AccessFailedFileSystemError:
+                raise FTPError("File system currently inaccessible")
+            except:
+                raise FTPError("Operation failed due to external modification of file system")
+
 
     def rename(self, src, dst):
         """Rename the specified src file to the dst filename."""
-        self.file_system_view.move(src, dst)
+        with self.file_system_view.lock:
+            try:
+                if not self.file_system_view.exists(src):
+                    raise FTPError("No such file or directory")
+                if dst.rsplit("/", 1)[0].startswith(src):
+                    raise FTPError("Cannot move source to the given destination")
+                if self.file_system_view.exists(dst):
+                    self.file_system_view.delete(dst)
+                self.file_system_view.move(src, dst)
+            except AccessFailedFileSystemError:
+                raise FTPError("File system currently inaccessible")
+            except:
+                raise FTPError("Operation failed due to external modification of file system")
+
 
     def chmod(self, path, mode):
         """Override the chmod method of the base class to make it useless."""
@@ -115,7 +163,12 @@ class FileSystemAdapter(AbstractedFS):
                 if content_meta.name == filename:
                     meta = content_meta
         if meta == None:
-            meta = self.file_system_view.get_metadata(path)
+            try:
+                meta = self.file_system_view.get_metadata(path)
+            except InvalidPathFileSystemError:
+                raise FTPError("No such file or directory")
+            except AccessFailedFileSystemError:
+                raise FTPError("File system currently inaccessible")
         return meta
 
     def stat(self, path):
