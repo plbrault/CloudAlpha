@@ -1,0 +1,12 @@
+<CloudAlphaConfig>
+    <accounts>
+        <account uniqueID="dropbox1" service="dropbox"/>
+    </accounts>
+    <managers>
+        <manager uniqueID="ftp-dropbox1" type="ftp" account="dropbox1">
+            <parameter name="server_port">2121</parameter>
+            <parameter name="username">user</parameter>
+            <parameter name="password">12345</parameter>
+        </manager>
+    </managers>
+</CloudAlphaConfig>
