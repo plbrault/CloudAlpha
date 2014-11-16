@@ -1,4 +1,5 @@
-from pyftpdlib.handlers import FileProducer
+from pyftpdlib.handlers import FileProducer, _FileReadWriteError
+from core.exceptions import InvalidPathFileSystemError, AccessFailedFileSystemError
 
 class AdaptedFileProducer(FileProducer):
 
@@ -13,6 +14,12 @@ class AdaptedFileProducer(FileProducer):
 
     def more(self):
         """Attempt a chunk of data of size self.buffer_size."""
-        data = self.file_system_view.read(self._file_path, self._offset, self.buffer_size)
-        self._offset += self.buffer_size
-        return data
+        try:
+            data = self.file_system_view.read(self._file_path, self._offset, self.buffer_size)
+            self._offset += self.buffer_size
+            return data
+        except InvalidPathFileSystemError:
+            raise _FileReadWriteError("No such file or directory")
+        except AccessFailedFileSystemError:
+            raise _FileReadWriteError("File system currently inaccessible")
+
