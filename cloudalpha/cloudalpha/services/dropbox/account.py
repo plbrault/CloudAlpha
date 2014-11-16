@@ -5,11 +5,11 @@ from dropbox.client import DropboxOAuth2FlowNoRedirect, DropboxClient
 from cloudalpha.account import Account
 from cloudalpha.datastore import DataStore
 from cloudalpha.exceptions import AuthenticationFailedAccountError
-from cloudalpha.services.dropbox.file_system import DropBoxFileSystem
+from cloudalpha.services.dropbox.file_system import DropboxFileSystem
 from cloudalpha.services.dropbox.settings import Settings
 
 
-class DropBoxAccount(Account):
+class DropboxAccount(Account):
 
     _authenticated = False
 
@@ -43,5 +43,5 @@ class DropBoxAccount(Account):
                 raise AuthenticationFailedAccountError()
 
     def __init__(self, unique_id):
-        super(DropBoxAccount, self).__init__(unique_id)
-        self.file_system = DropBoxFileSystem(self)
+        super(DropboxAccount, self).__init__(unique_id)
+        self.file_system = DropboxFileSystem(self)

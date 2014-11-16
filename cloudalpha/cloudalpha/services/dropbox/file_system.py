@@ -9,7 +9,7 @@ from cloudalpha.file_metadata import FileMetadata
 from cloudalpha.file_system import FileSystem
 
 
-class DropBoxFileSystem(FileSystem):
+class DropboxFileSystem(FileSystem):
 
     _lock = RLock()
     _working_dir = '/'
@@ -449,4 +449,4 @@ class DropBoxFileSystem(FileSystem):
             del self._new_files[new_file_id]
 
     def __init__(self, account):
-        super(DropBoxFileSystem, self).__init__(account)
+        super(DropboxFileSystem, self).__init__(account)
