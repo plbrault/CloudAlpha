@@ -1,47 +1,47 @@
-from datetime import datetime
-from threading import RLock
+from abc import ABCMeta, abstractmethod
+from cloudalpha.core.file_system_view import FileSystemView
 
-from core.exceptions import AccessFailedFileSystemError, \
-    AlreadyExistsFileSystemError, InvalidPathFileSystemError, \
-    InvalidTargetFileSystemError, ForbiddenOperationFileSystemError, \
-    InsufficientSpaceFileSystemError, IDNotFoundFileSystemError
-from core.file_metadata import FileMetadata
-from core.file_system import FileSystem
+class FileSystem(object):
 
+    """A base class for implementing an abstraction of a file system, that may in fact
+    be an adapter for managing the content of a file hosting service account.
+    
+    A subclass of FileSystem is defined for each supported file hosting service.
+    An instance of a FileSystem subclass is linked to a single
+    instance of an Account subclass.
+    
+    Account and FileSystem subclasses must be implemented in a thread-safe way.
+    """
 
-class DropBoxFileSystem(FileSystem):
+    __metaclass__ = ABCMeta
 
-    _lock = RLock()
-    _working_dir = '/'
-    _upload_offsets = {}
+    _account = None
 
     @property
+    @abstractmethod
     def lock(self):
         """Return the Lock object for the current instance."""
-        return self._lock
+        pass
 
     @property
+    @abstractmethod
     def space_used(self):
         """Return the number of bytes used on the file system.
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        try:
-            return self._client.account_info()["quota_info"]["normal"] + self._client.account_info()["quota_info"]["shared"]
-        except:
-            raise AccessFailedFileSystemError
+        pass
 
     @property
+    @abstractmethod
     def free_space(self):
         """Return the free space remaining on the file system, in bytes.
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        try:
-            return self._client.account_info()["quota_info"]["quota"] - self._client.account_info()["quota_info"]["normal"] - self._client.account_info()["quota_info"]["shared"]
-        except:
-            raise AccessFailedFileSystemError
+        pass
 
+    @abstractmethod
     def exists(self, path):
         """Return True if the given path points to an existing file or directory, excluding uncommitted files.
         
@@ -49,19 +49,11 @@ class DropBoxFileSystem(FileSystem):
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.        
         """
-        with self._lock:
-            try:
-                dropbox_meta = self._client.metadata(path)
-                return not dropbox_meta.get("is_deleted")
-            except Exception as e:
-                if str(e).startswith("[404] \"Path \'"):
-                    return False
-                else:
-                    raise AccessFailedFileSystemError()
+        pass
 
-
+    @abstractmethod
     def list_dir(self, path):
-        """Return the content of the specified directory. If no directory is specified, return the content of the current working directory.
+        """Return the content of the specified directory.
         
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
                 
@@ -72,16 +64,9 @@ class DropBoxFileSystem(FileSystem):
         If the given path does not correspond to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        items = []
-        with self._lock:
-            try:
-                dropbox_meta = self._client.metadata(path)
-                for contents in dropbox_meta["contents"]:
-                    items.append(contents['path'].rsplit("/", 1)[1])
-                return items
-            except:
-                raise AccessFailedFileSystemError()
+        pass
 
+    @abstractmethod
     def is_dir(self, path):
         """Return a boolean value indicating if the given path corresponds to a directory.
         
@@ -90,16 +75,9 @@ class DropBoxFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        with self._lock:
-            if self.exists(path):
-                try:
-                    dropbox_meta = self._client.metadata(path)
-                    return dropbox_meta["is_dir"]
-                except:
-                    raise AccessFailedFileSystemError()
-            else:
-                raise InvalidPathFileSystemError()
+        pass
 
+    @abstractmethod
     def is_file(self, path):
         """Return a boolean value indicating if the given path corresponds to a file.
         
@@ -108,16 +86,9 @@ class DropBoxFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        with self._lock:
-            if self.exists(path):
-                try:
-                    dropbox_meta = self._client.metadata(path)
-                    return not dropbox_meta["is_dir"]
-                except:
-                    raise AccessFailedFileSystemError()
-            else:
-                raise InvalidPathFileSystemError()
+        pass
 
+    @abstractmethod
     def get_size(self, path):
         """Return the size, in bytes, of the file corresponding to the given path.
         If the path points to a directory, return 0.
@@ -127,16 +98,9 @@ class DropBoxFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
-        with self._lock:
-            if self.exists(path):
-                try:
-                    dropbox_meta = self._client.metadata(path)
-                    return dropbox_meta["bytes"]
-                except:
-                    raise AccessFailedFileSystemError()
-            else:
-                raise InvalidPathFileSystemError()
+        pass
 
+    @abstractmethod
     def get_metadata(self, path):
         """Return a FileMetadata object representing the file or directory corresponding to the given path.
         
@@ -145,26 +109,9 @@ class DropBoxFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
-        with self._lock:
-            try:
-                dropbox_meta = self._client.metadata(path)
-            except Exception as e:
-                if str(e).startswith("[404] \"Path \'"):
-                    raise InvalidPathFileSystemError
-                else:
-                    raise AccessFailedFileSystemError
-            if dropbox_meta.get("is_deleted"):
-                raise InvalidPathFileSystemError
-            if path == "/":
-                modified = datetime(2000, 1, 1)
-                for content in dropbox_meta["contents"]:
-                    content_modified = datetime.strptime(content["modified"], '%a, %d %b %Y %H:%M:%S +0000')
-                    if  content_modified > modified:
-                        modified = content_modified
-            else:
-                modified = datetime.strptime(dropbox_meta["modified"], '%a, %d %b %Y %H:%M:%S +0000')
-            return FileMetadata(path, dropbox_meta["is_dir"], dropbox_meta["bytes"], modified, modified, modified)
+        pass
 
+    @abstractmethod
     def get_content_metadata(self, path):
         """Return an iterable of FileMetadata objects representing the contents of the directory corresponding to the given path.
         
@@ -174,23 +121,9 @@ class DropBoxFileSystem(FileSystem):
         If the given path does not point to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.         
         """
-        with self._lock:
-            try:
-                dropbox_meta = self._client.metadata(path)
-                if not dropbox_meta["is_dir"]:
-                    raise InvalidTargetFileSystemError
-                content_metadata = []
-                for content in dropbox_meta["contents"]:
-                    modified = datetime.strptime(content["modified"], '%a, %d %b %Y %H:%M:%S +0000')
-                    content_metadata.append(FileMetadata(content["path"], content["is_dir"], content["bytes"], modified, modified, modified))
-                return content_metadata
-            except Exception as e:
-                raise e
-                if str(e).startswith("[404] \"Path \'"):
-                    raise InvalidPathFileSystemError
-                else:
-                    raise AccessFailedFileSystemError
+        pass
 
+    @abstractmethod
     def get_created_datetime(self, path):
         """Return the date and time of creation of the file or directory corresponding to the given path.
         If not available, return the date and time of the last modification.
@@ -202,8 +135,9 @@ class DropBoxFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        return self.get_modified_datetime(path)
+        pass
 
+    @abstractmethod
     def get_modified_datetime(self, path):
         """Return the date and time of the last modification to the file or directory corresponding to the given path.
         
@@ -214,20 +148,9 @@ class DropBoxFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        with self._lock:
-            try:
-                dropbox_meta = self._client.metadata(path)
-                if path == "/":
-                    modified = datetime(2000, 1, 1)
-                    for content in dropbox_meta["contents"]:
-                        content_modified = datetime.strptime(content["modified"], '%a, %d %b %Y %H:%M:%S +0000')
-                        if  content_modified > modified:
-                            modified = content_modified
-                    return modified
-                return datetime.strptime(dropbox_meta["modified"], '%a, %d %b %Y %H:%M:%S +0000')
-            except:
-                raise AccessFailedFileSystemError()
+        pass
 
+    @abstractmethod
     def get_accessed_datetime(self, path):
         """Return the date and time of the last time the given file or directory was accessed.
         If not available, return the date and time of the last modification.
@@ -239,8 +162,9 @@ class DropBoxFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        return self.get_modified_datetime(path)
+        pass
 
+    @abstractmethod
     def make_dir(self, path):
         """Creates a new directory corresponding to the given path.
         
@@ -250,17 +174,9 @@ class DropBoxFileSystem(FileSystem):
         If the given path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        with self._lock:
-            if self.exists(path):
-                raise AlreadyExistsFileSystemError()
-            parentPath = path.rsplit("/", 1)[0]
-            if not self.exists(parentPath):
-                raise InvalidPathFileSystemError()
-            try:
-                self._client.file_create_folder(path)
-            except:
-                raise AccessFailedFileSystemError()
+        pass
 
+    @abstractmethod
     def move(self, old_path, new_path):
         """Move and/or rename a file or directory from old_path to new_path.
         
@@ -273,18 +189,9 @@ class DropBoxFileSystem(FileSystem):
         If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        with self._lock:
-            if not self.exists(old_path):
-                raise InvalidPathFileSystemError()
-            if self.exists(new_path):
-                raise AlreadyExistsFileSystemError()
-            if new_path.rsplit("/", 1)[0].startswith(old_path):
-                raise ForbiddenOperationFileSystemError()
-            try:
-                self._client.file_move(old_path, new_path)
-            except:
-                raise AccessFailedFileSystemError()
+        pass
 
+    @abstractmethod
     def copy(self, path, copy_path):
         """Copy a file or directory from path to copy_path.
         
@@ -296,18 +203,9 @@ class DropBoxFileSystem(FileSystem):
         If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
-        with self._lock:
-            if not self.exists(path):
-                raise InvalidPathFileSystemError()
-            if self.exists(copy_path):
-                raise AlreadyExistsFileSystemError()
-            if path in copy_path.rsplit("/", 1)[0]:
-                raise ForbiddenOperationFileSystemError()
-            try:
-                self._client.file_copy(path, copy_path)
-            except:
-                raise AccessFailedFileSystemError()
+        pass
 
+    @abstractmethod
     def delete(self, path):
         """Delete the file or directory corresponding to the given path.
         
@@ -319,18 +217,9 @@ class DropBoxFileSystem(FileSystem):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        with self._lock:
-            if not self.exists(path):
-                raise InvalidPathFileSystemError()
-            try:
-                if self.is_dir(path):
-                    dropbox_meta = self._client.metadata(path)
-                    for contents in dropbox_meta["contents"]:
-                        self.delete(contents.get("path"))
-                self._client.file_delete(path)
-            except:
-                raise AccessFailedFileSystemError()
+        pass
 
+    @abstractmethod
     def read(self, path, start_byte, num_bytes=None):
         """Read the number of bytes corresponding to num_bytes from the file corresponding to the given path,
         beginning at start_byte.
@@ -347,38 +236,18 @@ class DropBoxFileSystem(FileSystem):
         If the given path corresponds to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        with self._lock:
-            if not self.exists(path):
-                raise InvalidPathFileSystemError()
-            if self.is_dir(path):
-                raise InvalidTargetFileSystemError()
-            file_size = self.get_size(path)
-            if start_byte >= file_size:
-                return ()
-            if num_bytes == None:
-                num_bytes = file_size - start_byte
-            try:
-                file = self._client.get_file(path, None, start_byte, num_bytes)
-                data = file.read()
-                file.close()
-                return data
-            except:
-                raise AccessFailedFileSystemError()
+        pass
 
+    @abstractmethod
     def create_new_file(self):
         """Create an empty file that will be populated by successive calls to write_to_new_file. Return a unique
         ID that will be needed to perform write_to_new_file, commit_new_file and flush_new_file calls.
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        with self._lock:
-            try:
-                new_file_id = self._client.upload_chunk(bytearray(), 0, 0)[-1]
-                self._upload_offsets[new_file_id] = 0
-            except:
-                raise AccessFailedFileSystemError
-            return new_file_id
+        pass
 
+    @abstractmethod
     def write_to_new_file(self, new_file_id, data):
         """Append the given data to the uncommitted file corresponding to new_file_id.
         
@@ -388,24 +257,9 @@ class DropBoxFileSystem(FileSystem):
         If there is not enough free space to store the new data, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        with self._lock:
-            if new_file_id in self._upload_offsets:
-                uploaded_bytes = self._upload_offsets[new_file_id]
-            else:
-                raise IDNotFoundFileSystemError
-        try:
-            self._client.upload_chunk(data, offset=uploaded_bytes, upload_id=new_file_id)
-            with self._lock:
-                self._upload_offsets[new_file_id] += len(data)
-        except:
-            with self._lock:
-                try:
-                    if len(data) > self.free_space:
-                        raise InsufficientSpaceFileSystemError
-                except:
-                    raise AccessFailedFileSystemError
-                raise AccessFailedFileSystemError
+        pass
 
+    @abstractmethod
     def commit_new_file(self, new_file_id, path):
         """Commit the file corresponding to new_file_id and store it at the location represented by path.
         
@@ -418,35 +272,21 @@ class DropBoxFileSystem(FileSystem):
         If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.  
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        with self._lock:
-            if new_file_id not in self._upload_offsets:
-                raise IDNotFoundFileSystemError
-            parent_path = path.rsplit("/", 1)[0] + "/"
-            parent_metadata = self.get_metadata(parent_path)
-            if not parent_metadata.is_dir:
-                raise InvalidTargetFileSystemError
-            try:
-                path_metadata = self.get_metadata(path)
-                if path_metadata.is_dir:
-                    raise InvalidTargetFileSystemError
-            except InvalidPathFileSystemError:
-                pass
-            try:
-                self._client.commit_chunked_upload("/auto/" + path.strip("/"), new_file_id, overwrite=True)
-                del self._upload_offsets[new_file_id]
-            except:
-                raise AccessFailedFileSystemError
+        pass
 
+    @abstractmethod
     def flush_new_file(self, new_file_id):
         """Delete an uncommitted file.
         
         If there is no uncommited file corresponding to new_file_id, raise IDNotFoundFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.                
         """
-        with self._lock:
-            if new_file_id not in self._upload_offsets:
-                raise InvalidTargetFileSystemError()
-            del self._new_files[new_file_id]
+        pass
+
+    def get_new_view(self):
+        """Return a new FileSystemView linked to the current FileSystem subclass instance."""
+        return FileSystemView(self)
 
     def __init__(self, account):
-        super(DropBoxFileSystem, self).__init__(account)
+        """The super initializer for FileSystem subclasses."""
+        self._account = account

@@ -1,7 +1,5 @@
-from services.dummy.account import DummyAccount
-from services.dropbox.account import DropBoxAccount
-from managers.commandline.manager import CommandLineManager
-from managers.ftp.manager import FTPManager
+from cloudalpha.services.dropbox.account import DropBoxAccount
+from cloudalpha.managers.ftp.manager import FTPManager
 
 if __name__ == '__main__':
     dropboxAccount = DropBoxAccount("dropbox1")

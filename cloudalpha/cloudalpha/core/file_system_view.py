@@ -1,4 +1,4 @@
-from core.exceptions import InvalidPathFileSystemError, InvalidTargetFileSystemError
+from cloudalpha.core.exceptions import InvalidPathFileSystemError, InvalidTargetFileSystemError
 
 class FileSystemView(object):
 

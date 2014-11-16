@@ -1,6 +1,6 @@
 from pyftpdlib.handlers import FTPHandler
-from managers.ftp.ftp_server.adapted_file_producer import AdaptedFileProducer
-from managers.ftp.ftp_server.adapted_dtp_handler import AdaptedDTPHandler
+from cloudalpha.managers.ftp.ftp_server.adapted_file_producer import AdaptedFileProducer
+from cloudalpha.managers.ftp.ftp_server.adapted_dtp_handler import AdaptedDTPHandler
 
 class AdaptedFTPHandler(FTPHandler):
 

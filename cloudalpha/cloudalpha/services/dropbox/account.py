@@ -3,11 +3,11 @@ import webbrowser
 
 from dropbox.client import DropboxOAuth2FlowNoRedirect, DropboxClient
 
-from core.account import Account
-from core.exceptions import AuthenticationFailedAccountError
-from services.dropbox.file_system import DropBoxFileSystem
-from services.dropbox.settings import Settings
-from core.datastore import DataStore
+from cloudalpha.core.account import Account
+from cloudalpha.core.exceptions import AuthenticationFailedAccountError
+from cloudalpha.services.dropbox.file_system import DropBoxFileSystem
+from cloudalpha.services.dropbox.settings import Settings
+from cloudalpha.core.datastore import DataStore
 
 class DropBoxAccount(Account):
 

@@ -1,9 +1,9 @@
 from pyftpdlib.servers import FTPServer as Server
 from pyftpdlib.authorizers import DummyAuthorizer
-from managers.ftp.ftp_server.file_system_adapter import FileSystemAdapter
-from managers.ftp.ftp_server.adapted_ftp_handler import AdaptedFTPHandler
-from managers.ftp.ftp_server.ftp_server_thread import FTPServerThread
-import managers.ftp.ftp_server.strerror  # @UnusedImport
+from cloudalpha.managers.ftp.ftp_server.file_system_adapter import FileSystemAdapter
+from cloudalpha.managers.ftp.ftp_server.adapted_ftp_handler import AdaptedFTPHandler
+from cloudalpha.managers.ftp.ftp_server.ftp_server_thread import FTPServerThread
+import cloudalpha.managers.ftp.ftp_server.strerror  # @UnusedImport
 
 class FTPServer:
 

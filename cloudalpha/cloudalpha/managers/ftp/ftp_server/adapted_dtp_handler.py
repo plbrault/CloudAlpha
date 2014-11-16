@@ -1,5 +1,5 @@
 from pyftpdlib.handlers import DTPHandler
-from managers.ftp.ftp_server.file_uploader import FileUploader
+from cloudalpha.managers.ftp.ftp_server.file_uploader import FileUploader
 
 class AdaptedDTPHandler(DTPHandler):
 
