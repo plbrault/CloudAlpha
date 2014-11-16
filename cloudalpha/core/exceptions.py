@@ -33,7 +33,7 @@ class AuthenticationFailedAccountError(AccountError):
 class ManagerError(Exception):
     pass
 
-class FileSystemNotSetManagerError(ManagerError):
+class MissingAttributeManagerError(ManagerError):
     pass
 
 class StartupFailedManagerError(ManagerError):

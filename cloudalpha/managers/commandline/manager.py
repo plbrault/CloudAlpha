@@ -1,17 +1,17 @@
 from core.manager import Manager
-from core.exceptions import FileSystemNotSetManagerError
+from core.exceptions import MissingAttributeManagerError
 
 class CommandLineManager(Manager):
 
     def run(self):
         """Put the manager into action.
         
-        If file_system_view is not set, raise FileSystemNotSetManagerError.
+        If file_system_view is not set, raise MissingAttributeManagerError.
         If the operation fails for any other reason, raise StartupFailedManagerError.
         """
 
         if self.file_system_view == None:
-            raise FileSystemNotSetManagerError()
+            raise MissingAttributeManagerError
 
         print("Type help for a list of available commands.")
 
@@ -186,5 +186,6 @@ class CommandLineManager(Manager):
         """
         pass
 
-    def __init__(self, unique_id):
-        super(CommandLineManager, self).__init__(unique_id)
+    def __init__(self, unique_id, file_system_view=None):
+        """Initialize the manager."""
+        super(CommandLineManager, self).__init__(unique_id, file_system_view)

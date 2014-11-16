@@ -18,7 +18,7 @@ class Manager(object):
     def run(self):
         """Put the manager into action.
         
-        If file_system_view is not set, raise FileSystemNotSetManagerError.
+        If a required attribute is not set, raise MissingAttributeManagerError.
         If the operation fails for any other reason, raise StartupFailedManagerError.
         """
         pass
@@ -31,6 +31,7 @@ class Manager(object):
         """
         pass
 
-    def __init__(self, unique_id):
+    def __init__(self, unique_id, file_system_view=None, *args, **kwargs):
         """The super initializer for Manager subclasses."""
         self.unique_id = unique_id
+        self.file_system_view = file_system_view

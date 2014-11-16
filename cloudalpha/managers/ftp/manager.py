@@ -1,14 +1,15 @@
-from core.exceptions import FileSystemNotSetManagerError
-from pyftpdlib.authorizers import DummyAuthorizer
-from pyftpdlib.servers import FTPServer
-from managers.ftp.ftp_server.file_system_adapter import FileSystemAdapter
-from managers.ftp.ftp_server.adapted_ftp_handler import AdaptedFTPHandler
-import managers.ftp.ftp_server.strerror  # @UnusedImport
+from managers.ftp.ftp_server.ftp_server import FTPServer
+from core.exceptions import MissingAttributeManagerError
 
-class FtpManager(object):
+class FTPManager(object):
 
     unique_id = None
     file_system_view = None
+    server_port = None
+    ftp_username = None
+    ftp_password = None
+
+    _server = None
 
     def run(self):
         """Put the manager into action.
@@ -16,44 +17,31 @@ class FtpManager(object):
         If file_system is not set, raise FileSystemNotSetManagerError.
         If the operation fails for any other reason, raise StartupFailedManagerError.
         """
-        if self.file_system_view == None:
-            raise FileSystemNotSetManagerError()
-
-        # Generate FileSystemAdapter subclass
-        fs_adapter = FileSystemAdapter.get_class(self.unique_id, self.file_system_view)
-
-        # Instantiate a dummy authorizer for managing 'virtual' users
-        authorizer = DummyAuthorizer()
-
-        # Define a new user having full r/w permissions
-        authorizer.add_user('user', '12345', '.', perm='elradfmwM')
-
-        # Instantiate FTP handler class
-        handler = AdaptedFTPHandler
-        handler.authorizer = authorizer
-        handler.abstracted_fs = fs_adapter
-
-        # Define a customized banner (string returned when client connects)
-        handler.banner = "CloudAlpha FTP manager ready."
-
-        # Instantiate FTP server class and listen on 127.0.0.1:2121
-        address = ('127.0.0.1', 2121)
-        server = FTPServer(address, handler)
-
-        # set a limit for connections
-        server.max_cons = 256
-        server.max_cons_per_ip = 5
-
-        # start ftp server
-        server.serve_forever()
+        if self.file_system_view is None or self.server_port is None or self.ftp_username is None or self.ftp_password is None:
+            raise MissingAttributeManagerError
+        if self._server is None:
+            self._server = FTPServer(self.file_system_view, self.server_port, self.ftp_username, self.ftp_password)
+            self._server.start()
+            print("""FTP Manager "%0s" started.""" % (self.unique_id))
+        else:
+            print("""FTP Manager "%0s" already started.""" % (self.unique_id))
 
     def stop(self):
         """Stop the manager.
         
         If the manager is already stopped, do nothing.
         """
-        pass
+        if self._server is not None:
+            self._server.stop()
+            self._server = None
+            print("""FTP Manager "%0s" stopped.""" % (self.unique_id))
+        else:
+            print("""FTP Manager "%0s" already stopped.""" % (self.unique_id))
 
-    def __init__(self, unique_id):
-        """The super initializer for Manager subclasses."""
+    def __init__(self, unique_id, file_system_view=None, server_port=None, ftp_username=None, ftp_password=None):
+        """Initialize the manager with the given parameters."""
         self.unique_id = unique_id
+        self.file_system_view = file_system_view
+        self.server_port = server_port
+        self.ftp_username = ftp_username
+        self.ftp_password = ftp_password

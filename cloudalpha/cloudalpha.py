@@ -1,49 +1,18 @@
 from services.dummy.account import DummyAccount
 from services.dropbox.account import DropBoxAccount
 from managers.commandline.manager import CommandLineManager
-from managers.ftp.manager import FtpManager
+from managers.ftp.manager import FTPManager
 
 if __name__ == '__main__':
 
-
-############################################
-######### Dummy + Commandline test #########
-############################################
-
-#     dummyAccount = DummyAccount("dummy1")
-#     manager = CommandLineManager("commandline1")
-#     manager.file_system_view = dummyAccount.file_system.get_new_view()
-#     dummyAccount.authenticate();
-#     manager.run()
-
-
-##############################################
-######### Dropbox + Commandline test #########
-##############################################
-
-#     dropboxAccount = DropBoxAccount("dropbox1")
-#     manager = CommandLineManager("commandline1")
-#     manager.file_system_view = dropboxAccount.file_system.get_new_view()
-#     dropboxAccount.authenticate()
-#     manager.run()
-
-
-####################################
-######### Dummy + FTP test #########
-####################################
-
     dummyAccount = DummyAccount("dummy1")
-    manager = FtpManager("ftp1")
-    manager.file_system_view = dummyAccount.file_system.get_new_view()
     dummyAccount.authenticate()
-    manager.run()
 
-######################################
-######### Dropbox + FTP test #########
-######################################
+    dropboxAccount = DropBoxAccount("dropbox1")
+    dropboxAccount.authenticate()
 
-#     dropboxAccount = DropBoxAccount("dropbox1")
-#     manager = FtpManager("ftp1")
-#     manager.file_system_view = dropboxAccount.file_system.get_new_view()
-#     dropboxAccount.authenticate()
-#     manager.run()
+    dummy_ftp_manager = FTPManager("ftp_dummy", dummyAccount.file_system.get_new_view(), 2121, "user", "12345")
+    dummy_ftp_manager.run()
+
+    dropbox_ftp_manager = FTPManager("ftp_dropbox", dropboxAccount.file_system.get_new_view(), 2122, "user", "12345")
+    dropbox_ftp_manager.run()
