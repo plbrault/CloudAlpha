@@ -1,12 +1,12 @@
 from datetime import datetime
 from threading import RLock
 
-from cloudalpha.core.exceptions import AccessFailedFileSystemError, \
+from cloudalpha.exceptions import AccessFailedFileSystemError, \
     AlreadyExistsFileSystemError, InvalidPathFileSystemError, \
     InvalidTargetFileSystemError, ForbiddenOperationFileSystemError, \
     InsufficientSpaceFileSystemError, IDNotFoundFileSystemError
-from cloudalpha.core.file_metadata import FileMetadata
-from cloudalpha.core.file_system import FileSystem
+from cloudalpha.file_metadata import FileMetadata
+from cloudalpha.file_system import FileSystem
 
 
 class DropBoxFileSystem(FileSystem):

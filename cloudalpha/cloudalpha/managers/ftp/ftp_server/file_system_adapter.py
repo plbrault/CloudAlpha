@@ -1,5 +1,5 @@
 from pyftpdlib.filesystems import AbstractedFS, FilesystemError as FTPError
-from cloudalpha.core.exceptions import InvalidPathFileSystemError, InvalidTargetFileSystemError, AccessFailedFileSystemError, AlreadyExistsFileSystemError
+from cloudalpha.exceptions import InvalidPathFileSystemError, InvalidTargetFileSystemError, AccessFailedFileSystemError, AlreadyExistsFileSystemError
 from cloudalpha.managers.ftp.ftp_server.stat_result import StatResult
 
 class FileSystemAdapter(AbstractedFS):

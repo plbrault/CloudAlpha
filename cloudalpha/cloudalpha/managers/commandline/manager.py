@@ -1,5 +1,5 @@
-from cloudalpha.core.manager import Manager
-from cloudalpha.core.exceptions import MissingAttributeManagerError
+from cloudalpha.manager import Manager
+from cloudalpha.exceptions import MissingAttributeManagerError
 
 class CommandLineManager(Manager):
 

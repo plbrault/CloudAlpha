@@ -1,5 +1,5 @@
 from pyftpdlib.handlers import FileProducer, _FileReadWriteError
-from cloudalpha.core.exceptions import InvalidPathFileSystemError, AccessFailedFileSystemError
+from cloudalpha.exceptions import InvalidPathFileSystemError, AccessFailedFileSystemError
 
 class AdaptedFileProducer(FileProducer):
 

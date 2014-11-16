@@ -3,12 +3,12 @@ import shutil
 from threading import RLock
 from datetime import datetime
 
-from cloudalpha.core.exceptions import InvalidPathFileSystemError, \
+from cloudalpha.exceptions import InvalidPathFileSystemError, \
     AlreadyExistsFileSystemError, InvalidTargetFileSystemError, \
     AccessFailedFileSystemError, IDNotFoundFileSystemError, \
     ForbiddenOperationFileSystemError, InsufficientSpaceFileSystemError
-from cloudalpha.core.file_system import FileSystem
-from cloudalpha.core.file_metadata import FileMetadata
+from cloudalpha.file_system import FileSystem
+from cloudalpha.file_metadata import FileMetadata
 
 
 class DummyFileSystem(FileSystem):

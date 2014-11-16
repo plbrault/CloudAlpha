@@ -1,5 +1,5 @@
 from cloudalpha.managers.ftp.ftp_server.ftp_server import FTPServer
-from cloudalpha.core.exceptions import MissingAttributeManagerError
+from cloudalpha.exceptions import MissingAttributeManagerError
 
 class FTPManager(object):
 

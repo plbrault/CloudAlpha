@@ -1,6 +1,6 @@
-from cloudalpha.core.account import Account
+from cloudalpha.account import Account
 from cloudalpha.services.dummy.file_system import DummyFileSystem
-from cloudalpha.core.exceptions import AuthenticationFailedAccountError
+from cloudalpha.exceptions import AuthenticationFailedAccountError
 
 class DummyAccount(Account):
 
