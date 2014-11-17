@@ -5,8 +5,8 @@
     <managers>
         <manager uniqueID="ftp-dropbox1" type="ftp" account="dropbox1">
             <parameter name="server_port">2121</parameter>
-            <parameter name="username">user</parameter>
-            <parameter name="password">12345</parameter>
+            <parameter name="ftp_username">user</parameter>
+            <parameter name="ftp_password">12345</parameter>
         </manager>
     </managers>
 </CloudAlphaConfig>

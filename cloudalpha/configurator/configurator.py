@@ -43,13 +43,14 @@ class Configurator:
 
             if unique_id is None:
                 raise ConfiguratorError("Invalid configuration file: missing unique_id attribute of an account element")
-            if unique_id in self._accounts:
-                raise ConfiguratorError("Invalid configuration file: the unique_id `%0s` is not unique" % (unique_id))
             if service is None:
                 raise ConfiguratorError("Invalid configuration file: missing service attribute of an account element""")
 
             unique_id = unique_id.strip()
             service = service.strip()
+
+            if unique_id in self._accounts:
+                raise ConfiguratorError("Invalid configuration file: the unique_id `%0s` is not unique" % (unique_id))
 
             if xml_parameters:
                 for xml_parameter in xml_parameters:
@@ -86,11 +87,78 @@ class Configurator:
                     raise ConfiguratorError("Initializer of class " + account_class_name + " has no " + parameter + " argument")
             constructor_args = constructor_signature.bind(*[unique_id], **parameters)
 
-            account = account_class(*constructor_args.args, **constructor_args.kwargs)
+            try:
+                account = account_class(*constructor_args.args, **constructor_args.kwargs)
+            except Exception as e:
+                raise ConfiguratorError("Class " + account_class_name + " could not be instantiated : " + str(type(e)) + " " + str(e))
+
             self._accounts[unique_id] = account
 
     def _generate_managers(self, xml_managers):
-        pass
+        for xml_manager in xml_managers:
+            unique_id = xml_manager.get("uniqueID")
+            manager_type = xml_manager.get("type")
+            account_name = xml_manager.get("account")
+            xml_parameters = list(xml_manager)
+            parameters = {}
+
+            if unique_id is None:
+                raise ConfiguratorError("Invalid configuration file: missing unique_id attribute of a manager element")
+            if manager_type is None:
+                raise ConfiguratorError("Invalid configuration file: missing type attribute of a manager element")
+            if account_name is None:
+                raise ConfiguratorError("Invalid configuration file: missing account attribute of a manager element")
+
+            unique_id = unique_id.strip()
+            manager_type = manager_type.strip()
+            account_name = account_name.strip()
+
+            if unique_id in self._accounts or unique_id in self._managers:
+                raise ConfiguratorError("Invalid configuration file: the unique_id `%0s` is not unique" % (unique_id))
+            if account_name not in self._accounts:
+                raise ConfiguratorError("Invalid configuration file: there is no account with uniqueID " + account_name)
+
+            if xml_parameters:
+                for xml_parameter in xml_parameters:
+                    parameter_name = xml_parameter.get("name")
+                    if parameter_name is not None:
+                        parameter_name = parameter_name.strip()
+                    else:
+                        raise ConfiguratorError("Invalid configuration file: missing name attribute of a parameter element")
+                    parameters[parameter_name] = xml_parameter.text.strip()
+
+            manager_module_name = "cloudalpha.managers." + manager_type + ".manager"
+            try:
+                manager_module = __import__(manager_module_name)
+                for component in manager_module_name.split(".")[1:]:
+                    manager_module = getattr(manager_module, component)
+            except:
+                raise ConfiguratorError("Module " + manager_module_name + " does not exist")
+
+            manager_class_name = None
+            manager_class = None
+            for name, obj in inspect.getmembers(manager_module):
+                if inspect.getmodule(obj) == manager_module and inspect.isclass(obj):
+                    manager_class_name = name
+                    manager_class = obj
+                    break
+            if not manager_class:
+                raise ConfiguratorError("Module " + manager_module_name + " does not contain a class")
+            if Manager not in inspect.getmro(manager_class):
+                raise ConfiguratorError("Class " + manager_class_name + " is not a subtype of Manager")
+
+            constructor_signature = inspect.signature(manager_class)
+            for parameter in parameters:
+                if parameter not in constructor_signature.parameters:
+                    raise ConfiguratorError("Initializer of class " + manager_class_name + " has no " + parameter + " argument")
+            constructor_args = constructor_signature.bind(*[unique_id, self._accounts[account_name].file_system.get_new_view()], **parameters)
+
+            try:
+                manager = manager_class(*constructor_args.args, **constructor_args.kwargs)
+            except Exception as e:
+                raise ConfiguratorError("Class " + manager_class_name + " could not be instantiated : " + str(type(e)) + " " + str(e))
+
+            self._managers[unique_id] = manager
 
     def get_accounts(self):
         return self._accounts.values()
