@@ -1,12 +1,11 @@
-from cloudalpha.services.dropbox.account import DropboxAccount
-from cloudalpha.managers.ftp.manager import FTPManager
-from configurator.configurator import Configurator
+from configurator.configurator import Configurator, ConfiguratorError
 
 if __name__ == '__main__':
-    # dropboxAccount = DropboxAccount("dropbox1")
-    # dropboxAccount.authenticate()
-
-    # dropbox_ftp_manager = FTPManager("ftp_dropbox", dropboxAccount.file_system.get_new_view(), 2121, "user", "12345")
-    # dropbox_ftp_manager.run()
-
-    configurator = Configurator("config.xml")
+    try:
+        configurator = Configurator("config.xml")
+        for account in configurator.get_accounts():
+            account.authenticate()
+        for manager in configurator.get_managers():
+            manager.run()
+    except ConfiguratorError as e:
+        print(e)
