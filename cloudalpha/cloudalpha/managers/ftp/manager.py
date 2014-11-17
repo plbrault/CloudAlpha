@@ -1,7 +1,8 @@
+from cloudalpha.manager import Manager
 from cloudalpha.managers.ftp.ftp_server.ftp_server import FTPServer
 from cloudalpha.exceptions import MissingAttributeManagerError, ArgumentParsingManagerError
 
-class FTPManager(object):
+class FTPManager(Manager):
 
     unique_id = None
     file_system_view = None
