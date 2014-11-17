@@ -2,6 +2,10 @@ from pyftpdlib.handlers import DTPHandler
 from cloudalpha.managers.ftp.ftp_server.file_uploader import FileUploader
 
 class AdaptedDTPHandler(DTPHandler):
+    """DTPHandler is the class handling data transfer between the server and the clients.
+    AdaptedDTPHandler inherits from it to adapt the file upload process (from the FTP client
+    to the server) to the use of cloudalpha.file_system.FileSystem subclasses. 
+    """
 
     file_path = None
     _new_file_id = None
