@@ -78,11 +78,8 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 *.project
-experiments/dropbox/settings.dev.json
-experiments/drop_box/settings.dev.json
-experiments/googledrive/client_secrets.json
 *.db
 cloudalpha/temp/file1.txt
 cloudalpha/.dummytemp/
 cloudalpha/.dummyroot/
-cloudalpha/services/dropbox/settings.dev.json
+cloudalpha/cloudalpha/services/dropbox/settings.dev.json
