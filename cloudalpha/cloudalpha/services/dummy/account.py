@@ -11,7 +11,8 @@ class DummyAccount(Account):
         
         The association process might require an interaction with the user.
         
-        If the operation fails, raise AuthenticationFailedAccountError.
+        If a required attribute is not set, raise MissingAttributeAccountError.
+        If the operation fails for any other reason, raise AuthenticationFailedAccountError.
         """
         if not self._authenticated:
             try:

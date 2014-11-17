@@ -32,6 +32,14 @@ class Manager(object):
         pass
 
     def __init__(self, unique_id, file_system_view=None, *args, **kwargs):
-        """The super initializer for Manager subclasses."""
+        """The super initializer for Manager subclasses.
+        
+        Subclass initializers must take the same first 3 arguments, 
+        and all subsequent arguments must be optional and must accept 
+        string values.
+        
+        If an argument cannot be parsed to the proper type,
+        raise ArgumentParsingManagerError.
+        """
         self.unique_id = unique_id
         self.file_system_view = file_system_view

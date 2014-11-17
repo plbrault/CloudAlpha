@@ -26,11 +26,20 @@ class ForbiddenOperationFileSystemError(FileSystemError):
 class AccountError(Exception):
     pass
 
+class ArgumentParsingAccountError(AccountError):
+    pass
+
+class MissingAttributeAccountError(AccountError):
+    pass
+
 class AuthenticationFailedAccountError(AccountError):
     pass
 
 
 class ManagerError(Exception):
+    pass
+
+class ArgumentParsingManagerError(ManagerError):
     pass
 
 class MissingAttributeManagerError(ManagerError):

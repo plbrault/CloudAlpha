@@ -18,7 +18,8 @@ class DropboxAccount(Account):
         
         The association process might require an interaction with the user.
         
-        If the operation fails, raise AuthenticationFailedAccountError.
+        If a required attribute is not set, raise MissingAttributeAccountError.
+        If the operation fails for any other reason, raise AuthenticationFailedAccountError.
         """
 
         flow = DropboxOAuth2FlowNoRedirect(Settings.app_key, Settings.app_secret)
@@ -40,8 +41,9 @@ class DropboxAccount(Account):
                 self.file_system._client = DropboxClient(access_token)
                 print("Authentication succeeded")
             except:
-                raise AuthenticationFailedAccountError()
+                raise AuthenticationFailedAccountError
 
     def __init__(self, unique_id):
+        """DropboxAccount initializer"""
         super(DropboxAccount, self).__init__(unique_id)
         self.file_system = DropboxFileSystem(self)

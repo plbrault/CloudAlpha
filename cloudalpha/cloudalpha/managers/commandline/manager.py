@@ -6,7 +6,7 @@ class CommandLineManager(Manager):
     def run(self):
         """Put the manager into action.
         
-        If file_system_view is not set, raise MissingAttributeManagerError.
+        If a required attribute is not set, raise MissingAttributeManagerError.
         If the operation fails for any other reason, raise StartupFailedManagerError.
         """
 

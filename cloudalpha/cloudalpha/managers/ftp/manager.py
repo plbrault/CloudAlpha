@@ -1,5 +1,5 @@
 from cloudalpha.managers.ftp.ftp_server.ftp_server import FTPServer
-from cloudalpha.exceptions import MissingAttributeManagerError
+from cloudalpha.exceptions import MissingAttributeManagerError, ArgumentParsingManagerError
 
 class FTPManager(object):
 
@@ -14,7 +14,7 @@ class FTPManager(object):
     def run(self):
         """Put the manager into action.
         
-        If file_system is not set, raise FileSystemNotSetManagerError.
+        If a required attribute is not set, raise MissingAttributeManagerError.
         If the operation fails for any other reason, raise StartupFailedManagerError.
         """
         if self.file_system_view is None or self.server_port is None or self.ftp_username is None or self.ftp_password is None:
@@ -39,7 +39,17 @@ class FTPManager(object):
             print("""FTP Manager "%0s" already stopped.""" % (self.unique_id))
 
     def __init__(self, unique_id, file_system_view=None, server_port=None, ftp_username=None, ftp_password=None):
-        """Initialize the manager with the given parameters."""
+        """Initialize the manager with the given parameters.
+        
+        server_port argument accepts a string value, but it must be convertible to an integer.
+        
+        If server_port is a string that cannot be parsed to an integer, raise ArgumentParsingManagerError.
+        """
+        if server_port:
+            try:
+                server_port = int(server_port)
+            except:
+                raise ArgumentParsingManagerError
         self.unique_id = unique_id
         self.file_system_view = file_system_view
         self.server_port = server_port

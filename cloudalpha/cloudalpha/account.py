@@ -22,10 +22,19 @@ class Account(object):
         
         The association process might require an interaction with the user.
         
-        If the operation fails, raise AuthenticationFailedAccountError.
+        If a required attribute is not set, raise MissingAttributeAccountError.
+        If the operation fails for any other reason, raise AuthenticationFailedAccountError.
         """
         pass
 
-    def __init__(self, unique_id):
-        """The super initializer for Account subclasses."""
+    def __init__(self, unique_id, *args, **kwargs):
+        """The super initializer for Account subclasses.
+        
+        Subclass initializers must take the same first 2 arguments, 
+        and all subsequent arguments must be optional and must accept 
+        string values.
+        
+        If an argument cannot be parsed to the proper type,
+        raise ArgumentParsingAccountError.
+        """
         self.unique_id = unique_id
