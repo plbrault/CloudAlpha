@@ -3,6 +3,7 @@ from cloudalpha.exceptions import InvalidPathFileSystemError, InvalidTargetFileS
 from cloudalpha.managers.ftp.ftp_server.stat_result import StatResult
 
 class FileSystemAdapter(AbstractedFS):
+    """An adapter between pyftpdlib and cloudalpha.file_system_view.FileSystemView."""
 
     _next_class_id = 0
     _listed_dirs = {}
