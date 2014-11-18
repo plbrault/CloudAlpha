@@ -1,6 +1,9 @@
 from cloudalpha.exceptions import InvalidPathFileSystemError, InvalidTargetFileSystemError
 
 class FileSystemView(object):
+    """This class is mapped to a FileSystem subclass instance and redirects
+    all method calls to it. It implements the support of a working directory.
+    """
 
     _file_system = None
     _working_dir = "/"
