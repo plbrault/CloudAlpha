@@ -2,6 +2,9 @@ from cloudalpha.manager import Manager
 from cloudalpha.exceptions import MissingAttributeManagerError
 
 class CommandLineManager(Manager):
+    """This manager allows the interaction with a file storage account through the
+    commandline, for testing purposes.
+    """
 
     def run(self):
         """Put the manager into action.
