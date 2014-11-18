@@ -10,6 +10,7 @@ from cloudalpha.file_system import FileSystem
 
 
 class DropboxFileSystem(FileSystem):
+    """This class allows to manage the files on a Dropbox account."""
 
     _lock = RLock()
     _working_dir = '/'

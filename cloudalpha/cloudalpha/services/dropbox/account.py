@@ -10,6 +10,7 @@ from cloudalpha.services.dropbox.settings import Settings
 
 
 class DropboxAccount(Account):
+    """This class allows the interaction with a Dropbox account."""
 
     _authenticated = False
 
