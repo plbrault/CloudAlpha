@@ -3,6 +3,8 @@ from cloudalpha.managers.ftp.ftp_server.ftp_server import FTPServer
 from cloudalpha.exceptions import MissingAttributeManagerError, ArgumentParsingManagerError
 
 class FTPManager(Manager):
+    """A manager allowing access to a cloudalpha.file_system.FileSystem subclass instance
+    through the FTP protocol."""
 
     unique_id = None
     file_system_view = None
