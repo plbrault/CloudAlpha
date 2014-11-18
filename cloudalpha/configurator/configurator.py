@@ -6,15 +6,25 @@ from cloudalpha.manager import Manager
 
 
 class ConfiguratorError(Exception):
+    """This Exception subclass is used by the methods
+    of Configurator to raise exceptions.
+    """
     pass
 
 
 class Configurator:
+    """This class parses the specified configuration file and
+    generates the proper Account and Manager subclass instances.
+    """
 
     _accounts = {}
     _managers = {}
 
     def __init__(self, filename):
+        """Initialize the instance and generate managers and accounts
+        by parsing the file corresponding to the given filename, that
+        must be a XML file formatted as specified by configurator.xsd.
+        """
         try:
             xml_root = ElementTree.parse(filename).getroot()
         except FileNotFoundError:
@@ -24,6 +34,7 @@ class Configurator:
         self._generate(xml_root)
 
     def _generate(self, xml_root):
+        """Generate the accounts and managers specified by the XML file content."""
         children = list(xml_root)
         if children[0].tag == "accounts":
             self._generate_accounts(children[0])
@@ -35,6 +46,7 @@ class Configurator:
             raise ConfiguratorError("Invalid configuration file: missing managers element as the first child of the root")
 
     def _generate_accounts(self, xml_accounts):
+        """Generate the accounts specified by the XML "accounts" section."""
         for xml_account in xml_accounts:
             unique_id = xml_account.get("uniqueID")
             service = xml_account.get("service")
@@ -95,6 +107,7 @@ class Configurator:
             self._accounts[unique_id] = account
 
     def _generate_managers(self, xml_managers):
+        """Generate the managers specified by XML "managers" section."""
         for xml_manager in xml_managers:
             unique_id = xml_manager.get("uniqueID")
             manager_type = xml_manager.get("type")
@@ -161,7 +174,9 @@ class Configurator:
             self._managers[unique_id] = manager
 
     def get_accounts(self):
+        """Return a list of the generated accounts."""
         return self._accounts.values()
 
     def get_managers(self):
+        """Return a list of the generated managers."""
         return self._managers.values()
