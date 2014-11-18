@@ -12,6 +12,7 @@ from cloudalpha.file_metadata import FileMetadata
 
 
 class DummyFileSystem(FileSystem):
+    """The file system of a dummy storage account, for testing purposes."""
 
     _REAL_ROOT_DIR = ".dummyroot"
     _TEMP_DIR = ".dummytemp"

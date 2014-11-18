@@ -3,6 +3,7 @@ from cloudalpha.services.dummy.file_system import DummyFileSystem
 from cloudalpha.exceptions import AuthenticationFailedAccountError
 
 class DummyAccount(Account):
+    """A dummy storage account, for testing purposes."""
 
     _authenticated = False
 
