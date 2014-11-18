@@ -3,6 +3,7 @@ import json
 from threading import Lock
 
 class DataStore(object):
+    """A singleton allowing the storage and retrieving of persistent key-value pairs."""
 
     _DB_FILE = "datastore.db"
     _DB_TABLE_NAME = "datastore"
@@ -14,6 +15,7 @@ class DataStore(object):
     _db_cur = None
 
     def get_value(self, unique_id, key):
+        """Retrieve the value corresponding to the specified unique_id and key. If such a value does not exist, return None."""
         sql = "SELECT value FROM " + self._DB_TABLE_NAME + " WHERE owner_unique_id = '" + json.dumps(unique_id) + "' AND key = '" + json.dumps(key) + "'"
         with self._lock:
             self._db_cur.execute(sql)
@@ -24,6 +26,7 @@ class DataStore(object):
             return None
 
     def set_value(self, unique_id, key, value):
+        """Store the given value associated to the specified unique_id and key."""
         sql_select = "SELECT COUNT(value) FROM " + self._DB_TABLE_NAME + " WHERE owner_unique_id = '" + json.dumps(unique_id) + "' AND key = '" + json.dumps(key) + "'"
         sql_insert = "INSERT INTO " + self._DB_TABLE_NAME + "(id, owner_unique_id, key, value) VALUES(1, '" + json.dumps(unique_id) + "', '" + json.dumps(key) + "', '" + json.dumps(value) + "')"
         sql_update = "UPDATE " + self._DB_TABLE_NAME + " SET value = '" + json.dumps(value) + "' WHERE owner_unique_id = '" + json.dumps(unique_id) + "' AND key = '" + json.dumps(key) + "'"
@@ -37,6 +40,7 @@ class DataStore(object):
             self._db_conn.commit()
 
     def __new__(cls, *args, **kwargs):
+        """Return the singleton instance."""
         with cls._lock:
             if not cls._instance:
                 cls._instance = super(DataStore, cls).__new__(cls, *args, **kwargs)
