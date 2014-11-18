@@ -1,4 +1,6 @@
 class StatResult():
+    """A mock of the os.stat result class."""
+
     st_mode = None
     st_ino = 0
     st_dev = 0
@@ -9,12 +11,16 @@ class StatResult():
     st_atime = None
     st_mtime = None
     st_ctime = None
+
     def __init__(self, mode, size, accessed_time, modified_time, created_time):
+        """StatResult initializer"""
         self.st_mode = mode
         self.st_size = size
         self.st_atime = accessed_time
         self.st_mtime = modified_time
         self.st_ctime = created_time
+
     class Modes:
+        """Enumeration of st_mode possible values."""
         FILE = 33206
         DIRECTORY = 16895
