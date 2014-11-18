@@ -3,6 +3,10 @@ from cloudalpha.managers.ftp.ftp_server.adapted_file_producer import AdaptedFile
 from cloudalpha.managers.ftp.ftp_server.adapted_dtp_handler import AdaptedDTPHandler
 
 class AdaptedFTPHandler(FTPHandler):
+    """FTPHandler is the class that handles FTP commands received from the client.
+    AdaptedFTPHandler inherits from it to adapt the handling of STOR and RETR
+    commands to the use of cloudalpha.file_system.FileSystem subclasses.
+    """
 
     dtp_handler = AdaptedDTPHandler
 
@@ -33,8 +37,14 @@ class AdaptedFTPHandler(FTPHandler):
         return file
 
     def ftp_STOR(self, file, mode='w'):
+        """Store a file (transfer from the client to the server).
+        On success return the file path, else None.
+        """
         self.upload_path = file
         super(AdaptedFTPHandler, self).ftp_STOR(file, mode)
 
     def ftp_STOU(self, line):
+        """Return an error message indicating that the server
+        does not support the STOU command.
+        """
         self.respond("500 Syntax error, command unrecognized.")
