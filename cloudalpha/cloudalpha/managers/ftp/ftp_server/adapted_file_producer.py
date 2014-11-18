@@ -2,6 +2,7 @@ from pyftpdlib.handlers import FileProducer, _FileReadWriteError
 from cloudalpha.exceptions import InvalidPathFileSystemError, AccessFailedFileSystemError
 
 class AdaptedFileProducer(FileProducer):
+    """This class handles the reading of data from a file on the file system."""
 
     _offset = 0
     file_system_view = None
