@@ -6,6 +6,9 @@ from cloudalpha.managers.ftp.ftp_server.ftp_server_thread import FTPServerThread
 import cloudalpha.managers.ftp.ftp_server.strerror  # @UnusedImport
 
 class FTPServer:
+    """A FTP server with a single user account that has complete
+    access to the supplied cloudalpha.file_system_view.FileSystemView instance.
+    """
 
     file_system_view = None
     port = None
@@ -16,12 +19,14 @@ class FTPServer:
     _thread = None
 
     def __init__(self, file_system_view, port, username, password):
+        """Init the FTP server with the given port, username and password."""
         self.file_system_view = file_system_view
         self.port = port
         self.username = username
         self.password = password
 
     def start(self):
+        """Start the FTP server in a new thread."""
         if self._server is None:
             # Generate FileSystemAdapter subclass
             fs_adapter = FileSystemAdapter.get_class(self.file_system_view)
@@ -47,6 +52,7 @@ class FTPServer:
             return False
 
     def stop(self):
+        """Stop the FTP server."""
         if self._server is not None:
             self._server.stop()
             return True
