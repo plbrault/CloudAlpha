@@ -44,26 +44,38 @@ class DropboxAccount(Account):
         If the operation fails for any other reason, raise AuthenticationFailedAccountError.
         """
 
-        flow = DropboxOAuth2FlowNoRedirect(Settings.app_key, Settings.app_secret)
 
-        authorize_url = flow.start()
 
         if not self._authenticated:
             try:
                 access_token = DataStore().get_value(self.unique_id, "access_token")
-
                 if access_token == None:
-                    webbrowser.open(authorize_url)
-                    print('Allow access and enter the authorization code :')
-                    code = input().strip()
-                    print()
-                    access_token = flow.finish(code)[0]
-                    DataStore().set_value(self.unique_id, "access_token", access_token)
+                    self.createNewToken()
 
-                self.file_system._client = DropboxClient(access_token)
+                self.validateToken(access_token)
                 print("Authentication succeeded")
             except:
                 raise AuthenticationFailedAccountError
+
+    def validateToken(self, access_token):
+        try:
+            self.file_system._client = DropboxClient(access_token)
+            self.file_system._client.account_info()
+        except:
+            print("Stored access token is invalid")
+            self.createNewToken()
+
+    def createNewToken(self):
+        flow = DropboxOAuth2FlowNoRedirect(Settings.app_key, Settings.app_secret)
+
+        authorize_url = flow.start()
+
+        webbrowser.open(authorize_url)
+        print('Allow access and enter the authorization code :')
+        code = input().strip()
+        print()
+        access_token = flow.finish(code)[0]
+        DataStore().set_value(self.unique_id, "access_token", access_token)
 
     def __init__(self, unique_id):
         """DropboxAccount initializer"""
