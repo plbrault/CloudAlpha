@@ -110,9 +110,7 @@ class Configurator:
                     account_class = obj
                     break
             if not account_class:
-                raise ConfiguratorError("Module " + account_module_name + " does not contain a class")
-            if Account not in inspect.getmro(account_class):
-                raise ConfiguratorError("Class " + account_class_name + " is not a subtype of Account")
+                raise ConfiguratorError("Module " + account_module_name + " does not contain a class of subtype Account")
 
             constructor_signature = inspect.signature(account_class)
             for parameter in parameters:
@@ -177,9 +175,7 @@ class Configurator:
                     manager_class = obj
                     break
             if not manager_class:
-                raise ConfiguratorError("Module " + manager_module_name + " does not contain a class")
-            if Manager not in inspect.getmro(manager_class):
-                raise ConfiguratorError("Class " + manager_class_name + " is not a subtype of Manager")
+                raise ConfiguratorError("Module " + manager_module_name + " does not contain a class of subtype Manager")
 
             constructor_signature = inspect.signature(manager_class)
             for parameter in parameters:
