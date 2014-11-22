@@ -44,8 +44,6 @@ class DropboxAccount(Account):
         If the operation fails for any other reason, raise AuthenticationFailedAccountError.
         """
 
-
-
         if not self._authenticated:
             try:
                 access_token = DataStore().get_value(self.unique_id, "access_token")
