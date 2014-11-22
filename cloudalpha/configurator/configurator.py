@@ -105,7 +105,7 @@ class Configurator:
             account_class_name = None
             account_class = None
             for name, obj in inspect.getmembers(account_module):
-                if inspect.getmodule(obj) == account_module and inspect.isclass(obj):
+                if inspect.getmodule(obj) == account_module and issubclass(obj, Account):
                     account_class_name = name
                     account_class = obj
                     break
@@ -172,7 +172,7 @@ class Configurator:
             manager_class_name = None
             manager_class = None
             for name, obj in inspect.getmembers(manager_module):
-                if inspect.getmodule(obj) == manager_module and inspect.isclass(obj):
+                if inspect.getmodule(obj) == manager_module and issubclass(obj, Manager):
                     manager_class_name = name
                     manager_class = obj
                     break
