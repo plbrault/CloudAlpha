@@ -35,33 +35,10 @@ class DropboxAccount(Account):
 
     _authenticated = False
 
-    def authenticate(self):
-        """Link the object to a real file hosting account. If already done, do nothing.
-        
-        The association process might require an interaction with the user.
-        
-        If a required attribute is not set, raise MissingAttributeAccountError.
-        If the operation fails for any other reason, raise AuthenticationFailedAccountError.
+    def _get_new_token(self):
+        """Ask the user to give access to Dropbox account, and return
+        the resulting access token.
         """
-
-        if not self._authenticated:
-            try:
-                access_token = DataStore().get_value(self.unique_id, "access_token")
-                if access_token == None:
-                    access_token = self.createNewToken()
-                self.validateToken(access_token)
-                print("Authentication succeeded")
-            except:
-                raise AuthenticationFailedAccountError
-
-    def validateToken(self, access_token):
-        try:
-            self.file_system._client = DropboxClient(access_token)
-            self.file_system._client.account_info()
-        except:
-            self.createNewToken()
-
-    def createNewToken(self):
         flow = DropboxOAuth2FlowNoRedirect(Settings.app_key, Settings.app_secret)
 
         authorize_url = flow.start()
@@ -76,8 +53,37 @@ class DropboxAccount(Account):
             DataStore().set_value(self.unique_id, "access_token", access_token)
         except:
             print("Invalid authorization code")
-            access_token = self.createNewToken()
+            access_token = self._get_new_token()
         return access_token
+
+    def _validate_token(self, access_token):
+        """Validate the access token. If valid, pass it to the file system.
+        If not, get a new one.
+        """
+        try:
+            self.file_system._client = DropboxClient(access_token)
+            self.file_system._client.account_info()
+        except:
+            self._validate_token(self._get_new_token())
+
+    def authenticate(self):
+        """Link the object to a real file hosting account. If already done, do nothing.
+        
+        The association process might require an interaction with the user.
+        
+        If a required attribute is not set, raise MissingAttributeAccountError.
+        If the operation fails for any other reason, raise AuthenticationFailedAccountError.
+        """
+
+        if not self._authenticated:
+            try:
+                access_token = DataStore().get_value(self.unique_id, "access_token")
+                if access_token == None:
+                    access_token = self._get_new_token()
+                self._validate_token(access_token)
+                print("Authentication succeeded")
+            except:
+                raise AuthenticationFailedAccountError
 
     def __init__(self, unique_id):
         """DropboxAccount initializer"""
