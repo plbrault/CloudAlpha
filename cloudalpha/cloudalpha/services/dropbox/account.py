@@ -48,8 +48,7 @@ class DropboxAccount(Account):
             try:
                 access_token = DataStore().get_value(self.unique_id, "access_token")
                 if access_token == None:
-                    self.createNewToken()
-
+                    access_token = self.createNewToken()
                 self.validateToken(access_token)
                 print("Authentication succeeded")
             except:
@@ -60,7 +59,6 @@ class DropboxAccount(Account):
             self.file_system._client = DropboxClient(access_token)
             self.file_system._client.account_info()
         except:
-            print("Stored access token is invalid")
             self.createNewToken()
 
     def createNewToken(self):
@@ -72,8 +70,14 @@ class DropboxAccount(Account):
         print('Allow access and enter the authorization code :')
         code = input().strip()
         print()
-        access_token = flow.finish(code)[0]
-        DataStore().set_value(self.unique_id, "access_token", access_token)
+
+        try:
+            access_token = flow.finish(code)[0]
+            DataStore().set_value(self.unique_id, "access_token", access_token)
+        except:
+            print("Invalid authorization code")
+            access_token = self.createNewToken()
+        return access_token
 
     def __init__(self, unique_id):
         """DropboxAccount initializer"""
