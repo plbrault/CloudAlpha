@@ -37,7 +37,7 @@ class Manager(object):
 
     @abstractmethod
     def run(self):
-        """Put the manager into action.
+        """Put the manager into action, in a new thread.
         
         If a required instance attribute is not set, raise MissingAttributeManagerError.
         If a required setting is not set, raise MissingSettingManagerError.
