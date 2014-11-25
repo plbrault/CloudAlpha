@@ -68,3 +68,10 @@ class MissingAttributeManagerError(ManagerError):
 
 class StartupFailedManagerError(ManagerError):
     pass
+
+
+class SettingError(Exception):
+    pass
+
+class ValueParsingSettingError(SettingError):
+    pass

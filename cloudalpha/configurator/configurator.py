@@ -24,6 +24,7 @@ from xml.etree.ElementTree import ParseError
 import inspect
 from cloudalpha.account import Account
 from cloudalpha.manager import Manager
+from cloudalpha.exceptions import ValueParsingSettingError
 
 
 class ConfiguratorError(Exception):
@@ -57,17 +58,89 @@ class Configurator:
     def _generate(self, xml_root):
         """Generate the accounts and managers specified by the XML file content."""
         children = list(xml_root)
-        if children[0].tag == "accounts":
-            self._generate_accounts(children[0])
+        if children[0].tag == "services":
+            if children[0][0].tag == "globalSettings":
+                self._parse_service_settings(children[0][0])
+            else:
+                raise ConfiguratorError("Invalid configuration file: missing globalSettings element as the first child of services")
+            if children[0][1].tag == "instances":
+                self._generate_accounts(children[0][1])
+            else:
+                raise ConfiguratorError("Invalid configuration file: missing instances element as the second child of services")
         else:
-            raise ConfiguratorError("Invalid configuration file: missing accounts element as the first child of the root")
+            raise ConfiguratorError("Invalid configuration file: missing services element as the first child of the root")
         if children[1].tag == "managers":
-            self._generate_managers(children[1])
+            if children[1][0].tag == "globalSettings":
+                self._parse_manager_settings(children[1][0])
+            else:
+                raise ConfiguratorError("Invalid configuration file: missing globalSettings element as the first child of managers")
+            if children[1][1].tag == "instances":
+                self._generate_managers(children[1][1])
+            else:
+                raise ConfiguratorError("Invalid configuration file: missing instances element as the second child of managers")
         else:
-            raise ConfiguratorError("Invalid configuration file: missing managers element as the first child of the root")
+            raise ConfiguratorError("Invalid configuration file: missing managers element as the second child of the root")
+
+    def _parse_service_settings(self, xml_settings):
+        for xml_service in xml_settings:
+            service_name = xml_service.get("name")
+            if not service_name:
+                raise ConfiguratorError("Invalid configuration file: missing name attribute of a service element")
+            service_name = service_name.strip()
+
+            if len(xml_service) > 0:
+                settings_module_name = "cloudalpha.services." + service_name + ".settings"
+                try:
+                    settings_module = __import__(settings_module_name)
+                    for component in settings_module_name.split(".")[1:]:
+                        settings_module = getattr(settings_module, component)
+                except Exception as e:
+                    raise ConfiguratorError("Module " + settings_module_name + " could not be imported - " + str(e))
+
+                for xml_setting in xml_service:
+                    setting_name = xml_service.get("name")
+                    if not setting_name:
+                        raise ConfiguratorError("Invalid configuration file: missing name attribute of a setting element")
+                    setting_name = setting_name.strip()
+
+                    try:
+                        setattr(settings_module, setting_name, xml_setting.text.strip())
+                    except ValueParsingSettingError:
+                        raise ConfiguratorError("The value of setting " + setting_name + " is invalid")
+                    except:
+                        raise ConfiguratorError(service_name + " service has no " + setting_name + " setting")
+
+    def _parse_manager_settings(self, xml_settings):
+        for xml_manager in xml_settings:
+            manager_name = xml_manager.get("name")
+            if not manager_name:
+                raise ConfiguratorError("Invalid configuration file: missing name attribute of a manager element")
+            service_name = manager_name.strip()
+
+            if len(xml_manager) > 0:
+                settings_module_name = "cloudalpha.managers." + service_name + ".settings"
+                try:
+                    settings_module = __import__(settings_module_name)
+                    for component in settings_module_name.split(".")[1:]:
+                        settings_module = getattr(settings_module, component)
+                except Exception as e:
+                    raise ConfiguratorError("Module " + settings_module_name + " could not be imported - " + str(e))
+
+                for xml_setting in xml_manager:
+                    setting_name = xml_manager.get("name")
+                    if not setting_name:
+                        raise ConfiguratorError("Invalid configuration file: missing name attribute of a setting element")
+                    setting_name = setting_name.strip()
+
+                    try:
+                        setattr(settings_module, setting_name, xml_setting.text.strip())
+                    except ValueParsingSettingError:
+                        raise ConfiguratorError("The value of setting " + setting_name + " is invalid")
+                    except:
+                        raise ConfiguratorError(service_name + " manager has no " + setting_name + " setting")
 
     def _generate_accounts(self, xml_accounts):
-        """Generate the accounts specified by the XML "accounts" section."""
+        """Generate the accounts specified by the XML "instances" section."""
         for xml_account in xml_accounts:
             unique_id = xml_account.get("uniqueID")
             service = xml_account.get("service")
@@ -75,9 +148,9 @@ class Configurator:
             parameters = {}
 
             if unique_id is None:
-                raise ConfiguratorError("Invalid configuration file: missing unique_id attribute of an account element")
+                raise ConfiguratorError("Invalid configuration file: missing unique_id attribute of an accountInstance element")
             if service is None:
-                raise ConfiguratorError("Invalid configuration file: missing service attribute of an account element""")
+                raise ConfiguratorError("Invalid configuration file: missing service attribute of an accountInstance element""")
 
             unique_id = unique_id.strip()
             service = service.strip()
@@ -126,7 +199,7 @@ class Configurator:
             self._accounts[unique_id] = account
 
     def _generate_managers(self, xml_managers):
-        """Generate the managers specified by XML "managers" section."""
+        """Generate the managers specified by XML "instances" section."""
         for xml_manager in xml_managers:
             unique_id = xml_manager.get("uniqueID")
             manager_type = xml_manager.get("type")
@@ -135,11 +208,11 @@ class Configurator:
             parameters = {}
 
             if unique_id is None:
-                raise ConfiguratorError("Invalid configuration file: missing unique_id attribute of a manager element")
+                raise ConfiguratorError("Invalid configuration file: missing unique_id attribute of a managerInstance element")
             if manager_type is None:
-                raise ConfiguratorError("Invalid configuration file: missing type attribute of a manager element")
+                raise ConfiguratorError("Invalid configuration file: missing type attribute of a managerInstance element")
             if account_name is None:
-                raise ConfiguratorError("Invalid configuration file: missing account attribute of a manager element")
+                raise ConfiguratorError("Invalid configuration file: missing account attribute of a managerInstance element")
 
             unique_id = unique_id.strip()
             manager_type = manager_type.strip()

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--===========================================================================
 # Copyright (C) 2014 Pier-Luc Brault and Alex Cline
 #
@@ -18,30 +19,56 @@
 #
 # http://github.com/plbrault/cloudalpha
 ============================================================================-->
-
-<?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:element name="CloudAlphaConfig">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="accounts">
+                <xs:element name="services">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="account" minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="globalSettings">
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:element name="parameter" minOccurs="0" maxOccurs="unbounded">
+                                        <xs:element name="service" minOccurs="0" maxOccurs="unbounded">
                                             <xs:complexType>
-                                                <xs:simpleContent>
-                                                    <xs:extension base="xs:token">
-                                                        <xs:attribute type="xs:token" name="name"/>
-                                                    </xs:extension>
-                                                </xs:simpleContent>
+                                                <xs:sequence>
+                                                    <xs:element name="setting" minOccurs="0" maxOccurs="unbounded">
+                                                        <xs:complexType>
+                                                            <xs:simpleContent>
+                                                                <xs:extension base="xs:token">
+                                                                    <xs:attribute type="xs:token" name="name"/>
+                                                                </xs:extension>
+                                                            </xs:simpleContent>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                                <xs:attribute name="name" type="xs:string" use="required"/>                                                
                                             </xs:complexType>
                                         </xs:element>
                                     </xs:sequence>
-                                    <xs:attribute name="uniqueID" type="xs:ID" use="required"/>
-                                    <xs:attribute name="service" type="xs:token" use="required"/>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="instances">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="accountInstance" minOccurs="0" maxOccurs="unbounded">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="parameter" minOccurs="0" maxOccurs="unbounded">
+                                                        <xs:complexType>
+                                                            <xs:simpleContent>
+                                                                <xs:extension base="xs:token">
+                                                                    <xs:attribute type="xs:token" name="name"/>
+                                                                </xs:extension>
+                                                            </xs:simpleContent>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                                <xs:attribute name="uniqueID" type="xs:ID" use="required"/>
+                                                <xs:attribute name="service" type="xs:token" use="required"/>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
@@ -50,22 +77,50 @@
                 <xs:element name="managers">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="manager" minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="globalSettings">
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:element name="parameter" minOccurs="0" maxOccurs="unbounded">
+                                        <xs:element name="manager" minOccurs="0" maxOccurs="unbounded">
                                             <xs:complexType>
-                                                <xs:simpleContent>
-                                                    <xs:extension base="xs:token">
-                                                        <xs:attribute type="xs:token" name="name"/>
-                                                    </xs:extension>
-                                                </xs:simpleContent>
+                                                <xs:sequence>
+                                                    <xs:element name="setting" minOccurs="0" maxOccurs="unbounded">
+                                                        <xs:complexType>
+                                                            <xs:simpleContent>
+                                                                <xs:extension base="xs:token">
+                                                                    <xs:attribute type="xs:token" name="name"/>
+                                                                </xs:extension>
+                                                            </xs:simpleContent>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                                <xs:attribute name="name" type="xs:string" use="required"/> 
                                             </xs:complexType>
-                                        </xs:element>                                                
+                                        </xs:element>
                                     </xs:sequence>
-                                    <xs:attribute name="uniqueID" type="xs:ID" use="required"/>
-                                    <xs:attribute name="type" type="xs:token" use="required"/>
-                                    <xs:attribute name="account" type="xs:IDREF" use="required"/>                                    
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="instances">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="managerInstance" minOccurs="0" maxOccurs="unbounded">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="parameter" minOccurs="0" maxOccurs="unbounded">
+                                                        <xs:complexType>
+                                                            <xs:simpleContent>
+                                                                <xs:extension base="xs:token">
+                                                                    <xs:attribute type="xs:token" name="name"/>
+                                                                </xs:extension>
+                                                            </xs:simpleContent>
+                                                        </xs:complexType>
+                                                    </xs:element>                                                
+                                                </xs:sequence>
+                                                <xs:attribute name="uniqueID" type="xs:ID" use="required"/>
+                                                <xs:attribute name="type" type="xs:token" use="required"/>
+                                                <xs:attribute name="account" type="xs:IDREF" use="required"/>                                    
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>

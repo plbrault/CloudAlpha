@@ -1,16 +1,24 @@
 <CloudAlphaConfig>
-    <accounts>
-        <account uniqueID="dummy1" service="dummy"/>
-        <account uniqueID="dropbox1" service="dropbox"/>
-    </accounts>
+    <services>
+        <globalSettings>
+            <service name="dropbox">
+            </service>
+        </globalSettings>
+        <instances>
+            <accountInstance uniqueID="dropbox1" service="dropbox"/>        
+        </instances>
+    </services>
     <managers>
-        <manager uniqueID="ftp-dummy1" type="ftp" account="dummy1">
-            <parameter name="ftp_username">dummy</parameter>
-            <parameter name="ftp_password">12345</parameter>
-        </manager>    
-        <manager uniqueID="ftp-dropbox1" type="ftp" account="dropbox1">
-            <parameter name="ftp_username">dropbox</parameter>
-            <parameter name="ftp_password">12345</parameter>
-        </manager>     
+        <globalSettings>
+            <manager name="ftp">
+                <setting name="ftp_server_port">2121</setting>
+            </manager>
+        </globalSettings>
+        <instances>
+            <managerInstance uniqueID="ftp-dropbox1" type="ftp" account="dropbox1">
+                <parameter name="ftp_username">user</parameter>
+                <parameter name="ftp_password">12345</parameter>
+            </managerInstance>          
+        </instances> 
     </managers>
 </CloudAlphaConfig>
