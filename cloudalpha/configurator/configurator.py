@@ -99,8 +99,8 @@ class Configurator:
                 account_module = __import__(account_module_name)
                 for component in account_module_name.split(".")[1:]:
                     account_module = getattr(account_module, component)
-            except:
-                raise ConfiguratorError("Module " + account_module_name + " does not exist")
+            except Exception as e:
+                raise ConfiguratorError("Module " + account_module_name + " could not be imported - " + str(e))
 
             account_class_name = None
             account_class = None
@@ -164,8 +164,9 @@ class Configurator:
                 manager_module = __import__(manager_module_name)
                 for component in manager_module_name.split(".")[1:]:
                     manager_module = getattr(manager_module, component)
-            except:
-                raise ConfiguratorError("Module " + manager_module_name + " does not exist")
+            except Exception as e:
+
+                raise ConfiguratorError("Module " + manager_module_name + " could not be imported - " + str(e))
 
             manager_class_name = None
             manager_class = None

@@ -19,9 +19,9 @@
 # http://github.com/plbrault/cloudalpha
 #
 #
+#
 # This file contains work derived from the source code of the pyftpdlib library,
 # covered by the following copyright notice:
-#
 # Copyright (C) 2007-2014 Giampaolo Rodola' <g.rodola@gmail.com>
 #
 # ==============================================================================
@@ -33,20 +33,13 @@ from cloudalpha.managers.ftp.ftp_server.stat_result import StatResult
 class FileSystemAdapter(AbstractedFS):
     """An adapter between pyftpdlib and cloudalpha.file_system_view.FileSystemView."""
 
-    _next_class_id = 0
     _listed_dirs = {}
 
     file_system_view = None
 
-    def _subclass_init(self, root, cmd_channel):
+    def __init__(self, root, cmd_channel):
+        """FileSystemAdapter initializer"""
         self.cmd_channel = cmd_channel
-
-    @staticmethod
-    def get_class(file_system_view):
-        """Create a new FileSystemAdapter subclass bound to the given FileSystemView instance."""
-        FileSystemAdapter._next_class_id += 1
-        return type("FileSystemAdapter_cls" + str(FileSystemAdapter._next_class_id), (FileSystemAdapter,),
-                    {"__init__":FileSystemAdapter._subclass_init, "file_system_view":file_system_view})
 
     @property
     def cwd(self):

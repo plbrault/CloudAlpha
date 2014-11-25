@@ -19,9 +19,9 @@
 # http://github.com/plbrault/cloudalpha
 #
 #
+#
 # This file contains work derived from the source code of the pyftpdlib library,
 # covered by the following copyright notice:
-#
 # Copyright (C) 2007-2014 Giampaolo Rodola' <g.rodola@gmail.com>
 #
 # ==============================================================================
@@ -29,6 +29,7 @@
 from pyftpdlib.handlers import FTPHandler
 from cloudalpha.managers.ftp.ftp_server.adapted_file_producer import AdaptedFileProducer
 from cloudalpha.managers.ftp.ftp_server.adapted_dtp_handler import AdaptedDTPHandler
+from cloudalpha.managers.ftp.ftp_server.ftp_server import FTPServer
 
 class AdaptedFTPHandler(FTPHandler):
     """FTPHandler is the class that handles FTP commands received from the client.
@@ -41,7 +42,14 @@ class AdaptedFTPHandler(FTPHandler):
     upload_path = None
 
     def __init__(self, conn, server, ioloop=None):
+        """AdaptedFTPHandler initializer"""
         FTPHandler.__init__(self, conn, server, ioloop)
+
+    def ftp_PASS(self, line):
+        """Attempt to authenticate the user."""
+        super(AdaptedFTPHandler, self).ftp_PASS(line)
+        if self.fs:
+            self.fs.file_system_view = FTPServer().get_file_system_view(self.username)
 
     def ftp_RETR(self, file):
         """Retrieve the specified file (transfer from the server to the

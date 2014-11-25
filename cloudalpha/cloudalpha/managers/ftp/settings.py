@@ -1,4 +1,4 @@
-# ==============================================================================
+# =============================================================================
 # Copyright (C) 2014 Pier-Luc Brault and Alex Cline
 #
 # This file is part of CloudAlpha.
@@ -17,16 +17,8 @@
 # along with CloudAlpha.  If not, see <http://www.gnu.org/licenses/>.
 #
 # http://github.com/plbrault/cloudalpha
-#
-#
-#
-# This file contains work derived from the source code of the pyftpdlib library,
-# covered by the following copyright notice:
-# Copyright (C) 2007-2014 Giampaolo Rodola' <g.rodola@gmail.com>
-#
-# ==============================================================================
+# =============================================================================
 
-import pyftpdlib.handlers  # @UnusedImport
+"""This module defines global settings used by all FTP managers"""
 
-""""Redifine pyftpdlib.handlers._sterror function."""
-pyftpdlib.handlers._strerror = lambda err: str(err)
+ftp_server_port = 21

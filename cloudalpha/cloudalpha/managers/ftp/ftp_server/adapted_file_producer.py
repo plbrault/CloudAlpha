@@ -19,9 +19,9 @@
 # http://github.com/plbrault/cloudalpha
 #
 #
+#
 # This file contains work derived from the source code of the pyftpdlib library,
 # covered by the following copyright notice:
-#
 # Copyright (C) 2007-2014 Giampaolo Rodola' <g.rodola@gmail.com>
 #
 # ==============================================================================

@@ -21,61 +21,75 @@
 
 from pyftpdlib.servers import FTPServer as Server
 from pyftpdlib.authorizers import DummyAuthorizer
-from cloudalpha.managers.ftp.ftp_server.file_system_adapter import FileSystemAdapter
-from cloudalpha.managers.ftp.ftp_server.adapted_ftp_handler import AdaptedFTPHandler
+from cloudalpha.managers.ftp import settings
 from cloudalpha.managers.ftp.ftp_server.ftp_server_thread import FTPServerThread
 import cloudalpha.managers.ftp.ftp_server.strerror  # @UnusedImport
 
 class FTPServer:
-    """A FTP server with a single user account that has complete
-    access to the supplied cloudalpha.file_system_view.FileSystemView instance.
+    """A singleton FTP server which each user has access to a distinct 
+    cloudalpha.file_system_view.FileSystemView instance.
     """
 
-    file_system_view = None
-    port = None
-    username = None
-    password = None
+    _instance = None
 
+    _port = None
     _server = None
     _thread = None
+    _authorizer = DummyAuthorizer()
+    _file_system_views = {}
 
-    def __init__(self, file_system_view, port, username, password):
-        """Init the FTP server with the given port, username and password."""
-        self.file_system_view = file_system_view
-        self.port = port
-        self.username = username
-        self.password = password
+    use_count = 0
 
-    def start(self):
-        """Start the FTP server in a new thread."""
+    def __new__(cls, *args, **kwargs):
+        """Return the singleton instance."""
+        if not cls._instance:
+            cls._instance = super(FTPServer, cls).__new__(cls, *args, **kwargs)
+            cls._instance._port = settings.ftp_server_port
+        return cls._instance
+
+    def add_user(self, username, password, file_system_view):
+        """Add a new user with the given username and password, associated
+        to the specified cloudalpha.file_system_view.FileSystemView instance."""
+        self._file_system_views[username] = file_system_view
+        self._authorizer.add_user(username, password, "/", perm="elradfmw")
+
+    def remove_user(self, username):
+        """Remove the user corresponding to the given username."""
+        self._authorizer.remove_user(username)
+        del self._file_system_views[username]
+
+    def get_file_system_view(self, username):
+        """Get the cloudalpha.file_system_view.FileSystemView instance
+        corresponding to the given username."""
+        return self._file_system_views[username]
+
+    def start_using(self):
+        """Increment use_count. If the FTP server is currently not running, start it in a new thread."""
+        self.use_count += 1
         if self._server is None:
-            # Generate FileSystemAdapter subclass
-            fs_adapter = FileSystemAdapter.get_class(self.file_system_view)
+            from cloudalpha.managers.ftp.ftp_server.file_system_adapter import FileSystemAdapter
+            from cloudalpha.managers.ftp.ftp_server.adapted_ftp_handler import AdaptedFTPHandler
 
-            # Initiate the authorizer
-            authorizer = DummyAuthorizer()
-            authorizer.add_user(self.username, self.password, '.', perm='elradfmwM')
+            # Get FileSystemAdapter
+            fs_adapter = FileSystemAdapter
 
-            # Initiate the FTP Handler
+            # Initiate the FTP Handler class
             handler = AdaptedFTPHandler
-            handler.authorizer = authorizer
+            handler.authorizer = self._authorizer
             handler.abstracted_fs = fs_adapter
             handler.banner = "CloudAlpha FTP manager ready."
 
             # Initiate and start the server
-            self._server = Server(("localhost", self.port), handler)
+            self._server = Server(("0.0.0.0", self._port), handler)
             self._server.max_cons = self._server.max_cons_per_ip = 256
             self._thread = FTPServerThread(self._server)
             self._thread.start()
 
-            return True
-        else:
-            return False
-
-    def stop(self):
-        """Stop the FTP server."""
+    def stop_using(self):
+        """If the FTP server is currently running, decrement use_count. If
+        the new value of use_count is zero, stop the server."""
         if self._server is not None:
-            self._server.stop()
-            return True
-        else:
-            return False
+            self.use_count -= 1
+            if self.use_count < 1:
+                self._server.stop()
+                return True
