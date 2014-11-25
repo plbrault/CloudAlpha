@@ -53,6 +53,9 @@ class ArgumentParsingAccountError(AccountError):
 class MissingAttributeAccountError(AccountError):
     pass
 
+class MissingSettingAccountError(AccountError):
+    pass
+
 class AuthenticationFailedAccountError(AccountError):
     pass
 
@@ -64,6 +67,9 @@ class ArgumentParsingManagerError(ManagerError):
     pass
 
 class MissingAttributeManagerError(ManagerError):
+    pass
+
+class MissingSettingManagerError(ManagerError):
     pass
 
 class StartupFailedManagerError(ManagerError):

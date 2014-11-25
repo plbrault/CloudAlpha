@@ -21,8 +21,8 @@
 
 from cloudalpha.manager import Manager
 from cloudalpha.managers.ftp.ftp_server.ftp_server import FTPServer
-from cloudalpha.exceptions import MissingAttributeManagerError, \
-    StartupFailedManagerError
+from cloudalpha.managers.ftp.settings import FTPSettings
+from cloudalpha.exceptions import MissingAttributeManagerError, StartupFailedManagerError, MissingSettingManagerError
 
 class FTPManager(Manager):
     """This manager allows the interaction with a file storage account through the FTP protocol."""
@@ -37,7 +37,8 @@ class FTPManager(Manager):
     def run(self):
         """Put the manager into action.
         
-        If a required attribute is not set, raise MissingAttributeManagerError.
+        If a required instance attribute is not set, raise MissingAttributeManagerError.
+        If a required setting is not set, raise MissingSettingManagerError.
         If the operation fails for any other reason, raise StartupFailedManagerError.
         """
         if not self._running:
@@ -45,6 +46,8 @@ class FTPManager(Manager):
                 raise StartupFailedManagerError("Username " + self.ftp_username + " already exists")
             if self.file_system_view is None or self.ftp_username is None or self.ftp_password is None:
                 raise MissingAttributeManagerError
+            if not FTPSettings.ftp_server_port:
+                raise MissingSettingManagerError
             FTPServer().add_user(self.ftp_username, self.ftp_password, self.file_system_view)
             FTPServer().start_using()
             print("""FTP Manager "%0s" started.""" % (self.unique_id))

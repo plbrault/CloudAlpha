@@ -30,7 +30,8 @@ class CommandLineManager(Manager):
     def run(self):
         """Put the manager into action.
         
-        If a required attribute is not set, raise MissingAttributeManagerError.
+        If a required instance attribute is not set, raise MissingAttributeManagerError.
+        If a required setting is not set, raise MissingSettingManagerError.
         If the operation fails for any other reason, raise StartupFailedManagerError.
         """
 
