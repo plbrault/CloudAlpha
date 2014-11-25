@@ -24,7 +24,8 @@ from xml.etree.ElementTree import ParseError
 import inspect
 from cloudalpha.account import Account
 from cloudalpha.manager import Manager
-from cloudalpha.exceptions import ValueParsingSettingError
+from cloudalpha.settings import Settings
+from cloudalpha.exceptions import InvalidNameSettingError, ValueParsingSettingError
 
 
 class ConfiguratorError(Exception):
@@ -97,28 +98,36 @@ class Configurator:
                 except Exception as e:
                     raise ConfiguratorError("Module " + settings_module_name + " could not be imported - " + str(e))
 
+                settings_class = None
+                for name, obj in inspect.getmembers(settings_module):
+                    if inspect.getmodule(obj) == settings_module and inspect.isclass(obj) and issubclass(obj, Settings):
+                        settings_class = obj
+                        break
+                if not settings_class:
+                    raise ConfiguratorError("Module " + settings_module_name + " does not contain a class of subtype Settings")
+
                 for xml_setting in xml_service:
-                    setting_name = xml_service.get("name")
+                    setting_name = xml_setting.get("name")
                     if not setting_name:
                         raise ConfiguratorError("Invalid configuration file: missing name attribute of a setting element")
                     setting_name = setting_name.strip()
 
                     try:
-                        setattr(settings_module, setting_name, xml_setting.text.strip())
+                        settings_class.set(setting_name, xml_setting.text.strip())
+                    except InvalidNameSettingError:
+                        raise ConfiguratorError("The service " + service_name + " has no setting named " + setting_name)
                     except ValueParsingSettingError:
                         raise ConfiguratorError("The value of setting " + setting_name + " is invalid")
-                    except:
-                        raise ConfiguratorError(service_name + " service has no " + setting_name + " setting")
 
     def _parse_manager_settings(self, xml_settings):
         for xml_manager in xml_settings:
             manager_name = xml_manager.get("name")
             if not manager_name:
                 raise ConfiguratorError("Invalid configuration file: missing name attribute of a manager element")
-            service_name = manager_name.strip()
+            manager_name = manager_name.strip()
 
             if len(xml_manager) > 0:
-                settings_module_name = "cloudalpha.managers." + service_name + ".settings"
+                settings_module_name = "cloudalpha.managers." + manager_name + ".settings"
                 try:
                     settings_module = __import__(settings_module_name)
                     for component in settings_module_name.split(".")[1:]:
@@ -126,18 +135,26 @@ class Configurator:
                 except Exception as e:
                     raise ConfiguratorError("Module " + settings_module_name + " could not be imported - " + str(e))
 
+                settings_class = None
+                for name, obj in inspect.getmembers(settings_module):
+                    if inspect.getmodule(obj) == settings_module and inspect.isclass(obj) and issubclass(obj, Settings):
+                        settings_class = obj
+                        break
+                if not settings_class:
+                    raise ConfiguratorError("Module " + settings_module_name + " does not contain a class of subtype Settings")
+
                 for xml_setting in xml_manager:
-                    setting_name = xml_manager.get("name")
+                    setting_name = xml_setting.get("name")
                     if not setting_name:
                         raise ConfiguratorError("Invalid configuration file: missing name attribute of a setting element")
                     setting_name = setting_name.strip()
 
                     try:
-                        setattr(settings_module, setting_name, xml_setting.text.strip())
+                        settings_class.set(setting_name, xml_setting.text.strip())
+                    except InvalidNameSettingError:
+                        raise ConfiguratorError("The manager " + manager_name + " has no setting named " + setting_name)
                     except ValueParsingSettingError:
                         raise ConfiguratorError("The value of setting " + setting_name + " is invalid")
-                    except:
-                        raise ConfiguratorError(service_name + " manager has no " + setting_name + " setting")
 
     def _generate_accounts(self, xml_accounts):
         """Generate the accounts specified by the XML "instances" section."""

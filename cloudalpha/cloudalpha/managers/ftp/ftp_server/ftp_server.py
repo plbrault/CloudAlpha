@@ -21,7 +21,7 @@
 
 from pyftpdlib.servers import FTPServer as Server
 from pyftpdlib.authorizers import DummyAuthorizer
-from cloudalpha.managers.ftp import settings
+from cloudalpha.managers.ftp.settings import FTPSettings
 from cloudalpha.managers.ftp.ftp_server.ftp_server_thread import FTPServerThread
 import cloudalpha.managers.ftp.ftp_server.strerror  # @UnusedImport
 
@@ -44,7 +44,7 @@ class FTPServer:
         """Return the singleton instance."""
         if not cls._instance:
             cls._instance = super(FTPServer, cls).__new__(cls, *args, **kwargs)
-            cls._instance._port = settings.ftp_server_port
+            cls._instance._port = FTPSettings.ftp_server_port
         return cls._instance
 
     def user_exists(self, username):

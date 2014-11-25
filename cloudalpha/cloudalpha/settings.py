@@ -19,15 +19,15 @@
 # http://github.com/plbrault/cloudalpha
 # =============================================================================
 
-from cloudalpha.settings import Settings
-from cloudalpha.exceptions import InvalidNameSettingError, ValueParsingSettingError
+from abc import ABCMeta, abstractmethod
 
-class FTPSettings(Settings):
-    """A static class containing global settings for all FTP managers."""
+class Settings:
+    """A base class for implementing global settings in services and managers."""
 
-    ftp_server_port = 21
+    __metaclass__ = ABCMeta
 
     @classmethod
+    @abstractmethod
     def set(cls, name, value):
         """Update the value of the setting corresponding to name.
         
@@ -36,10 +36,4 @@ class FTPSettings(Settings):
         value can be of type string. It will be converted to the proper type before 
         it is stored. In case of parsing failure, raise ValueParsingSettingError.
         """
-        if name == "ftp_server_port":
-            try:
-                cls.ftp_server_port = int(value)
-            except:
-                raise ValueParsingSettingError
-        else:
-            raise InvalidNameSettingError
+        pass

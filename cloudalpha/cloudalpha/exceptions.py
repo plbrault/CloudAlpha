@@ -73,5 +73,8 @@ class StartupFailedManagerError(ManagerError):
 class SettingError(Exception):
     pass
 
+class InvalidNameSettingError(SettingError):
+    pass
+
 class ValueParsingSettingError(SettingError):
     pass
