@@ -79,7 +79,9 @@ coverage.xml
 docs/_build/
 *.project
 *.db
-cloudalpha/temp/file1.txt
-cloudalpha/.dummytemp/
-cloudalpha/.dummyroot/
-cloudalpha/cloudalpha/services/dropbox/settings.dev.json
+
+### Project-specific files ###
+*/datastore.db
+*/.dummytemp/
+*/.dummyroot/
+*.dev.*

@@ -27,7 +27,7 @@ from cloudalpha.account import Account
 from cloudalpha.datastore import DataStore
 from cloudalpha.exceptions import AuthenticationFailedAccountError
 from cloudalpha.services.dropbox.file_system import DropboxFileSystem
-from cloudalpha.services.dropbox.settings import Settings
+from cloudalpha.services.dropbox.settings import DropboxSettings
 
 
 class DropboxAccount(Account):
@@ -39,7 +39,7 @@ class DropboxAccount(Account):
         """Ask the user to give access to Dropbox account, and return
         the resulting access token.
         """
-        flow = DropboxOAuth2FlowNoRedirect(Settings.app_key, Settings.app_secret)
+        flow = DropboxOAuth2FlowNoRedirect(DropboxSettings.app_key, DropboxSettings.app_secret)
 
         authorize_url = flow.start()
 

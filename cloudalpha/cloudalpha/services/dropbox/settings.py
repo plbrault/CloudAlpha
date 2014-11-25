@@ -19,20 +19,27 @@
 # http://github.com/plbrault/cloudalpha
 # =============================================================================
 
-import os.path
-import json
+from cloudalpha.settings import Settings
+from cloudalpha.exceptions import InvalidNameSettingError
 
-class Settings:
-    """This class retrieves the information from settings.json, or from
-    settings.dev.json if it exists.
-    """
+class DropboxSettings(Settings):
+    """This class contains global settings accessible by all Dropbox accounts."""
 
-    if os.path.isfile("cloudalpha/services/dropbox/settings.dev.json"):
-        _file_data = open("cloudalpha/services/dropbox/settings.dev.json").read()
-        _json_obj = json.loads(_file_data)
-    else:
-        _file_data = open("cloudalpha/services/dropbox/settings.json").read()
-        _json_obj = json.loads(_file_data)
+    app_key = None
+    app_secret = None
 
-    app_key = _json_obj["app_key"]
-    app_secret = _json_obj["app_secret"]
+    @classmethod
+    def set(cls, name, value):
+        """Update the value of the setting corresponding to name.
+        
+        If there is no setting corresponding to name, raise InvalidNameSettingError.
+        
+        value can be of type string. It will be converted to the proper type before 
+        it is stored. In case of parsing failure, raise ValueParsingSettingError.
+        """
+        if name == "app_key":
+            cls.app_key = str(value)
+        elif name == "app_secret":
+            cls.app_secret = str(value)
+        else:
+            raise InvalidNameSettingError

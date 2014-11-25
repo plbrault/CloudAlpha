@@ -2,6 +2,8 @@
     <services>
         <globalSettings>
             <service name="dropbox">
+                <setting name="app_key">INSERT APP_KEY HERE</setting>
+                <setting name="app_secret">INSERT APP_SECRET HERE</setting>
             </service>
         </globalSettings>
         <instances>

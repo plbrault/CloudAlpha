@@ -20,11 +20,15 @@
 # =============================================================================
 
 from configurator.configurator import Configurator, ConfiguratorError
+import os
 
 if __name__ == '__main__':
     """Generate the accounts and managers specified in config.xml, and launch them."""
     try:
-        configurator = Configurator("config.xml")
+        if os.path.exists("config.dev.xml"):
+            configurator = Configurator("config.dev.xml")
+        else:
+            configurator = Configurator("config.xml")
         for account in configurator.get_accounts():
             account.authenticate()
         for manager in configurator.get_managers():
