@@ -31,7 +31,7 @@ class FileSystem(object):
     An instance of a FileSystem subclass is linked to a single
     instance of an Account subclass.
     
-    Account and FileSystem subclasses must be implemented in a thread-safe way.
+    FileSystem subclasses must be implemented in a thread-safe way.
     """
 
     __metaclass__ = ABCMeta
