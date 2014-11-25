@@ -28,17 +28,20 @@ class CommandLineManager(Manager):
     commandline, for testing purposes.
     """
 
+    _running = False
+
     def run(self):
-        """Put the manager into action, in a new thread.
+        """Put the manager into action, in a new thread. If already done, do nothing.
         
         If a required instance attribute is not set, raise MissingAttributeManagerError.
         If a required setting is not set, raise MissingSettingManagerError.
         If the operation fails for any other reason, raise StartupFailedManagerError.
         """
-        if self.file_system_view == None:
-            raise MissingAttributeManagerError
-        thread = CommandlineThread(self)
-        thread.start()
+        if not self._running:
+            if self.file_system_view == None:
+                raise MissingAttributeManagerError
+            thread = CommandlineThread(self)
+            thread.start()
 
 
     def stop(self):

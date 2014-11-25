@@ -35,7 +35,7 @@ class FTPManager(Manager):
     _running = False
 
     def run(self):
-        """Put the manager into action, in a new thread.
+        """Put the manager into action, in a new thread. If already done, do nothing.
         
         If a required instance attribute is not set, raise MissingAttributeManagerError.
         If a required setting is not set, raise MissingSettingManagerError.
@@ -50,9 +50,6 @@ class FTPManager(Manager):
                 raise MissingSettingManagerError
             FTPServer().add_user(self.ftp_username, self.ftp_password, self.file_system_view)
             FTPServer().start_using()
-            print("""FTP Manager "%0s" started.""" % (self.unique_id))
-        else:
-            print("""FTP Manager "%0s" already running.""" % (self.unique_id))
 
     def stop(self):
         """Stop the manager.
