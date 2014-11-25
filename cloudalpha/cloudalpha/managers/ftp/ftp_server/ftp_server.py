@@ -47,6 +47,10 @@ class FTPServer:
             cls._instance._port = settings.ftp_server_port
         return cls._instance
 
+    def user_exists(self, username):
+        """Return a boolean value indicating if the specified username exists."""
+        return username in self._file_system_views
+
     def add_user(self, username, password, file_system_view):
         """Add a new user with the given username and password, associated
         to the specified cloudalpha.file_system_view.FileSystemView instance."""
