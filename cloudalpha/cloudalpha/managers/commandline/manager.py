@@ -21,6 +21,7 @@
 
 from cloudalpha.manager import Manager
 from cloudalpha.exceptions import MissingAttributeManagerError
+from cloudalpha.managers.commandline.commandline_thread import CommandlineThread
 
 class CommandLineManager(Manager):
     """This manager allows the interaction with a file storage account through the
@@ -34,9 +35,21 @@ class CommandLineManager(Manager):
         If a required setting is not set, raise MissingSettingManagerError.
         If the operation fails for any other reason, raise StartupFailedManagerError.
         """
-
         if self.file_system_view == None:
             raise MissingAttributeManagerError
+        thread = CommandlineThread(self)
+        thread.start()
+
+
+    def stop(self):
+        """Stop the manager.
+        
+        If the manager is already stopped, do nothing.
+        """
+        pass
+
+    def interpret_commands(self):
+        """Read commands submitted to the application and execute them."""
 
         print("Type help for a list of available commands.")
 
@@ -203,13 +216,6 @@ class CommandLineManager(Manager):
 
             except Exception as e :
                 print("An error has occured : ", type(e), e)
-
-    def stop(self):
-        """Stop the manager.
-        
-        If the manager is already stopped, do nothing.
-        """
-        pass
 
     def __init__(self, unique_id, file_system_view=None):
         """Initialize the manager."""
