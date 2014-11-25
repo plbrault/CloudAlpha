@@ -19,7 +19,7 @@
 # http://github.com/plbrault/cloudalpha
 # =============================================================================
 
-from pyftpdlib.servers import FTPServer as Server
+from pyftpdlib.servers import ThreadedFTPServer as Server
 from pyftpdlib.authorizers import DummyAuthorizer
 from cloudalpha.managers.ftp.settings import FTPSettings
 from cloudalpha.managers.ftp.ftp_server.ftp_server_thread import FTPServerThread
