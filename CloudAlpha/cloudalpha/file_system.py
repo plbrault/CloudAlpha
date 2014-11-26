@@ -23,7 +23,6 @@ from abc import ABCMeta, abstractmethod
 from cloudalpha.file_system_view import FileSystemView
 
 class FileSystem(object):
-
     """A base class for implementing an abstraction of a file system, that may in fact
     be an adapter for managing the content of a file hosting service account.
     

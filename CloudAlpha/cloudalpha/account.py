@@ -22,7 +22,6 @@
 from abc import ABCMeta, abstractmethod
 
 class Account(object):
-
     """A base class for implementing an abstraction of a file hosting service account.
     
     A subclass is defined for each supported file hosting service.

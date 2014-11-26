@@ -34,8 +34,7 @@ class FileSystemView(object):
         return self._file_system.lock
 
     def get_abs_path(self, path):
-        """Return the absolute path corresponding to the given relative path.
-        """
+        """Return the absolute path corresponding to the given relative path."""
         abs_levels = []
         if path[:1] == "/":
             path = path[1:]

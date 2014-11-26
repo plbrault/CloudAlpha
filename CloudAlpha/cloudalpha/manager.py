@@ -22,7 +22,6 @@
 from abc import ABCMeta, abstractmethod
 
 class Manager(object):
-
     """A base class for implementing a file manager accessible through a specific
     interface, as a network protocol.
     
