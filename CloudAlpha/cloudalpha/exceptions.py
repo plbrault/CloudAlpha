@@ -19,6 +19,8 @@
 # http://github.com/plbrault/cloudalpha
 # =============================================================================
 
+"""This module defines custom exceptions for managers and services."""
+
 class FileSystemError(Exception):
     pass
 
