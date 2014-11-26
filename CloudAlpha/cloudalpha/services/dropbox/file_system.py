@@ -33,7 +33,7 @@ from cloudalpha.file_system import FileSystem
 class DropboxFileSystem(FileSystem):
     """This class allows to manage the files on a Dropbox account."""
 
-    _lock = RLock()
+    _lock = None
     _working_dir = '/'
     _upload_offsets = {}
 
@@ -471,4 +471,5 @@ class DropboxFileSystem(FileSystem):
             del self._new_files[new_file_id]
 
     def __init__(self, account):
+        self._lock = RLock()
         super(DropboxFileSystem, self).__init__(account)

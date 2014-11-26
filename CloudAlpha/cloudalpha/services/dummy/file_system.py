@@ -43,7 +43,7 @@ class DummyFileSystem(FileSystem):
     _new_files = {}
     _next_new_file_id = 0
 
-    _lock = RLock()
+    _lock = None
 
     @property
     def lock(self):
@@ -482,6 +482,7 @@ class DummyFileSystem(FileSystem):
 
     def __init__(self, account):
         """DummyFileSystem initializer"""
+        self._lock = RLock()
         super(DummyFileSystem, self).__init__(account)
         root = os.path.abspath(self._REAL_ROOT_DIR)
         temp = os.path.abspath(self._TEMP_DIR)
