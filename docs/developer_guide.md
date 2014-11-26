@@ -5,6 +5,13 @@ CloudAlpha Developer Guide
 
 The purpose of this guide is to help developers to implement new modules in the CloudAlpha project, to improve existing ones, or simply to use the code from CloudAlpha in their own software projects. It contains general information about the source code structure of the project, and on the steps to follow to implement new modules. It does not pretend to be exhaustive or always up-to-date.
 
+Copyright (C) 2014 Pier-Luc Brault and Alex Cline
+
+## License
+
+This document is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
+
+
 ## Project Architecture
 
 ### Services and Managers
@@ -67,3 +74,9 @@ This is an overview of the file structure of CloudAlpha:
 	|-- cloudalpha.py
 	|-- config.xml
 	|-- datastore.db
+
+## Implementing a Service
+
+## Implementing a Manager
+
+## Class Reference
