@@ -53,7 +53,7 @@ class AdaptedFTPHandler(FTPHandler):
 
     def ftp_RETR(self, file):
         """Retrieve the specified file (transfer from the server to the
-        client).  On success return the file path else None.
+        client).  On success, return the file path or else, return None.
         """
         rest_pos = self._restart_position
         self._restart_position = 0
@@ -74,7 +74,7 @@ class AdaptedFTPHandler(FTPHandler):
 
     def ftp_STOR(self, file, mode='w'):
         """Store a file (transfer from the client to the server).
-        On success return the file path, else None.
+        On success, return the file path or else, return None.
         """
         self.upload_path = file
         super(AdaptedFTPHandler, self).ftp_STOR(file, mode)

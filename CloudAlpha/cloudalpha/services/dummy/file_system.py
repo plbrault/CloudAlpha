@@ -24,10 +24,9 @@ import shutil
 from threading import RLock
 from datetime import datetime
 
-from cloudalpha.exceptions import InvalidPathFileSystemError, \
-    AlreadyExistsFileSystemError, InvalidTargetFileSystemError, \
-    AccessFailedFileSystemError, IDNotFoundFileSystemError, \
-    ForbiddenOperationFileSystemError, InsufficientSpaceFileSystemError
+from cloudalpha.exceptions import InvalidPathFileSystemError, AlreadyExistsFileSystemError, InvalidTargetFileSystemError
+from cloudalpha.exceptions import AccessFailedFileSystemError, IDNotFoundFileSystemError, ForbiddenOperationFileSystemError
+from cloudalpha.exceptions import InsufficientSpaceFileSystemError
 from cloudalpha.file_system import FileSystem
 from cloudalpha.file_metadata import FileMetadata
 

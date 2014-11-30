@@ -35,7 +35,7 @@ class FTPManager(Manager):
     _running = False
 
     def run(self):
-        """Put the manager into action, in a new thread. If already done, do nothing.
+        """Put the manager into action in a new thread. If already done, do nothing.
         
         If a required instance attribute is not set, raise MissingAttributeManagerError.
         If a required setting is not set, raise MissingSettingManagerError.

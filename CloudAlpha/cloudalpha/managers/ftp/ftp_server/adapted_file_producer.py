@@ -42,7 +42,7 @@ class AdaptedFileProducer(FileProducer):
         self._file_path = file_path
 
     def more(self):
-        """Attempt a chunk of data of size self.buffer_size."""
+        """Attempt to read a chunk of data of size self.buffer_size."""
         try:
             data = self.file_system_view.read(self._file_path, self._offset, self.buffer_size)
             self._offset += self.buffer_size

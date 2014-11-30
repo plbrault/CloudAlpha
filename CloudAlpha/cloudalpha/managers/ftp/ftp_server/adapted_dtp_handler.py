@@ -53,7 +53,7 @@ class AdaptedDTPHandler(DTPHandler):
 
     @file_obj.setter
     def file_obj(self, obj):
-        """Dummy setter of the file_obj property, that shadows
+        """Dummy setter of the file_obj property that shadows
         the file_obj attribute of the baseclass. It has no effect.
         """
         pass

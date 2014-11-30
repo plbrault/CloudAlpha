@@ -22,7 +22,7 @@
 from threading import Thread
 
 class FTPServerThread(Thread):
-    """A thread for running a FTPServer instance."""
+    """A thread for running an FTPServer instance."""
 
     ftp_server = None
 

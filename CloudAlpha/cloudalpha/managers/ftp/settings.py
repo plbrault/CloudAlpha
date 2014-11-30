@@ -29,9 +29,9 @@ class FTPSettings(Settings):
 
     @classmethod
     def set(cls, name, value):
-        """Update the value of the setting corresponding to name.
+        """Update the value of the setting corresponding to "name".
         
-        If there is no setting corresponding to name, raise InvalidNameSettingError.
+        If there is no setting corresponding to "name", raise InvalidNameSettingError.
         
         value can be of type string. It will be converted to the proper type before 
         it is stored. In case of parsing failure, raise ValueParsingSettingError.
