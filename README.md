@@ -30,7 +30,7 @@ Alpha
 
 ## How to use
 * Install the required dependencies
-* Download the latest realease of the application
+* Download the latest release of the application
 * Get a Dropbox App key and App secret from [Dropbox App Console](https://www.dropbox.com/developers/apps)
 * Edit CloudAlpha/config.xml accordingly with the desired configuration and supply it with your App key and App secret
 * Run CloudAlpha/cloudalpha.py
