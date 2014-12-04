@@ -33,19 +33,13 @@ if __name__ == '__main__':
         for account in configurator.get_accounts():
             try:
                 account.authenticate()
-            except:
-                e = sys.exc_info()[1]
-                if not str(e):
-                    e = sys.exc_info()[0]
+            except Exception as e:
                 print("Account authentication failed: %s" % e)
 
         for manager in configurator.get_managers():
             try:
                 manager.run()
-            except:
-                e = sys.exc_info()[1]
-                if not str(e):
-                    e = sys.exc_info()[0]
+            except Exception as e:
                 print("Manager failed to run: %s" % e)
     except ConfiguratorError as e:
         print(e)
