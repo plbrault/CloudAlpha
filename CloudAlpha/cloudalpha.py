@@ -21,6 +21,7 @@
 
 from configurator.configurator import Configurator, ConfiguratorError
 import os
+import sys
 
 if __name__ == '__main__':
     """Generate the accounts and managers specified in config.xml, and launch them."""
@@ -33,11 +34,18 @@ if __name__ == '__main__':
             try:
                 account.authenticate()
             except:
-                print("Account authentication failed.")
+                e = sys.exc_info()[1]
+                if not str(e):
+                    e = sys.exc_info()[0]
+                print("Account authentication failed: %s" % e)
+
         for manager in configurator.get_managers():
             try:
                 manager.run()
             except:
-                print("Manager failed to run.")
+                e = sys.exc_info()[1]
+                if not str(e):
+                    e = sys.exc_info()[0]
+                print("Manager failed to run: %s" % e)
     except ConfiguratorError as e:
         print(e)
