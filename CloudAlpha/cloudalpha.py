@@ -30,8 +30,14 @@ if __name__ == '__main__':
         else:
             configurator = Configurator("config.xml")
         for account in configurator.get_accounts():
-            account.authenticate()
+            try:
+                account.authenticate()
+            except:
+                print("Account authentication failed.")
         for manager in configurator.get_managers():
-            manager.run()
+            try:
+                manager.run()
+            except:
+                print("Manager failed to run.")
     except ConfiguratorError as e:
         print(e)
