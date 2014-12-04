@@ -272,7 +272,10 @@ class Configurator:
             for parameter in parameters:
                 if parameter not in constructor_signature.parameters:
                     raise ConfiguratorError("Initializer of class " + manager_class_name + " has no " + parameter + " argument")
-            constructor_args = constructor_signature.bind(*[unique_id, self._accounts[account_name].file_system.get_new_view()], **parameters)
+            if self._accounts[account_name].file_system == None:
+                raise ConfiguratorError("Account " + account_name + " has no file system.")
+            else:
+                constructor_args = constructor_signature.bind(*[unique_id, self._accounts[account_name].file_system.get_new_view()], **parameters)
 
             try:
                 manager = manager_class(*constructor_args.args, **constructor_args.kwargs)
