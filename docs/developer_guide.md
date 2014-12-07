@@ -1,11 +1,13 @@
 CloudAlpha Developer Guide
 ==========================================================================
 
+
 ## Preamble
 
 The purpose of this guide is to help developers to implement new modules in the CloudAlpha project, to improve existing ones, or simply to use the code from CloudAlpha in their own software projects. It contains general information about the source code structure of the project, and on the steps to follow to implement new modules. It does not pretend to be exhaustive or always up-to-date.
 
 Copyright (C) 2014 Pier-Luc Brault and Alex Cline
+
 
 ## License
 
@@ -38,7 +40,7 @@ Services and managers can use the *DataStore* singleton to store persistent key-
 
 CloudAlpha also implements a *configurator*, which uses reflexion to instantiate and configure service and manager instances based on the content of an XML file. The main then authenticates generated account instances and starts generated manager instances.
 
-### File structure overview
+### File Structure Overview
 
 This is an overview of the file structure of CloudAlpha:
 
@@ -75,8 +77,724 @@ This is an overview of the file structure of CloudAlpha:
 	|-- config.xml
 	|-- datastore.db
 
+
+## Dummy Service and Commandline Manager
+
+
+## How the Configurator Works
+
+
 ## Implementing a Service
+
 
 ## Implementing a Manager
 
+
 ## Class Reference
+
+### cloudalpha.account.Account
+
+    A base class for implementing an abstraction of a file hosting service account.
+    
+    A subclass is defined for each supported file hosting service.
+    An instance of an Account subclass provides an instance of the FileSystem
+    subclass corresponding to that service.
+    
+    Methods defined here:
+    
+    __init__(self, unique_id, *args, **kwargs)
+        The super initializer for Account subclasses.
+        
+        Subclass initializers must take the same first 2 arguments, 
+        and all subsequent arguments must be optional and must accept 
+        string values.
+        
+        If an argument cannot be parsed to the proper type,
+        raise ArgumentParsingAccountError.
+    
+    authenticate(self)
+        Link the object to a real file hosting account. If already done, do nothing.
+        
+        The association process might require an interaction with the user.
+        
+        If a required instance attribute is not set, raise MissingAttributeAccountError.
+        If a required setting is not set, raise MissingSettingAccountError.
+        If the operation fails for any other reason, raise AuthenticationFailedAccountError.
+    
+    ----------------------------------------------------------------------
+    Data descriptors defined here:
+    
+    __dict__
+        dictionary for instance variables (if defined)
+    
+    __weakref__
+        list of weak references to the object (if defined)
+    
+    ----------------------------------------------------------------------
+    Data and other attributes defined here:
+    
+    __metaclass__ = <class 'abc.ABCMeta'>
+        Metaclass for defining Abstract Base Classes (ABCs).
+        
+        Use this metaclass to create an ABC.  An ABC can be subclassed
+        directly, and then acts as a mix-in class.  You can also register
+        unrelated concrete classes (even built-in classes) and unrelated
+        ABCs as 'virtual subclasses' -- these and their descendants will
+        be considered subclasses of the registering ABC by the built-in
+        issubclass() function, but the registering ABC won't show up in
+        their MRO (Method Resolution Order) nor will method
+        implementations defined by the registering ABC be callable (not
+        even via super()).
+    
+    file_system = None
+    
+    unique_id = None
+
+### cloudalpha.datastore.DataStore
+
+    A singleton allowing the storage and retrieving of persistent key-value pairs.
+    
+    Methods defined here:
+    
+    get_value(self, unique_id, key)
+        Retrieve the value corresponding to the specified unique_id and key. If such a value does not exist, return None.
+    
+    set_value(self, unique_id, key, value)
+        Store the given value associated to the specified unique_id and key.
+    
+    ----------------------------------------------------------------------
+    Static methods defined here:
+    
+    __new__(cls, *args, **kwargs)
+        Return the singleton instance.
+    
+    ----------------------------------------------------------------------
+    Data descriptors defined here:
+    
+    __dict__
+        dictionary for instance variables (if defined)
+    
+    __weakref__
+        list of weak references to the object (if defined)
+
+### cloudalpha.file\_metadata.FileMetadata
+
+    Class representing the metadata of a file.
+    
+    Methods defined here:
+    
+    __init__(self, path='', is_dir=False, size=0, created_datetime=None, accessed_datetime=None, modified_datetime=None)
+        FileMetadata initializer
+    
+    __str__(self)
+        Return a string representing the object.
+    
+    ----------------------------------------------------------------------
+    Data descriptors defined here:
+    
+    __dict__
+        dictionary for instance variables (if defined)
+    
+    __weakref__
+        list of weak references to the object (if defined)
+    
+    name
+        Return the short name of the file, excluding its location.
+    
+    ----------------------------------------------------------------------
+    Data and other attributes defined here:
+    
+    accessed_datetime = None
+    
+    created_datetime = None
+    
+    is_dir = False
+    
+    modified_datetime = None
+    
+    path = ''
+    
+    size = 0
+
+### cloudalpha.file\_system.FileSystem
+
+    A base class for implementing an abstraction of a file system, that may in fact
+    be an adapter for managing the content of a file hosting service account.
+    
+    A subclass of FileSystem is defined for each supported file hosting service.
+    An instance of a FileSystem subclass is linked to a single
+    instance of an Account subclass.
+    
+    FileSystem subclasses must be implemented in a thread-safe way.
+    
+    Methods defined here:
+    
+    __init__(self, account)
+        The super initializer for FileSystem subclasses.
+    
+    commit_new_file(self, new_file_id, path)
+        Commit the file corresponding to new_file_id and store it at the location represented by path.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.     
+        
+        If there is no uncommited file corresponding to new_file_id, raise IDNotFoundFileSystemError.
+        If the parent path is invalid, raise InvalidPathFileSystemError. 
+        If the parent path does not correspond to a directory, raise InvalidTargetFileSystemError.
+        If the given path points to an existing file, overwrite it.
+        If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.  
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    copy(self, path, copy_path)
+        Copy a file or directory from path to copy_path.
+        
+        new_path includes the name of the copied file or directory.
+        The paths must be absolute POSIX pathnames, with "/" representing the root of the file system.
+        
+        If path is invalid, raise InvalidPathFileSystemError.
+        If copy_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    create_new_file(self)
+        Create an empty file that will be populated by successive calls to write_to_new_file. Return a unique
+        ID that will be needed to perform write_to_new_file, commit_new_file and flush_new_file calls.
+        
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    delete(self, path)
+        Delete the file or directory corresponding to the given path.
+        
+        If the given path corresponds to a directory that is not empty, all its files and subdirectories
+        must be deleted first.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    exists(self, path)
+        Return True if the given path points to an existing file or directory, excluding uncommitted files.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    flush_new_file(self, new_file_id)
+        Delete an uncommitted file.
+        
+        If there is no uncommited file corresponding to new_file_id, raise IDNotFoundFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    get_accessed_datetime(self, path)
+        Return the date and time of the last time the given file or directory was accessed.
+        If not available, return the date and time of the last modification.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        The return value is a datetime object.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    get_content_metadata(self, path)
+        Return an iterable of FileMetadata objects representing the contents of the directory corresponding to the given path.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the given path does not point to a directory, raise InvalidTargetFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    get_created_datetime(self, path)
+        Return the date and time of creation of the file or directory corresponding to the given path.
+        If not available, return the date and time of the last modification.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        The return value is a datetime object.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    get_metadata(self, path)
+        Return a FileMetadata object representing the file or directory corresponding to the given path.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    get_modified_datetime(self, path)
+        Return the date and time of the last modification to the file or directory corresponding to the given path.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        The return value is a datetime object.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    get_new_view(self)
+        Return a new FileSystemView linked to the current FileSystem subclass instance.
+    
+    get_size(self, path)
+        Return the size, in bytes, of the file corresponding to the given path.
+        If the path points to a directory, return 0.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    is_dir(self, path)
+        Return a boolean value indicating if the given path corresponds to a directory.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    is_file(self, path)
+        Return a boolean value indicating if the given path corresponds to a file.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    list_dir(self, path)
+        Return the content of the specified directory.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+                
+        The return value is a list of file and folder names. It does not contain references to the current
+        or parent directory (e.g. « . » or « .. »).
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the given path does not correspond to a directory, raise InvalidTargetFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    make_dir(self, path)
+        Creates a new directory corresponding to the given path.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        If the parent path is invalid, raise InvalidPathFileSystemError.
+        If the given path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    move(self, old_path, new_path)
+        Move and/or rename a file or directory from old_path to new_path.
+        
+        new_path includes the new name of the file or directory.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        If old_path is invalid, raise InvalidPathFileSystemError.
+        If new_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    read(self, path, start_byte, num_bytes=None)
+        Read the number of bytes corresponding to num_bytes from the file corresponding to the given path,
+        beginning at start_byte.
+        
+        If start_byte is greater than the size of the file, return an empty iterable.
+        
+        If num_bytes is not specified, read all remaining bytes of the file.
+        
+        The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
+        
+        The return value is an iterable of bytes.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the given path corresponds to a directory, raise InvalidTargetFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    write_to_new_file(self, new_file_id, data)
+        Append the given data to the uncommitted file corresponding to new_file_id.
+        
+        The data must be an iterable of bytes.
+        
+        If there is no uncommited file corresponding to new_file_id, raise IDNotFoundFileSystemError.
+        If there is not enough free space to store the new data, raise InsufficientSpaceFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    ----------------------------------------------------------------------
+    Data descriptors defined here:
+    
+    __dict__
+        dictionary for instance variables (if defined)
+    
+    __weakref__
+        list of weak references to the object (if defined)
+    
+    free_space
+        Return the free space remaining on the file system, in bytes.
+        
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    lock
+        Return the Lock object for the current instance.
+    
+    space_used
+        Return the number of bytes used on the file system.
+        
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    ----------------------------------------------------------------------
+    Data and other attributes defined here:
+    
+    __metaclass__ = <class 'abc.ABCMeta'>
+        Metaclass for defining Abstract Base Classes (ABCs).
+        
+        Use this metaclass to create an ABC.  An ABC can be subclassed
+        directly, and then acts as a mix-in class.  You can also register
+        unrelated concrete classes (even built-in classes) and unrelated
+        ABCs as 'virtual subclasses' -- these and their descendants will
+        be considered subclasses of the registering ABC by the built-in
+        issubclass() function, but the registering ABC won't show up in
+        their MRO (Method Resolution Order) nor will method
+        implementations defined by the registering ABC be callable (not
+        even via super()).
+
+### cloudalpha.file\_system\_view.FileSystemView
+
+    This class is mapped to a FileSystem subclass instance and redirects
+    all method calls to it. It implements the support of a working directory.
+    
+    Methods defined here:
+    
+    __init__(self, file_system)
+        Create a new FileSystemView instance linked to the given FileSystem subclass instance.
+    
+    commit_new_file(self, new_file_id, path)
+        Commit the file corresponding to new_file_id and store it at the location represented by path.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory. 
+        
+        If there is no uncommited file corresponding to new_file_id, raise IDNotFoundFileSystemError.
+        If the parent path is invalid, raise InvalidPathFileSystemError. 
+        If the parent path does not correspond to a directory, raise InvalidTargetFileSystemError.
+        If the given path points to an existing file, overwrite it.
+        If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.  
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    copy(self, path, copy_path)
+        Copy a file or directory from path to copy_path.
+        
+        new_path includes the name of the copied file or directory.
+        The paths must be POSIX pathnames, with "/" representing the root of the file system.
+        They may be absolute, or relative to the current working directory.
+        
+        If path is invalid, raise InvalidPathFileSystemError.
+        If copy_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    create_new_file(self)
+        Create an empty file that will be populated by successive calls to write_to_new_file. Return a unique
+        ID that will be needed to perform write_to_new_file, commit_new_file and flush_new_file calls.
+        
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    delete(self, path)
+        Delete the file or directory corresponding to the given path.
+        
+        If the given path corresponds to a directory that is not empty, all its files and subdirectories
+        must be deleted first.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    exists(self, path)
+        Return True if the given path points to an existing file or directory, excluding uncommitted files.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+        
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    flush_new_file(self, new_file_id)
+        Delete an uncommitted file.
+        
+        If there is no uncommited file corresponding to new_file_id, raise IDNotFoundFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    get_abs_path(self, path)
+        Return the absolute path corresponding to the given relative path.
+    
+    get_accessed_datetime(self, path)
+        Return the date and time of the last time the given file or directory was accessed.
+        If not available, return the date and time of the last modification.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+        
+        The return value is a datetime object.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    get_content_metadata(self, path=None)
+        Return an iterable of FileMetadata objects representing the contents of the directory corresponding to the given path.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the given path does not point to a directory, raise InvalidTargetFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    get_created_datetime(self, path)
+        Return the date and time of creation of the file or directory corresponding to the given path.
+        If not available, return the date and time of the last modification.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+        
+        The return value is a datetime object.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    get_metadata(self, path=None)
+        Return a FileMetadata object representing the file or directory corresponding to the given path.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+        If path is None, use the current working directory.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    get_modified_datetime(self, path)
+        Return the date and time of the last modification to the file or directory corresponding to the given path.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+        
+        The return value is a datetime object.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    get_size(self, path)
+        Return the size, in bytes, of the file corresponding to the given path.
+        If the path points to a directory, return 0.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    is_dir(self, path)
+        Return a boolean value indicating if the given path corresponds to a directory.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    is_file(self, path)
+        Return a boolean value indicating if the given path corresponds to a file.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    list_dir(self, path=None)
+        Return the content of the specified directory. If no directory is specified, return the content of the current working directory.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+                
+        The return value is a list of file and folder names. It does not contain references to the current
+        or parent directory (e.g. « . » or « .. »).
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the given path does not correspond to a directory, raise InvalidTargetFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    make_dir(self, path)
+        Creates a new directory corresponding to the given path.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+        
+        If the parent path is invalid, raise InvalidPathFileSystemError.
+        If the given path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    move(self, old_path, new_path)
+        Move and/or rename a file or directory from old_path to new_path.
+        
+        new_path includes the new name of the file or directory.
+        
+        The paths must be POSIX pathnames, with "/" representing the root of the file system.
+        They may be absolute, or relative to the current working directory.
+        
+        If old_path is invalid, raise InvalidPathFileSystemError.
+        If new_path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
+        If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    read(self, path, start_byte, num_bytes=None)
+        Read the number of bytes corresponding to num_bytes from the file corresponding to the given path,
+        beginning at start_byte.
+        
+        If start_byte is greater than the size of the file, return an empty iterable.
+        
+        If num_bytes is not specified, read all remaining bytes of the file.
+        
+        The given path must be a POSIX pathname, with "/" representing the root of the file system.
+        It may be absolute, or relative to the current working directory.
+        
+        The return value is an iterable of bytes.
+        
+        If the given path is invalid, raise InvalidPathFileSystemError.
+        If the given path corresponds to a directory, raise InvalidTargetFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    write_to_new_file(self, new_file_id, data)
+        Append the given data to the uncommitted file corresponding to new_file_id.
+        
+        The data must be an iterable of bytes.
+        
+        If there is no uncommited file corresponding to new_file_id, raise IDNotFoundFileSystemError.
+        If there is not enough free space to store the new data, raise InsufficientSpaceFileSystemError.
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    ----------------------------------------------------------------------
+    Data descriptors defined here:
+    
+    __dict__
+        dictionary for instance variables (if defined)
+    
+    __weakref__
+        list of weak references to the object (if defined)
+    
+    free_space
+        Return the free space remaining on the file system, in bytes.
+        
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    lock
+    
+    space_used
+        Return the number of bytes used on the file system.
+        
+        If the real file system is inaccessible, raise AccessFailedFileSystemError.
+    
+    working_dir
+        Return the path of the current working directory.
+        
+        The return value is a POSIX pathname, with "/" representing the root of the file system.
+
+### cloudalpha.manager.Manager
+
+    A base class for implementing a file manager accessible through a specific
+    interface, as a network protocol.
+    
+    Upon its initialization, an instance of a Manager subclass is provided with
+    an instance of a FileSystemView subclass, which it is intended to interact with.
+    
+    Methods defined here:
+    
+    __init__(self, unique_id, file_system_view=None, *args, **kwargs)
+        The super initializer for Manager subclasses.
+        
+        Subclass initializers must take the same first 3 arguments, 
+        and all subsequent arguments must be optional and must accept 
+        string values.
+        
+        If an argument cannot be parsed to the proper type,
+        raise ArgumentParsingManagerError.
+    
+    run(self)
+        Put the manager into action, in a new thread. If already done, do nothing.
+        
+        If a required instance attribute is not set, raise MissingAttributeManagerError.
+        If a required setting is not set, raise MissingSettingManagerError.
+        If the operation fails for any other reason, raise StartupFailedManagerError.
+    
+    stop(self)
+        Stop the manager.
+        
+        If the manager is already stopped, do nothing.
+    
+    ----------------------------------------------------------------------
+    Data descriptors defined here:
+    
+    __dict__
+        dictionary for instance variables (if defined)
+    
+    __weakref__
+        list of weak references to the object (if defined)
+    
+    ----------------------------------------------------------------------
+    Data and other attributes defined here:
+    
+    __metaclass__ = <class 'abc.ABCMeta'>
+        Metaclass for defining Abstract Base Classes (ABCs).
+        
+        Use this metaclass to create an ABC.  An ABC can be subclassed
+        directly, and then acts as a mix-in class.  You can also register
+        unrelated concrete classes (even built-in classes) and unrelated
+        ABCs as 'virtual subclasses' -- these and their descendants will
+        be considered subclasses of the registering ABC by the built-in
+        issubclass() function, but the registering ABC won't show up in
+        their MRO (Method Resolution Order) nor will method
+        implementations defined by the registering ABC be callable (not
+        even via super()).
+    
+    file_system_view = None
+    
+    unique_id = None
+
+### cloudalpha.settings.Settings
+
+    A base class for implementing global settings in services and managers.
+    
+    Class methods defined here:
+    
+    set(name, value) from builtins.type
+        Update the value of the setting corresponding to name.
+        
+        If there is no setting corresponding to name, raise InvalidNameSettingError.
+        
+        value can be of type string. It will be converted to the proper type before 
+        it is stored. In case of parsing failure, raise ValueParsingSettingError.
+    
+    ----------------------------------------------------------------------
+    Data descriptors defined here:
+    
+    __dict__
+        dictionary for instance variables (if defined)
+    
+    __weakref__
+        list of weak references to the object (if defined)
+    
+    ----------------------------------------------------------------------
+    Data and other attributes defined here:
+    
+    __metaclass__ = <class 'abc.ABCMeta'>
+        Metaclass for defining Abstract Base Classes (ABCs).
+        
+        Use this metaclass to create an ABC.  An ABC can be subclassed
+        directly, and then acts as a mix-in class.  You can also register
+        unrelated concrete classes (even built-in classes) and unrelated
+        ABCs as 'virtual subclasses' -- these and their descendants will
+        be considered subclasses of the registering ABC by the built-in
+        issubclass() function, but the registering ABC won't show up in
+        their MRO (Method Resolution Order) nor will method
+        implementations defined by the registering ABC be callable (not
+        even via super()).
