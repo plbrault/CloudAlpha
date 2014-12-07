@@ -30,7 +30,7 @@ Service modules are localized under *CloudAlpha/cloudalpha/services* and manager
 
 A FileSystem class inherits from the *cloudalpha.file\_system.FileSystem* abstract class, and implements standard methods to manage the files of the corresponding storage account. Those methods include *make\_dir*, *rename*, *delete*, *read*, etc. A FileSystem instance is referred to by an Account instance, which handles the authentication with the real file storage account.
 
-A Manager class inherits from the *cloudalpha.manager.Manager* abstract class, and implements standard methods to start and stop the manager. It often implements a server, for instance a FTP server. It refers to a unique *FileSystemView* instance, mapped to a FileSystem instance, to which it adds support for a working directory.
+A Manager class inherits from the *cloudalpha.manager.Manager* abstract class, and implements standard methods to start and stop the manager. It often implements a server, for instance a FTP server. It refers to a unique *FileSystemView* instance. A FileSystemView instance is mapped to a FileSystem instance, to which it adds support for a working directory.
 
 A Settings class is a static class that contains updatable settings that are common to all service or manager instances of the same type. For example, the Settings class of the FTP manager defines the FTP server port. It inherits from the *cloudalpha.settings.Settings* abstract class, and implements a *set* method, which can be used to update the values of desired settings.
 
@@ -38,7 +38,11 @@ Services and managers can use the *DataStore* singleton to store persistent key-
 
 ### Configurator
 
-CloudAlpha also implements a *configurator*, which uses reflexion to instantiate and configure service and manager instances based on the content of an XML file. The main then authenticates generated account instances and starts generated manager instances.
+CloudAlpha also implements a *configurator*, which uses reflexion to instantiate and configure service and manager instances based on the content of an XML file. The main module then authenticates generated account instances and starts generated manager instances.
+
+### Main Module
+
+The "main" is defined in CloudAlpha/cloudalpha.py. It executes the configurator with CloudAlpha/config.xml, then authenticates the generated accounts and starts the generated managers.
 
 ### File Structure Overview
 
@@ -78,10 +82,52 @@ This is an overview of the file structure of CloudAlpha:
 	|-- datastore.db
 
 
-## Dummy Service and Commandline Manager
+## Useful to Know
 
+### How the Configurator Works
 
-## How the Configurator Works
+A typical config.xml file looks like this:
+
+	<CloudAlphaConfig>
+	    <services>
+	        <globalSettings>
+	            <service name="dropbox">
+	                <setting name="app_key">INSERT APP_KEY HERE</setting>
+	                <setting name="app_secret">INSERT APP_SECRET HERE</setting>
+	            </service>
+	        </globalSettings>
+	        <instances>
+	            <accountInstance uniqueID="dropbox1" service="dropbox"/>        
+	        </instances>
+	    </services>
+	    <managers>
+	        <globalSettings>
+	            <manager name="ftp">
+	                <setting name="ftp_server_port">2121</setting>
+	            </manager>
+	        </globalSettings>
+	        <instances>
+	            <managerInstance uniqueID="ftp-dropbox1" type="ftp" account="dropbox1">
+	                <parameter name="ftp_username">user</parameter>
+	                <parameter name="ftp_password">12345</parameter>
+	            </managerInstance>          
+	        </instances> 
+	    </managers>
+	</CloudAlphaConfig>
+
+As you can see, it is divided in two main sections: services and managers. The *globalSettings* subsections define settings that are applicable to all instances of specified services or managers, and the *instances* subsections define instances of services and managers to create.
+
+The configurator uses reflexion to apply the settings and create the instances. For example, it will search for a module named "dropbox" under cloudalpha.services, and will look for a settings module under this package, then for a subclass of *cloudalpha.settings.Settings* inside that module. It will finally use the *set* method of that class to apply the specified settings.
+
+The same happens with instances: to create the FTP instance, the configurator will look for a subclass of *Manager* in *cloudalpha.managers.ftp.manager*, then it will call its constructor with the specified *ftp\_username* and *ftp\_password* arguments.
+
+### Dummy Service and Commandline Manager
+
+A dummy service and a commandline manager are implemented for development and testing purposes. It might be more practical to use the dummy service instead of a real one when implementing a new manager, and to use the commandline manager instead of a real one when implementing a new service. To use them, all you have to do is to add corresponding instances to your configuration file.
+
+### Development Configuration
+
+During development, you will probablement have to make changes to *config.xml* that you will not want to commit. There is a simple solution to this: instead of modifying *config.xml*, add a new *config.dev.xml* file that will contain your testing configuration. When this file is present, it is passed to the configurator instead of the default configuration file.
 
 
 ## Implementing a Service
@@ -177,7 +223,7 @@ This is an overview of the file structure of CloudAlpha:
     __weakref__
         list of weak references to the object (if defined)
 
-### cloudalpha.file\_metadata.FileMetadata
+### cloudalpha.file_metadata.FileMetadata
 
     Class representing the metadata of a file.
     
