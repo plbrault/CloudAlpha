@@ -14,7 +14,7 @@ CloudAlpha is licensed under the version 3 of the [GNU Affero General Public Lic
 
 ## Documentation
 
-Full documentation for CloudAlpha is included under the "docs" directory. It includes a user guide and a developer guide.
+Full documentation for CloudAlpha is included under the "docs" directory of the repository. It includes a user guide and a developer guide.
 
 
 ## Status
