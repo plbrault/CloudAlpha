@@ -173,9 +173,9 @@ The `file_system.py` file will implement a subclass of the `cloudalpha.file_syst
 
 The `settings.py` file is needed only if your service needs global settings to be set by the configurator. In this case, it will implement a subclass of the `cloudalpha.settings.Settings` abstract class.
 
-All these subclasses must implement all the abstract methods of their respective baseclasses, in a way conform to the requirements specified by their docstrings, which can be found in the [Class Reference](#class-reference) section of this documment.
+All these subclasses must implement all the abstract methods of their respective base classes, and must also conform to the requirements specified by the docstrings of the latter, which can be found in the [Class Reference](#class-reference) section of this document. Furthermore, the `__init__` methods of the subclasses must take the same arguments as the initializers of their respective base classes, and every `__init__` method should call its super `__init__` method.
 
-All exception types mentioned by the specifications of the baseclasses are defined in the `cloudalpha.exceptions` module.
+All exception types mentioned by the specifications of the base classes are defined in the `cloudalpha.exceptions` module.
 
 
 ## Implementing a Manager
@@ -190,9 +190,9 @@ The `manager.py` file will implement a subclass of the `cloudalpha.manager.Manag
 
 The `settings.py` file is needed only if your manager needs global settings to be set by the configurator. In this case, it will implement a subclass of the `cloudalpha.settings.Settings` abstract class.
 
-These subclasses must implement all the abstract methods of their respective baseclasses, in a way conform to the requirements specified by their docstrings, which can be found in the [Class Reference](#class-reference) section of this documment.
+All these subclasses must implement all the abstract methods of their respective base classes, and must also conform to the requirements specified by the docstrings of the latter, which can be found in the [Class Reference](#class-reference) section of this document. Furthermore, the `__init__` methods of the subclasses must take the same arguments as the initializers of their respective base classes, and every `__init__` method should call its super `__init__` method.
 
-All exception types mentioned by the specifications of the baseclasses are defined in the `cloudalpha.exceptions` module.
+All exception types mentioned by the specifications of the base classes are defined in the `cloudalpha.exceptions` module.
 
 
 ## Class Reference
