@@ -1,17 +1,21 @@
 CloudAlpha Developer Guide
-==========================================================================
+==============================================================
 
 
 ## Preamble
 
-The purpose of this guide is to help developers to implement new modules in the CloudAlpha project, to improve existing ones, or simply to use the code from CloudAlpha in their own software projects. It contains general information about the source code structure of the project, and on the steps required to implement new modules. It does not pretend to be exhaustive or always up-to-date, and also assumes that you are familiar with the Python programming language.
+The purpose of this guide is to help developers to implement new modules in the CloudAlpha project, to improve existing ones, or simply to use the code from CloudAlpha in their own software projects. It contains general information about the source code structure of the project, and on the steps required to implement new modules. It does not pretend to be exhaustive or always up-to-date, and assumes that you are familiar with the Python programming language, and aware of the content of the *CloudAlpha Set-Up Guide*.
 
 Copyright (C) 2014 Pier-Luc Brault and Alex Cline
 
+[http://github.com/plbrault/CloudAlpha](http://github.com/plbrault/CloudAlpha)
 
-## License
+
+## Licenses
 
 This document is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
+
+CloudAlpha is licensed under the version 3 of the [GNU Affero General Public License](http://www.gnu.org/licenses/agpl-3.0.en.html).
 
 
 ## Contents
@@ -43,7 +47,7 @@ A `Manager` class inherits from the `cloudalpha.manager.Manager` abstract class,
 
 A `Settings` class is a static class that contains updatable settings that are common to all service or manager instances of the same type. For example, the `Settings` class of the FTP manager defines the FTP server port. It inherits from the `cloudalpha.settings.Settings` abstract class, and implements a `set` method, which can be used to update the values of desired settings.
 
-Services and managers can use the `DataStore` singleton to store persistent key-value data. For example, this is useful for storing access tokens for file storage accounts.
+Services and managers can use the `DataStore` singleton to store persistent key-value data in the `datastore.db` SQLite database. For example, this is useful for storing access tokens for file storage accounts.
 
 ### Configurator
 
@@ -175,7 +179,7 @@ The `settings.py` file is needed only if your service needs global settings to b
 
 All these subclasses must implement all the abstract methods of their respective base classes, and must also conform to the requirements specified by the docstrings of the latter, which can be found in the [Class Reference](#class-reference) section of this document. Furthermore, the `__init__` methods of the subclasses must take the same arguments as the initializers of their respective base classes, and every `__init__` method should call its super `__init__` method.
 
-All exception types mentioned by the specifications of the base classes are defined in the `cloudalpha.exceptions` module.
+All exception types mentioned in the specifications of the base classes are defined in the `cloudalpha.exceptions` module.
 
 
 ## Implementing a Manager
@@ -192,7 +196,7 @@ The `settings.py` file is needed only if your manager needs global settings to b
 
 All these subclasses must implement all the abstract methods of their respective base classes, and must also conform to the requirements specified by the docstrings of the latter, which can be found in the [Class Reference](#class-reference) section of this document. Furthermore, the `__init__` methods of the subclasses must take the same arguments as the initializers of their respective base classes, and every `__init__` method should call its super `__init__` method.
 
-All exception types mentioned by the specifications of the base classes are defined in the `cloudalpha.exceptions` module.
+All exception types mentioned in the specifications of the base classes are defined in the `cloudalpha.exceptions` module.
 
 
 ## Class Reference
