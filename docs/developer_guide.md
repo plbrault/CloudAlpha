@@ -4,7 +4,7 @@ CloudAlpha Developer Guide
 
 ## Preamble
 
-The purpose of this guide is to help developers to implement new modules in the CloudAlpha project, to improve existing ones, or simply to use the code from CloudAlpha in their own software projects. It contains general information about the source code structure of the project, and on the steps to follow to implement new modules. It does not pretend to be exhaustive or always up-to-date, and also assumes that you are familiar with the Python programming language.
+The purpose of this guide is to help developers to implement new modules in the CloudAlpha project, to improve existing ones, or simply to use the code from CloudAlpha in their own software projects. It contains general information about the source code structure of the project, and on the steps required to implement new modules. It does not pretend to be exhaustive or always up-to-date, and also assumes that you are familiar with the Python programming language.
 
 Copyright (C) 2014 Pier-Luc Brault and Alex Cline
 
@@ -31,7 +31,7 @@ CloudAlpha is made of *services* and *managers*.
 
 A service is an implementation of a file storage service. It implements an `Account` class, a `FileSystem` class, and optionally, a `Settings` class.
 
-A manager is an implementation of an interface, for instance a FTP interface, for a user to manage the files of a service account. It implements a `Manager` class, and optionally, a `Settings` class.
+A manager is an implementation of an interface, for instance a FTP interface, for a user to manage the files of a service account. It implements a `Manager` class, and optionally, a `Settings` class. It also usually implements a server.
 
 Service modules are localized under `CloudAlpha/cloudalpha/services` and manager modules are localized under `CloudAlpha/cloudalpha/managers`.
 
@@ -39,7 +39,7 @@ Service modules are localized under `CloudAlpha/cloudalpha/services` and manager
 
 A `FileSystem` class inherits from the `cloudalpha.file_system.FileSystem` abstract class, and implements standard methods to manage the files of the corresponding storage account. Those methods include `make_dir`, `rename`, `delete`, `read`, etc. A `FileSystem` instance is referred to by an `Account` instance, which handles the authentication with the real file storage account.
 
-A `Manager` class inherits from the `cloudalpha.manager.Manager` abstract class, and implements standard methods to start and stop the manager. It often implements a server, for instance a FTP server. It refers to a unique `FileSystemView` instance. A `FileSystemView` instance is mapped to a `FileSystem` instance, to which it adds the support for a working directory.
+A `Manager` class inherits from the `cloudalpha.manager.Manager` abstract class, and implements standard methods to start and stop the manager. It refers to a unique `FileSystemView` instance. A `FileSystemView` instance is mapped to a `FileSystem` instance, to which it adds the support for a working directory.
 
 A `Settings` class is a static class that contains updatable settings that are common to all service or manager instances of the same type. For example, the `Settings` class of the FTP manager defines the FTP server port. It inherits from the `cloudalpha.settings.Settings` abstract class, and implements a `set` method, which can be used to update the values of desired settings.
 
@@ -47,7 +47,7 @@ Services and managers can use the `DataStore` singleton to store persistent key-
 
 ### Configurator
 
-CloudAlpha also implements a `configurator`, which uses reflection to instantiate and configure service and manager instances based on the content of an XML file. The main module then authenticates generated `Account` instances and starts generated `Manager` instances.
+CloudAlpha also implements a `configurator`, which uses reflection to instantiate and configure service and manager instances based on the content of an XML file. The main module then authenticates the generated `Account` instances and starts the `Manager` instances.
 
 ### Main Module
 
@@ -99,7 +99,7 @@ Each `Account` and `Manager` instance has a `unique_id` attribute which is set a
 
 ### How the Configurator Works
 
-A typical config.xml file looks like this:
+A typical `config.xml` file looks like this:
 
 	<CloudAlphaConfig>
 	    <services>
@@ -165,7 +165,7 @@ This section assumes that you have read the preceding sections of this document.
 
 To implement a new service, create a new directory with the name of that service under `CloudAlpha/cloudalpha/services` and add an empty `__init__.py` file in it.
 
-The new directory must contain an `account.py` file, a `file_system.py` file, and optionnaly, a `settings.py` file.
+The new directory must contain an `account.py` file, a `file_system.py` file, and optionally, a `settings.py` file.
 
 The `account.py` file will implement a subclass of the `cloudalpha.account.Account` abstract class.
 
