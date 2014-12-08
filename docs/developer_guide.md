@@ -473,7 +473,7 @@ All exception types mentioned by the specifications of the baseclasses are defin
         The given path must be an absolute POSIX pathname, with "/" representing the root of the file system.
                 
         The return value is a list of file and folder names. It does not contain references to the current
-        or parent directory (e.g. « . » or « .. »).
+        or parent directory (e.g. "." or "..").
         
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the given path does not correspond to a directory, raise InvalidTargetFileSystemError.
@@ -723,7 +723,7 @@ All exception types mentioned by the specifications of the baseclasses are defin
         It may be absolute, or relative to the current working directory.
                 
         The return value is a list of file and folder names. It does not contain references to the current
-        or parent directory (e.g. « . » or « .. »).
+        or parent directory (e.g. "." or "..").
         
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the given path does not correspond to a directory, raise InvalidTargetFileSystemError.
