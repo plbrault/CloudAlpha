@@ -26,7 +26,7 @@ Alpha
 
 * [Python 3.4 or later](https://www.python.org/)
 * [pyftpdlib 1.4.0](https://github.com/giampaolo/pyftpdlib)
-* [Dropbox Core API for Python](https://www.dropbox.com/developers/core)
+* [Dropbox Core API for Python version 2.2](https://www.dropbox.com/developers/core)
 
 
 ## How to use
