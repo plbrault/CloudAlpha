@@ -16,11 +16,11 @@ This document is licensed under a [Creative Commons Attribution-ShareAlike 4.0 I
 
 ## Contents
 
-* [Project Architecture]()
-* [Useful to Know]()
-* [Implementing a Service]()
-* [Implementing a Manager]()
-* [Class Reference]()
+* [Project Architecture](#project-architecture)
+* [Useful to Know](#useful-to-know)
+* [Implementing a Service](#implementing-a-service)
+* [Implementing a Manager](#implementing-a-manager)
+* [Class Reference](#class-reference)
 
 
 ## Project Architecture
@@ -167,13 +167,13 @@ To implement a new service, create a new directory with the name of that service
 
 The new directory must contain an `account.py` file, a `file_system.py` file, and optionnaly, a `settings.py` file.
 
-The `account.py` file will implement a subclass of the [`cloudalpha.account.Account`]() abstract class.
+The `account.py` file will implement a subclass of the `cloudalpha.account.Account` abstract class.
 
-The `file_system.py` file will implement a subclass of the [`cloudalpha.file_system.FileSystem`]() abstract class.
+The `file_system.py` file will implement a subclass of the `cloudalpha.file_system.FileSystem` abstract class.
 
-The `settings.py` file is needed only if your service needs global settings to be set by the configurator. In this case, it will implement a subclass of the [`cloudalpha.settings.Settings`]() abstract class.
+The `settings.py` file is needed only if your service needs global settings to be set by the configurator. In this case, it will implement a subclass of the `cloudalpha.settings.Settings` abstract class.
 
-All these subclasses must implement all the abstract methods of their respective baseclasses, in a way conform to the requirements specified by their docstrings, which can be found in the [Class Reference]() section of this documment.
+All these subclasses must implement all the abstract methods of their respective baseclasses, in a way conform to the requirements specified by their docstrings, which can be found in the [Class Reference](#class-reference) section of this documment.
 
 All exception types mentioned by the specifications of the baseclasses are defined in the `cloudalpha.exceptions` module.
 
@@ -186,11 +186,11 @@ To implement a new manager, create a new directory with the name of that manager
 
 The new directory must contain a `manager.py` file, and optionnaly, a `settings.py` file.
 
-The `manager.py` file will implement a subclass of the [`cloudalpha.manager.Manager`]() abstract class, with all the methods defined in it.
+The `manager.py` file will implement a subclass of the `cloudalpha.manager.Manager` abstract class, with all the methods defined in it.
 
-The `settings.py` file is needed only if your manager needs global settings to be set by the configurator. In this case, it will implement a subclass of the [`cloudalpha.settings.Settings`]() abstract class.
+The `settings.py` file is needed only if your manager needs global settings to be set by the configurator. In this case, it will implement a subclass of the `cloudalpha.settings.Settings` abstract class.
 
-These subclasses must implement all the abstract methods of their respective baseclasses, in a way conform to the requirements specified by their docstrings, which can be found in the [Class Reference]() section of this documment.
+These subclasses must implement all the abstract methods of their respective baseclasses, in a way conform to the requirements specified by their docstrings, which can be found in the [Class Reference](#class-reference) section of this documment.
 
 All exception types mentioned by the specifications of the baseclasses are defined in the `cloudalpha.exceptions` module.
 
