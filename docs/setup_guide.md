@@ -30,7 +30,7 @@ CloudAlpha is licensed under the version 3 of the [GNU Affero General Public Lic
 
 ### Python 3.4
 
-CloudAlpha has been developed and tested with the CPython implementation of Python 3.4. It has not been tested with other Python 3.x releases, neither has it been tested with other Python implementations, but it might be compatible.
+CloudAlpha has been developed and tested with the CPython implementation of [Python](https://www.python.org/) 3.4. It has not been tested with other Python 3.x releases, neither has it been tested with other Python implementations, but it might be compatible.
 
 ### Module-Specific Dependencies
 
