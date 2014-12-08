@@ -44,7 +44,6 @@ class Account(object):
         If a required setting is not set, raise MissingSettingAccountError.
         If the operation fails for any other reason, raise AuthenticationFailedAccountError.
         """
-        pass
 
     def __init__(self, unique_id, *args, **kwargs):
         """The super initializer for Account subclasses.
@@ -57,3 +56,4 @@ class Account(object):
         raise ArgumentParsingAccountError.
         """
         self.unique_id = unique_id
+

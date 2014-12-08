@@ -42,7 +42,6 @@ class Manager(object):
         If a required setting is not set, raise MissingSettingManagerError.
         If the operation fails for any other reason, raise StartupFailedManagerError.
         """
-        pass
 
     @abstractmethod
     def stop(self):
@@ -50,7 +49,6 @@ class Manager(object):
         
         If the manager is already stopped, do nothing.
         """
-        pass
 
     def __init__(self, unique_id, file_system_view=None, *args, **kwargs):
         """The super initializer for Manager subclasses.
@@ -64,3 +62,4 @@ class Manager(object):
         """
         self.unique_id = unique_id
         self.file_system_view = file_system_view
+

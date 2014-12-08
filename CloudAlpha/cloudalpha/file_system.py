@@ -41,7 +41,6 @@ class FileSystem(object):
     @abstractmethod
     def lock(self):
         """Return the Lock object for the current instance."""
-        pass
 
     @property
     @abstractmethod
@@ -50,7 +49,6 @@ class FileSystem(object):
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
 
     @property
     @abstractmethod
@@ -59,7 +57,6 @@ class FileSystem(object):
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
 
     @abstractmethod
     def exists(self, path):
@@ -69,7 +66,6 @@ class FileSystem(object):
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.        
         """
-        pass
 
     @abstractmethod
     def list_dir(self, path):
@@ -84,7 +80,6 @@ class FileSystem(object):
         If the given path does not correspond to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
 
     @abstractmethod
     def is_dir(self, path):
@@ -95,7 +90,6 @@ class FileSystem(object):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
 
     @abstractmethod
     def is_file(self, path):
@@ -106,7 +100,6 @@ class FileSystem(object):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
 
     @abstractmethod
     def get_size(self, path):
@@ -118,7 +111,6 @@ class FileSystem(object):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
-        pass
 
     @abstractmethod
     def get_metadata(self, path):
@@ -129,7 +121,6 @@ class FileSystem(object):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
-        pass
 
     @abstractmethod
     def get_content_metadata(self, path):
@@ -141,7 +132,6 @@ class FileSystem(object):
         If the given path does not point to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.         
         """
-        pass
 
     @abstractmethod
     def get_created_datetime(self, path):
@@ -155,7 +145,6 @@ class FileSystem(object):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
 
     @abstractmethod
     def get_modified_datetime(self, path):
@@ -168,7 +157,6 @@ class FileSystem(object):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
 
     @abstractmethod
     def get_accessed_datetime(self, path):
@@ -182,7 +170,6 @@ class FileSystem(object):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
 
     @abstractmethod
     def make_dir(self, path):
@@ -194,7 +181,6 @@ class FileSystem(object):
         If the given path corresponds to an existing file or directory, raise AlreadyExistsFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
 
     @abstractmethod
     def move(self, old_path, new_path):
@@ -209,7 +195,6 @@ class FileSystem(object):
         If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
 
     @abstractmethod
     def copy(self, path, copy_path):
@@ -223,7 +208,6 @@ class FileSystem(object):
         If new_path is a subpath of old_path , raise ForbiddenOperationFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError. 
         """
-        pass
 
     @abstractmethod
     def delete(self, path):
@@ -237,7 +221,6 @@ class FileSystem(object):
         If the given path is invalid, raise InvalidPathFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
 
     @abstractmethod
     def read(self, path, start_byte, num_bytes=None):
@@ -256,7 +239,6 @@ class FileSystem(object):
         If the given path corresponds to a directory, raise InvalidTargetFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
 
     @abstractmethod
     def create_new_file(self):
@@ -265,7 +247,6 @@ class FileSystem(object):
         
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
 
     @abstractmethod
     def write_to_new_file(self, new_file_id, data):
@@ -277,7 +258,6 @@ class FileSystem(object):
         If there is not enough free space to store the new data, raise InsufficientSpaceFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
 
     @abstractmethod
     def commit_new_file(self, new_file_id, path):
@@ -292,7 +272,6 @@ class FileSystem(object):
         If the given path corresponds to an existing directory, raise InvalidTargetFileSystemError.  
         If the real file system is inaccessible, raise AccessFailedFileSystemError.
         """
-        pass
 
     @abstractmethod
     def flush_new_file(self, new_file_id):
@@ -301,7 +280,6 @@ class FileSystem(object):
         If there is no uncommited file corresponding to new_file_id, raise IDNotFoundFileSystemError.
         If the real file system is inaccessible, raise AccessFailedFileSystemError.                
         """
-        pass
 
     def get_new_view(self):
         """Return a new FileSystemView linked to the current FileSystem subclass instance."""
@@ -310,3 +288,4 @@ class FileSystem(object):
     def __init__(self, account):
         """The super initializer for FileSystem subclasses."""
         self._account = account
+

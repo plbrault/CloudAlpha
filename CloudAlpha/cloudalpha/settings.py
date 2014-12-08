@@ -36,4 +36,3 @@ class Settings:
         value can be of type string. It will be converted to the proper type before 
         it is stored. In case of parsing failure, raise ValueParsingSettingError.
         """
-        pass
