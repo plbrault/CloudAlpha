@@ -19,11 +19,6 @@ The documentation for CloudAlpha is licensed under the [Creative Commons Attribu
 Full documentation for CloudAlpha is included under the "docs" directory of the repository. It includes a Set-Up Guide and a Developer Guide.
 
 
-## Status
-
-Alpha
-
-
 ## Dependencies
 
 * [Python 3.4](https://www.python.org/)
